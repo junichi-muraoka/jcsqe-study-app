@@ -17,10 +17,11 @@
         <p>SQuBOK Guide 第3版準拠 ｜ 全127問収録</p>
       </div>
       <div id="home-stats" class="card hidden">
-        <div class="stats-grid">
+        <div class="stats-grid stats-grid-home">
           <div class="stat-card"><div class="stat-value" id="home-total">0</div><div class="stat-label">総回答数</div></div>
           <div class="stat-card"><div class="stat-value" id="home-rate">--%</div><div class="stat-label">正答率</div></div>
           <div class="stat-card"><div class="stat-value" id="home-weak">0</div><div class="stat-label">弱点問題</div></div>
+          <div class="stat-card"><div class="stat-value" id="home-srs-due">0</div><div class="stat-label">復習期限</div></div>
         </div>
       </div>
       <div class="nav-grid">
@@ -28,6 +29,11 @@
           <span class="icon">📚</span>
           <span class="label">分野別学習</span>
           <span class="desc">章ごとに問題を解く</span>
+        </div>
+        <div class="nav-card" onclick="startSpacedRepetitionMode()">
+          <span class="icon">🧠</span>
+          <span class="label">間隔反復</span>
+          <span class="desc">復習時期に合わせて出題</span>
         </div>
         <div class="nav-card" onclick="startWeakMode()">
           <span class="icon">🔄</span>
@@ -99,10 +105,12 @@
       <button class="btn btn-secondary btn-sm" onclick="showScreen('home')" style="margin-bottom:20px;">← ホーム</button>
       <div class="card">
         <h2 style="margin-bottom:20px;">📊 学習ダッシュボード</h2>
-        <div class="stats-grid">
+        <div class="stats-grid stats-grid-home">
           <div class="stat-card"><div class="stat-value" id="dash-total">0</div><div class="stat-label">総回答数</div></div>
           <div class="stat-card"><div class="stat-value" id="dash-correct">0</div><div class="stat-label">正解数</div></div>
           <div class="stat-card"><div class="stat-value" id="dash-rate">--%</div><div class="stat-label">正答率</div></div>
+          <div class="stat-card"><div class="stat-value" id="dash-srs-due">0</div><div class="stat-label">本日復習</div></div>
+          <div class="stat-card"><div class="stat-value" id="dash-srs-total">0</div><div class="stat-label">復習管理中</div></div>
         </div>
       </div>
       <div class="card">

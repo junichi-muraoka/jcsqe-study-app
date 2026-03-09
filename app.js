@@ -3,19 +3,70 @@
   'use strict';
 
   const STORAGE_KEY = 'jcsqe_study_data';
+  const DAY_MS = 24 * 60 * 60 * 1000;
   let state = { mode: null, chapter: null, questions: [], idx: 0, score: 0, answers: [], timer: null, timeLeft: 0 };
 
   // ── データ永続化 ──
   function loadData() {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || defaultData(); }
-    catch { return defaultData(); }
+    try {
+      const data = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      return migrateData(data || defaultData());
+    } catch {
+      return defaultData();
+    }
   }
   function saveData(d) { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); }
-  function defaultData() { return { totalAnswered: 0, totalCorrect: 0, chapterStats: {}, weakIds: [], history: [] }; }
+  function defaultData() { return { totalAnswered: 0, totalCorrect: 0, chapterStats: {}, weakIds: [], history: [], srs: {} }; }
+  function migrateData(data) {
+    return {
+      totalAnswered: data.totalAnswered || 0,
+      totalCorrect: data.totalCorrect || 0,
+      chapterStats: data.chapterStats || {},
+      weakIds: Array.isArray(data.weakIds) ? data.weakIds : [],
+      history: Array.isArray(data.history) ? data.history : [],
+      srs: data.srs || {}
+    };
+  }
   function resetData() {
     if (!confirm('学習データをすべてリセットしますか？')) return;
     localStorage.removeItem(STORAGE_KEY);
     showScreen('home');
+  }
+
+  function getSrsDueIds(data) {
+    const now = Date.now();
+    return Object.entries(data.srs)
+      .filter(([, item]) => !item.nextReviewAt || item.nextReviewAt <= now)
+      .map(([id]) => Number(id));
+  }
+
+  function getSrsStats(data) {
+    const dueIds = getSrsDueIds(data);
+    return {
+      dueCount: dueIds.length,
+      reviewingCount: Object.keys(data.srs).length
+    };
+  }
+
+  function updateSrsItem(data, questionId, isCorrect) {
+    const current = data.srs[questionId] || { intervalDays: 0, streak: 0, nextReviewAt: 0, lastReviewedAt: null };
+    let intervalDays;
+    let streak;
+
+    if (isCorrect) {
+      streak = current.streak + 1;
+      intervalDays = current.intervalDays <= 0 ? 1 : Math.min(current.intervalDays * 2, 30);
+    } else {
+      streak = 0;
+      intervalDays = 1;
+    }
+
+    data.srs[questionId] = {
+      intervalDays,
+      streak,
+      lastReviewedAt: Date.now(),
+      nextReviewAt: Date.now() + intervalDays * DAY_MS
+    };
   }
 
   // ── 画面切り替え ──
@@ -30,12 +81,17 @@
   function updateHomeStats() {
     const d = loadData();
     const box = document.getElementById('home-stats');
+    const srsStats = getSrsStats(d);
     if (d.totalAnswered > 0) {
       box.classList.remove('hidden');
       document.getElementById('home-total').textContent = d.totalAnswered;
       document.getElementById('home-rate').textContent = Math.round(d.totalCorrect / d.totalAnswered * 100) + '%';
       document.getElementById('home-weak').textContent = d.weakIds.length;
-    } else { box.classList.add('hidden'); }
+      document.getElementById('home-srs-due').textContent = srsStats.dueCount;
+    } else {
+      box.classList.add('hidden');
+      document.getElementById('home-srs-due').textContent = srsStats.dueCount;
+    }
   }
 
   // ── 章選択画面 ──
@@ -53,7 +109,6 @@
       item.onclick = () => startChapterMode(ch.id);
       el.appendChild(item);
     });
-    // 全章ボタン
     const all = document.createElement('div');
     all.className = 'chapter-item';
     all.innerHTML = '<span class="ch-icon">🎲</span><span class="ch-name">全章ランダム</span><span class="ch-badge">' + QUESTIONS.length + '問</span>';
@@ -66,6 +121,29 @@
     state.mode = 'chapter'; state.chapter = chId;
     let qs = chId === 0 ? [...QUESTIONS] : QUESTIONS.filter(q => q.chapter === chId);
     shuffle(qs);
+    state.questions = qs; state.idx = 0; state.score = 0; state.answers = [];
+    document.getElementById('quiz-timer-box').classList.add('hidden');
+    showScreen('quiz');
+    renderQuestion();
+  }
+
+  // ── 間隔反復 ──
+  function startSpacedRepetitionMode() {
+    const d = loadData();
+    const dueIds = getSrsDueIds(d);
+    let qs = QUESTIONS.filter(q => dueIds.includes(q.id));
+
+    if (qs.length === 0) {
+      if (d.totalAnswered === 0) {
+        qs = [...QUESTIONS].slice(0, Math.min(10, QUESTIONS.length));
+      } else {
+        alert('今は復習予定の問題がありません。新しい問題に取り組んでから再度お試しください。');
+        return;
+      }
+    }
+
+    shuffle(qs);
+    state.mode = 'srs'; state.chapter = null;
     state.questions = qs; state.idx = 0; state.score = 0; state.answers = [];
     document.getElementById('quiz-timer-box').classList.add('hidden');
     showScreen('quiz');
@@ -134,11 +212,7 @@
       container.appendChild(btn);
     });
 
-    if (state.mode === 'mock') {
-      document.getElementById('quiz-next-btn').textContent = state.idx >= total - 1 ? '結果を見る →' : '次の問題 →';
-    } else {
-      document.getElementById('quiz-next-btn').textContent = state.idx >= total - 1 ? '結果を見る →' : '次の問題 →';
-    }
+    document.getElementById('quiz-next-btn').textContent = state.idx >= total - 1 ? '結果を見る →' : '次の問題 →';
   }
 
   function selectAnswer(chosen) {
@@ -157,7 +231,6 @@
     if (isCorrect) state.score++;
     state.answers.push({ qid: q.id, chosen, correct: isCorrect });
 
-    // 結果保存
     const d = loadData();
     d.totalAnswered++;
     if (isCorrect) d.totalCorrect++;
@@ -166,9 +239,9 @@
     if (isCorrect) d.chapterStats[q.chapter].correct++;
     if (!isCorrect && !d.weakIds.includes(q.id)) d.weakIds.push(q.id);
     if (isCorrect && d.weakIds.includes(q.id)) d.weakIds = d.weakIds.filter(id => id !== q.id);
+    updateSrsItem(d, q.id, isCorrect);
     saveData(d);
 
-    // 模擬試験は解説なしで次へ進む
     if (state.mode === 'mock') {
       setTimeout(() => nextQuestion(), 800);
     } else {
@@ -181,6 +254,10 @@
           expHtml += `<div class="exp-choice ${isAns ? 'exp-correct' : 'exp-wrong'}"><span class="exp-marker">${isAns ? '✅' : '❌'} ${labels[i]}</span> ${d}</div>`;
         });
         expHtml += '</div>';
+      }
+      if (state.mode === 'srs') {
+        const srsItem = d.srs[q.id];
+        expHtml += `<div class="exp-source">🗓 次回復習: ${srsItem.intervalDays}日後</div>`;
       }
       if (q.source) { expHtml += `<div class="exp-source">📖 ${q.source}</div>`; }
       document.getElementById('quiz-explanation-text').innerHTML = expHtml;
@@ -204,7 +281,10 @@
     document.getElementById('result-detail').textContent = `${state.score} / ${total} 正解`;
 
     const passEl = document.getElementById('result-pass');
-    if (pct >= 70) {
+    if (state.mode === 'srs') {
+      passEl.textContent = '🧠 間隔反復セッション完了！';
+      passEl.className = 'result-pass pass';
+    } else if (pct >= 70) {
       passEl.textContent = '🎉 合格ライン達成！';
       passEl.className = 'result-pass pass';
     } else {
@@ -212,7 +292,6 @@
       passEl.className = 'result-pass fail';
     }
 
-    // 章別結果
     const chStats = {};
     state.answers.forEach(a => {
       const q = QUESTIONS.find(qq => qq.id === a.qid);
@@ -237,14 +316,18 @@
     if (state.mode === 'chapter') startChapterMode(state.chapter);
     else if (state.mode === 'weak') startWeakMode();
     else if (state.mode === 'mock') startMockExam();
+    else if (state.mode === 'srs') startSpacedRepetitionMode();
   }
 
   // ── ダッシュボード ──
   function showDashboard() {
     const d = loadData();
+    const srsStats = getSrsStats(d);
     document.getElementById('dash-total').textContent = d.totalAnswered;
     document.getElementById('dash-correct').textContent = d.totalCorrect;
     document.getElementById('dash-rate').textContent = d.totalAnswered > 0 ? Math.round(d.totalCorrect / d.totalAnswered * 100) + '%' : '--%';
+    document.getElementById('dash-srs-due').textContent = srsStats.dueCount;
+    document.getElementById('dash-srs-total').textContent = srsStats.reviewingCount;
 
     const chEl = document.getElementById('dash-chapters');
     chEl.innerHTML = '';
@@ -275,9 +358,9 @@
   buildChapterList();
   updateHomeStats();
 
-  // グローバルに公開
   window.showScreen = showScreen;
   window.startWeakMode = startWeakMode;
+  window.startSpacedRepetitionMode = startSpacedRepetitionMode;
   window.startMockExam = startMockExam;
   window.showDashboard = showDashboard;
   window.nextQuestion = nextQuestion;
