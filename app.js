@@ -1,4 +1,5 @@
 // JCSQE学習アプリ - メインロジック
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').catch(() => {}); }
 (function() {
   'use strict';
 
@@ -271,9 +272,99 @@
   // ── ユーティリティ ──
   function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } }
 
+  // ── 試験情報パネル (#15) ──
+  const EXAM_SCHEDULE = [
+    { date: '2026-06-21', deadline: '2026-05-15', label: '第28回' },
+    { date: '2026-11-15', deadline: '2026-10-10', label: '第29回' },
+    { date: '2027-06-20', deadline: '2027-05-15', label: '第30回' },
+  ];
+  function updateExamInfo() {
+    const now = new Date();
+    const next = EXAM_SCHEDULE.find(e => new Date(e.date) > now);
+    if (!next) { document.getElementById('exam-info').classList.add('hidden'); return; }
+    const examDate = new Date(next.date);
+    const deadlineDate = new Date(next.deadline);
+    const daysLeft = Math.ceil((examDate - now) / 86400000);
+    const dlLeft = Math.ceil((deadlineDate - now) / 86400000);
+    document.getElementById('exam-date').textContent = next.date.replace(/-/g, '/') + ' (' + next.label + ')';
+    document.getElementById('exam-deadline').textContent = next.deadline.replace(/-/g, '/') + (dlLeft > 0 ? '' : ' (締切済)');
+    const cd = document.getElementById('exam-countdown');
+    cd.textContent = '🔥 あと' + daysLeft + '日';
+    if (dlLeft <= 7 && dlLeft > 0) document.getElementById('exam-deadline').textContent += ' ⚠️あと' + dlLeft + '日';
+  }
+
+  // ── ライトモード切替 (#5) ──
+  function toggleTheme() {
+    const body = document.body;
+    const isLight = body.getAttribute('data-theme') === 'light';
+    body.setAttribute('data-theme', isLight ? 'dark' : 'light');
+    document.getElementById('theme-toggle').textContent = isLight ? '🌙' : '☀️';
+    localStorage.setItem('jcsqe_theme', isLight ? 'dark' : 'light');
+  }
+  function initTheme() {
+    const saved = localStorage.getItem('jcsqe_theme');
+    if (saved === 'light') {
+      document.body.setAttribute('data-theme', 'light');
+      document.getElementById('theme-toggle').textContent = '☀️';
+    }
+  }
+
+  // ── データエクスポート/インポート (#12) ──
+  function exportData() {
+    const d = loadData();
+    const blob = new Blob([JSON.stringify(d, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'jcsqe_study_data_' + new Date().toISOString().slice(0, 10) + '.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+  function importData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const d = JSON.parse(e.target.result);
+        if (d.totalAnswered !== undefined) {
+          saveData(d);
+          alert('データを取り込みました！');
+          showDashboard();
+        } else { alert('無効なデータファイルです。'); }
+      } catch { alert('ファイルの読み込みに失敗しました。'); }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+  }
+
+  // ── ショートカットキー (#27) ──
+  document.addEventListener('keydown', function(e) {
+    const activeScreen = document.querySelector('.screen.active');
+    if (!activeScreen) return;
+    const screenId = activeScreen.id;
+
+    if (screenId === 'quiz') {
+      // 1-4 で選択肢を選択
+      if (['1','2','3','4'].includes(e.key)) {
+        const btns = document.querySelectorAll('.choice-btn:not(.disabled)');
+        const idx = parseInt(e.key) - 1;
+        if (btns[idx]) btns[idx].click();
+      }
+      // Enter/Space で次の問題
+      if ((e.key === 'Enter' || e.key === ' ') && !document.getElementById('quiz-next-box').classList.contains('hidden')) {
+        e.preventDefault();
+        nextQuestion();
+      }
+    }
+    // Esc でホームに戻る
+    if (e.key === 'Escape') showScreen('home');
+  });
+
   // ── 初期化 ──
   buildChapterList();
   updateHomeStats();
+  updateExamInfo();
+  initTheme();
 
   // グローバルに公開
   window.showScreen = showScreen;
@@ -283,4 +374,7 @@
   window.nextQuestion = nextQuestion;
   window.retryQuiz = retryQuiz;
   window.resetData = resetData;
+  window.toggleTheme = toggleTheme;
+  window.exportData = exportData;
+  window.importData = importData;
 })();

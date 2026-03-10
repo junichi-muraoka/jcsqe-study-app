@@ -307,4 +307,51 @@ body::before {
   .stats-grid { grid-template-columns: 1fr; }
   .card { padding: 20px; }
   .quiz-question { font-size: 1rem; }
+  .exam-info-grid { grid-template-columns: 1fr; }
 }
+
+/* Theme Toggle */
+.theme-toggle {
+  position: absolute; top: 20px; right: 20px;
+  background: var(--bg-glass); border: 1px solid var(--border-glass);
+  border-radius: 50%; width: 40px; height: 40px;
+  font-size: 1.2rem; cursor: pointer; transition: var(--transition);
+  display: flex; align-items: center; justify-content: center;
+}
+.theme-toggle:hover { background: rgba(255,255,255,0.1); transform: scale(1.1); }
+.header { position: relative; }
+
+/* Exam Info Panel */
+.exam-info-card { border-left: 3px solid var(--accent); }
+.exam-info-header { font-weight: 700; font-size: 1rem; margin-bottom: 14px; color: var(--accent-light); }
+.exam-info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+.exam-info-item { display: flex; flex-direction: column; gap: 2px; }
+.exam-label { font-size: 0.7rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.exam-value { font-size: 0.95rem; font-weight: 700; color: var(--text-primary); }
+.exam-countdown { color: var(--warning); font-size: 1.1rem; }
+.exam-info-actions { display: flex; align-items: center; gap: 14px; }
+.exam-info-note { font-size: 0.75rem; color: var(--text-muted); }
+
+/* Light Mode */
+body[data-theme="light"] {
+  --bg-primary: #f0f2f5;
+  --bg-secondary: #ffffff;
+  --bg-card: rgba(255, 255, 255, 0.85);
+  --bg-glass: rgba(0,0,0,0.03);
+  --border-glass: rgba(0,0,0,0.1);
+  --text-primary: #1e293b;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --accent-glow: rgba(99,102,241,0.15);
+  --shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+body[data-theme="light"]::before { background: none; }
+body[data-theme="light"] .choice-btn { color: var(--text-primary); }
+body[data-theme="light"] .stat-value,
+body[data-theme="light"] .result-score,
+body[data-theme="light"] .header h1 {
+  -webkit-text-fill-color: initial;
+  background: none;
+  color: var(--accent);
+}
+

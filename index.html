@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="JCSQE初級 ソフトウェア品質技術者試験 合格対策学習アプリ - SQuBOK Guide第3版準拠">
+  <meta name="theme-color" content="#0a0e1a">
+  <link rel="manifest" href="manifest.json">
   <title>JCSQE初級 合格対策アプリ</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -15,6 +17,19 @@
       <div class="header">
         <h1>JCSQE初級 合格対策</h1>
         <p>SQuBOK Guide 第3版準拠 ｜ 全127問収録</p>
+        <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="ライト/ダークモード切替">🌙</button>
+      </div>
+      <div class="exam-info-card card" id="exam-info">
+        <div class="exam-info-header">📅 次回 JCSQE初級試験</div>
+        <div class="exam-info-grid">
+          <div class="exam-info-item"><span class="exam-label">試験日</span><span class="exam-value" id="exam-date">—</span></div>
+          <div class="exam-info-item"><span class="exam-label">申込期限</span><span class="exam-value" id="exam-deadline">—</span></div>
+          <div class="exam-info-item"><span class="exam-label">残り</span><span class="exam-value exam-countdown" id="exam-countdown">—</span></div>
+        </div>
+        <div class="exam-info-actions">
+          <a href="https://www.juse.jp/jcsqe/exam/" target="_blank" rel="noopener" class="btn btn-primary btn-sm">🔗 申込はこちら</a>
+          <span class="exam-info-note">40問 / 60分 / 合格70%</span>
+        </div>
       </div>
       <div id="home-stats" class="card hidden">
         <div class="stats-grid">
@@ -113,8 +128,11 @@
         <h3 style="margin-bottom:12px;">🔄 弱点問題 (<span id="dash-weak-count">0</span>問)</h3>
         <div id="dash-weak-list" style="font-size:0.85rem;color:var(--text-secondary);"></div>
       </div>
-      <div class="card text-center">
-        <button class="btn btn-secondary btn-sm" onclick="resetData()">🗑️ データをリセット</button>
+      <div class="card text-center" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-secondary btn-sm" onclick="exportData()">📤 データ出力</button>
+        <button class="btn btn-secondary btn-sm" onclick="document.getElementById('import-file').click()">📥 データ取込</button>
+        <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+        <button class="btn btn-secondary btn-sm" onclick="resetData()">🗑️ リセット</button>
       </div>
     </div>
 
