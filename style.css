@@ -355,3 +355,55 @@ body[data-theme="light"] .header h1 {
   color: var(--accent);
 }
 
+/* Pass Prediction Gauge (#22) */
+.pass-predict { margin-top: 16px; display: flex; align-items: center; gap: 12px; }
+.predict-label { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); white-space: nowrap; }
+.predict-bar { flex: 1; height: 18px; background: rgba(255,255,255,0.06); border-radius: 9px; overflow: hidden; position: relative; }
+.predict-fill { height: 100%; border-radius: 9px; transition: width 0.8s ease; position: relative; }
+.predict-fill::after { content: ''; position: absolute; left: 70%; top: 0; width: 2px; height: 100%; background: var(--text-muted); opacity: 0.5; }
+.predict-value { font-size: 1rem; font-weight: 900; min-width: 50px; text-align: right; }
+
+/* Ring Charts (#7) */
+.ring-charts { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+.ring-chart { text-align: center; width: 100px; }
+.ring-chart svg { width: 80px; height: 80px; transform: rotate(-90deg); }
+.ring-chart circle { fill: none; stroke-width: 8; }
+.ring-bg { stroke: rgba(255,255,255,0.06); }
+.ring-fg { stroke-linecap: round; transition: stroke-dashoffset 1s ease; }
+.ring-label { font-size: 0.7rem; color: var(--text-muted); margin-top: 6px; }
+.ring-pct { font-size: 0.85rem; font-weight: 700; }
+
+/* Heatmap (#23) */
+.heatmap-grid { display: flex; gap: 3px; flex-wrap: wrap; }
+.heatmap-cell { width: 14px; height: 14px; border-radius: 3px; background: rgba(255,255,255,0.04); }
+.heatmap-cell.l1 { background: rgba(99,102,241,0.2); }
+.heatmap-cell.l2 { background: rgba(99,102,241,0.4); }
+.heatmap-cell.l3 { background: rgba(99,102,241,0.6); }
+.heatmap-cell.l4 { background: rgba(99,102,241,0.85); }
+.heatmap-legend { display: flex; align-items: center; gap: 4px; margin-top: 8px; font-size: 0.7rem; color: var(--text-muted); }
+
+/* Mock History (#4) */
+.mock-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border-glass); }
+.mock-item:last-child { border-bottom: none; }
+.mock-date { font-size: 0.8rem; color: var(--text-muted); }
+.mock-score { font-weight: 700; }
+.mock-score.pass { color: var(--success); }
+.mock-score.fail { color: var(--danger); }
+
+/* Analysis Report (#24) */
+.analysis-item { padding: 8px 12px; border-radius: 8px; margin-bottom: 6px; font-size: 0.85rem; }
+.analysis-strong { background: var(--success-bg); color: var(--success); }
+.analysis-weak { background: var(--danger-bg); color: var(--danger); }
+
+/* Print Styles (#26) */
+@media print {
+  body { background: #fff !important; color: #000 !important; }
+  body::before { display: none; }
+  .nav-grid, .btn, .theme-toggle, .exam-info-card, #quiz-timer-box, .heatmap-grid { display: none !important; }
+  .card { background: #fff !important; border: 1px solid #ddd !important; box-shadow: none !important; }
+  .stat-value, .result-score, .header h1 { -webkit-text-fill-color: initial !important; background: none !important; color: #333 !important; }
+  .screen { display: block !important; }
+  #home, #quiz, #result, #chapter-select { display: none !important; }
+  #dashboard { display: block !important; }
+}
+

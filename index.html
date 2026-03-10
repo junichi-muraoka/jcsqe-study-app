@@ -37,12 +37,22 @@
           <div class="stat-card"><div class="stat-value" id="home-rate">--%</div><div class="stat-label">正答率</div></div>
           <div class="stat-card"><div class="stat-value" id="home-weak">0</div><div class="stat-label">弱点問題</div></div>
         </div>
+        <div id="home-predict" class="pass-predict hidden">
+          <div class="predict-label">🎯 合格予測</div>
+          <div class="predict-bar"><div class="predict-fill" id="predict-fill"></div></div>
+          <div class="predict-value" id="predict-value">--%</div>
+        </div>
       </div>
       <div class="nav-grid">
         <div class="nav-card" onclick="showScreen('chapter-select')">
           <span class="icon">📚</span>
           <span class="label">分野別学習</span>
           <span class="desc">章ごとに問題を解く</span>
+        </div>
+        <div class="nav-card" onclick="startSpacedMode()">
+          <span class="icon">🧠</span>
+          <span class="label">間隔反復</span>
+          <span class="desc">忘却曲線に基づく復習</span>
         </div>
         <div class="nav-card" onclick="startWeakMode()">
           <span class="icon">🔄</span>
@@ -53,6 +63,11 @@
           <span class="icon">🎯</span>
           <span class="label">模擬試験</span>
           <span class="desc">40問 × 60分</span>
+        </div>
+        <div class="nav-card" onclick="showScreen('glossary')">
+          <span class="icon">📖</span>
+          <span class="label">用語集</span>
+          <span class="desc">SQuBOK重要用語</span>
         </div>
         <div class="nav-card" onclick="showDashboard()">
           <span class="icon">📊</span>
@@ -122,17 +137,51 @@
       </div>
       <div class="card">
         <h3 style="margin-bottom:16px;">章別正答率</h3>
-        <div class="chapter-stats" id="dash-chapters"></div>
+        <div class="ring-charts" id="dash-rings"></div>
+      </div>
+      <div class="card" id="dash-mock-card">
+        <h3 style="margin-bottom:12px;">🎯 模擬試験履歴</h3>
+        <div id="dash-mock-list" style="font-size:0.85rem;"></div>
+      </div>
+      <div class="card">
+        <h3 style="margin-bottom:12px;">📊 苦手分野分析</h3>
+        <div id="dash-analysis" style="font-size:0.85rem;color:var(--text-secondary);"></div>
+      </div>
+      <div class="card">
+        <h3 style="margin-bottom:12px;">📅 学習ヒートマップ</h3>
+        <div id="dash-heatmap"></div>
       </div>
       <div class="card" id="dash-weak-card">
         <h3 style="margin-bottom:12px;">🔄 弱点問題 (<span id="dash-weak-count">0</span>問)</h3>
         <div id="dash-weak-list" style="font-size:0.85rem;color:var(--text-secondary);"></div>
       </div>
       <div class="card text-center" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-secondary btn-sm" onclick="printSummary()">🖨️ 印刷用まとめ</button>
         <button class="btn btn-secondary btn-sm" onclick="exportData()">📤 データ出力</button>
         <button class="btn btn-secondary btn-sm" onclick="document.getElementById('import-file').click()">📥 データ取込</button>
         <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
         <button class="btn btn-secondary btn-sm" onclick="resetData()">🗑️ リセット</button>
+      </div>
+    </div>
+
+  </div>
+
+    <!-- 用語集画面 (#8) -->
+    <div id="glossary" class="screen">
+      <button class="btn btn-secondary btn-sm" onclick="showScreen('home')" style="margin-bottom:20px;">← ホーム</button>
+      <div class="card">
+        <h2 style="margin-bottom:16px;">📖 SQuBOK用語集</h2>
+        <input type="text" id="glossary-search" placeholder="🔍 用語を検索..." oninput="filterGlossary()" style="width:100%;padding:10px 14px;border:1px solid var(--border-glass);border-radius:var(--radius-sm);background:var(--bg-glass);color:var(--text-primary);font-family:inherit;font-size:0.9rem;margin-bottom:16px;">
+        <div id="glossary-list"></div>
+      </div>
+    </div>
+
+    <!-- 学習計画画面 (#25) -->
+    <div id="study-plan" class="screen">
+      <button class="btn btn-secondary btn-sm" onclick="showScreen('home')" style="margin-bottom:20px;">← ホーム</button>
+      <div class="card">
+        <h2 style="margin-bottom:16px;">📅 学習計画ジェネレータ</h2>
+        <div id="plan-result"></div>
       </div>
     </div>
 
@@ -143,6 +192,7 @@
   <script src="questions_extra2.js"></script>
   <script src="questions_extra3.js"></script>
   <script src="explanations.js"></script>
+  <script src="glossary.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

@@ -12,7 +12,7 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
     catch { return defaultData(); }
   }
   function saveData(d) { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); }
-  function defaultData() { return { totalAnswered: 0, totalCorrect: 0, chapterStats: {}, weakIds: [], history: [] }; }
+  function defaultData() { return { totalAnswered: 0, totalCorrect: 0, chapterStats: {}, weakIds: [], history: [], mockHistory: [], dailyActivity: {} }; }
   function resetData() {
     if (!confirm('学習データをすべてリセットしますか？')) return;
     localStorage.removeItem(STORAGE_KEY);
@@ -27,15 +27,29 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
     if (state.timer && id !== 'quiz') { clearInterval(state.timer); state.timer = null; }
   }
 
-  // ── ホーム画面統計 ──
+  // ── ホーム画面統計 + 合格予測 (#22) ──
   function updateHomeStats() {
     const d = loadData();
     const box = document.getElementById('home-stats');
     if (d.totalAnswered > 0) {
       box.classList.remove('hidden');
       document.getElementById('home-total').textContent = d.totalAnswered;
-      document.getElementById('home-rate').textContent = Math.round(d.totalCorrect / d.totalAnswered * 100) + '%';
+      const rate = Math.round(d.totalCorrect / d.totalAnswered * 100);
+      document.getElementById('home-rate').textContent = rate + '%';
       document.getElementById('home-weak').textContent = d.weakIds.length;
+      // 合格予測
+      const chapCount = Object.keys(d.chapterStats).length;
+      const coverage = Math.min(chapCount / 5, 1);
+      const volume = Math.min(d.totalAnswered / 200, 1);
+      const predict = Math.round(rate * 0.5 + coverage * 25 + volume * 25);
+      const clamped = Math.min(Math.max(predict, 0), 100);
+      const pEl = document.getElementById('home-predict');
+      pEl.classList.remove('hidden');
+      const fill = document.getElementById('predict-fill');
+      fill.style.width = clamped + '%';
+      fill.style.background = clamped >= 70 ? 'linear-gradient(90deg, var(--success), #34d399)' : 'linear-gradient(90deg, var(--warning), var(--danger))';
+      document.getElementById('predict-value').textContent = clamped + '%';
+      document.getElementById('predict-value').style.color = clamped >= 70 ? 'var(--success)' : 'var(--danger)';
     } else { box.classList.add('hidden'); }
   }
 
@@ -157,6 +171,7 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
 
     if (isCorrect) state.score++;
     state.answers.push({ qid: q.id, chosen, correct: isCorrect });
+    if (state.mode === 'spaced') updateSpacedRepetition(q.id, isCorrect);
 
     // 結果保存
     const d = loadData();
@@ -167,6 +182,10 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
     if (isCorrect) d.chapterStats[q.chapter].correct++;
     if (!isCorrect && !d.weakIds.includes(q.id)) d.weakIds.push(q.id);
     if (isCorrect && d.weakIds.includes(q.id)) d.weakIds = d.weakIds.filter(id => id !== q.id);
+    // 日別アクティビティ記録 (#23)
+    if (!d.dailyActivity) d.dailyActivity = {};
+    const today = new Date().toISOString().slice(0, 10);
+    d.dailyActivity[today] = (d.dailyActivity[today] || 0) + 1;
     saveData(d);
 
     // 模擬試験は解説なしで次へ進む
@@ -230,6 +249,14 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
     }).join('');
     document.getElementById('result-chapter-stats').innerHTML = statsHtml;
 
+    // 模擬試験履歴保存 (#4)
+    if (state.mode === 'mock') {
+      const d = loadData();
+      if (!d.mockHistory) d.mockHistory = [];
+      d.mockHistory.push({ date: new Date().toISOString(), score: state.score, total, pct });
+      if (d.mockHistory.length > 20) d.mockHistory = d.mockHistory.slice(-20);
+      saveData(d);
+    }
     document.getElementById('result-retry-btn').onclick = () => retryQuiz();
     showScreen('result');
   }
@@ -247,14 +274,50 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
     document.getElementById('dash-correct').textContent = d.totalCorrect;
     document.getElementById('dash-rate').textContent = d.totalAnswered > 0 ? Math.round(d.totalCorrect / d.totalAnswered * 100) + '%' : '--%';
 
-    const chEl = document.getElementById('dash-chapters');
-    chEl.innerHTML = '';
-    CHAPTERS.forEach(ch => {
+    // リングチャート (#7)
+    const colors = ['#6366f1','#8b5cf6','#06b6d4','#f59e0b','#10b981'];
+    const ringsEl = document.getElementById('dash-rings');
+    ringsEl.innerHTML = '';
+    CHAPTERS.forEach((ch, i) => {
       const s = d.chapterStats[ch.id] || { answered: 0, correct: 0 };
       const p = s.answered > 0 ? Math.round(s.correct / s.answered * 100) : 0;
-      chEl.innerHTML += `<div class="ch-stat-row"><span class="ch-stat-name">${ch.icon} 第${ch.id}章</span><div class="ch-stat-bar"><div class="ch-stat-fill ch${ch.id}-fill" style="width:${p}%">${s.answered > 0 ? p + '%' : '未学習'}</div></div></div>`;
+      const r = 32, circ = 2 * Math.PI * r, offset = circ - (p / 100) * circ;
+      ringsEl.innerHTML += `<div class="ring-chart"><svg viewBox="0 0 80 80"><circle class="ring-bg" cx="40" cy="40" r="${r}"/><circle class="ring-fg" cx="40" cy="40" r="${r}" stroke="${colors[i]}" stroke-dasharray="${circ}" stroke-dashoffset="${offset}"/></svg><div class="ring-pct" style="color:${colors[i]}">${s.answered > 0 ? p + '%' : '--'}</div><div class="ring-label">第${ch.id}章</div></div>`;
     });
 
+    // 模擬試験履歴 (#4)
+    const mh = d.mockHistory || [];
+    const ml = document.getElementById('dash-mock-list');
+    if (mh.length === 0) { ml.innerHTML = '<p style="color:var(--text-muted);">まだ模擬試験を受けていません</p>'; }
+    else { ml.innerHTML = mh.slice(-5).reverse().map(m => `<div class="mock-item"><span class="mock-date">${m.date.slice(0,10)}</span><span class="mock-score ${m.pct >= 70 ? 'pass' : 'fail'}">${m.pct}% (${m.score}/${m.total})</span></div>`).join(''); }
+
+    // 苦手分野分析 (#24)
+    const aEl = document.getElementById('dash-analysis');
+    let aHtml = '';
+    CHAPTERS.forEach(ch => {
+      const s = d.chapterStats[ch.id] || { answered: 0, correct: 0 };
+      if (s.answered === 0) return;
+      const p = Math.round(s.correct / s.answered * 100);
+      if (p >= 80) aHtml += `<div class="analysis-item analysis-strong">✅ 第${ch.id}章 ${ch.name.substring(0,10)} — 得意 (${p}%)</div>`;
+      else if (p < 60) aHtml += `<div class="analysis-item analysis-weak">⚠️ 第${ch.id}章 ${ch.name.substring(0,10)} — 要強化 (${p}%)</div>`;
+    });
+    aEl.innerHTML = aHtml || '<p style="color:var(--text-muted);">データが不足しています。もう少し学習を進めてください。</p>';
+
+    // 学習ヒートマップ (#23)
+    const hmEl = document.getElementById('dash-heatmap');
+    const act = d.dailyActivity || {};
+    let hmHtml = '<div class="heatmap-grid">';
+    for (let i = 89; i >= 0; i--) {
+      const dt = new Date(); dt.setDate(dt.getDate() - i);
+      const key = dt.toISOString().slice(0, 10);
+      const cnt = act[key] || 0;
+      const lvl = cnt === 0 ? '' : cnt <= 5 ? 'l1' : cnt <= 15 ? 'l2' : cnt <= 30 ? 'l3' : 'l4';
+      hmHtml += `<div class="heatmap-cell ${lvl}" title="${key}: ${cnt}問"></div>`;
+    }
+    hmHtml += '</div><div class="heatmap-legend">少 <div class="heatmap-cell"></div><div class="heatmap-cell l1"></div><div class="heatmap-cell l2"></div><div class="heatmap-cell l3"></div><div class="heatmap-cell l4"></div> 多（過去90日）</div>';
+    hmEl.innerHTML = hmHtml;
+
+    // 弱点問題
     document.getElementById('dash-weak-count').textContent = d.weakIds.length;
     const wl = document.getElementById('dash-weak-list');
     if (d.weakIds.length === 0) {
@@ -268,6 +331,9 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
     }
     showScreen('dashboard');
   }
+
+  // 印刷用まとめ (#26)
+  function printSummary() { showDashboard(); setTimeout(() => window.print(), 300); }
 
   // ── ユーティリティ ──
   function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } }
@@ -365,11 +431,100 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
   updateHomeStats();
   updateExamInfo();
   initTheme();
+  renderGlossary();
+  generateStudyPlan();
+
+  // ── 間隔反復 (#1) ──
+  function startSpacedMode() {
+    const d = loadData();
+    const sr = d.spacedRepetition || {};
+    const now = Date.now();
+    // 復習すべき問題: nextReview が今日以前のもの
+    let dueQs = QUESTIONS.filter(q => {
+      const info = sr[q.id];
+      if (!info) return true; // 未学習は対象
+      return info.nextReview <= now;
+    });
+    if (dueQs.length === 0) { alert('今日の復習はすべて完了！🎉 明日また来てください。'); return; }
+    shuffle(dueQs);
+    dueQs = dueQs.slice(0, 20); // 最大20問
+    state.mode = 'spaced'; state.chapter = null;
+    state.questions = dueQs; state.idx = 0; state.score = 0; state.answers = [];
+    document.getElementById('quiz-timer-box').classList.add('hidden');
+    showScreen('quiz');
+    renderQuestion();
+  }
+
+  // 間隔反復のスケジュール更新（回答後に呼ぶ）
+  function updateSpacedRepetition(qId, isCorrect) {
+    const d = loadData();
+    if (!d.spacedRepetition) d.spacedRepetition = {};
+    const info = d.spacedRepetition[qId] || { interval: 1, ease: 2.5 };
+    if (isCorrect) {
+      info.interval = Math.round(info.interval * info.ease);
+      info.ease = Math.min(info.ease + 0.1, 3.0);
+    } else {
+      info.interval = 1;
+      info.ease = Math.max(info.ease - 0.2, 1.3);
+    }
+    info.nextReview = Date.now() + info.interval * 86400000;
+    d.spacedRepetition[qId] = info;
+    saveData(d);
+  }
+
+  // ── 用語集 (#8) ──
+  function renderGlossary(filter) {
+    const el = document.getElementById('glossary-list');
+    if (!el || typeof GLOSSARY === 'undefined') return;
+    const f = (filter || '').toLowerCase();
+    const items = GLOSSARY.filter(g => !f || g.term.toLowerCase().includes(f) || g.reading.includes(f) || g.desc.includes(f));
+    el.innerHTML = items.map(g =>
+      `<div style="padding:12px;margin-bottom:8px;background:var(--bg-glass);border:1px solid var(--border-glass);border-radius:var(--radius-sm);cursor:pointer;" onclick="this.querySelector('.g-desc').classList.toggle('hidden')">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-weight:700;">${g.term}</span>
+          <span style="font-size:0.7rem;padding:2px 8px;border-radius:12px;background:var(--ch${g.chapter});color:#fff;">第${g.chapter}章</span>
+        </div>
+        <div class="g-desc hidden" style="margin-top:8px;font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">${g.desc}</div>
+      </div>`
+    ).join('');
+    if (items.length === 0) el.innerHTML = '<p style="color:var(--text-muted);">該当する用語が見つかりません</p>';
+  }
+  function filterGlossary() {
+    renderGlossary(document.getElementById('glossary-search').value);
+  }
+
+  // ── 学習計画ジェネレータ (#25) ──
+  function generateStudyPlan() {
+    const el = document.getElementById('plan-result');
+    if (!el) return;
+    const d = loadData();
+    const now = new Date();
+    const next = EXAM_SCHEDULE.find(e => new Date(e.date) > now);
+    if (!next) { el.innerHTML = '<p style="color:var(--text-muted);">次回の試験日程が設定されていません</p>'; return; }
+    const daysLeft = Math.ceil((new Date(next.date) - now) / 86400000);
+    const totalQs = QUESTIONS.length;
+    const perDay = Math.max(Math.ceil(totalQs * 2 / daysLeft), 3); // 2周を目標
+    let html = `<div style="margin-bottom:16px;">
+      <p><strong>📅 試験日:</strong> ${next.date} (${next.label})</p>
+      <p><strong>⏱️ 残り:</strong> ${daysLeft}日</p>
+      <p><strong>🎯 目標:</strong> 全${totalQs}問を2周</p>
+      <p><strong>📝 1日の目安:</strong> <span style="font-size:1.2rem;font-weight:900;color:var(--accent-light);">${perDay}問</span>/日</p>
+    </div>`;
+    html += '<h4 style="margin-bottom:8px;">章別の推奨学習順</h4>';
+    CHAPTERS.forEach(ch => {
+      const s = d.chapterStats[ch.id] || { answered: 0, correct: 0 };
+      const p = s.answered > 0 ? Math.round(s.correct / s.answered * 100) : 0;
+      const priority = p < 60 ? '🔴 最優先' : p < 80 ? '🟡 要復習' : '🟢 維持';
+      html += `<div style="padding:8px 0;border-bottom:1px solid var(--border-glass);display:flex;justify-content:space-between;"><span>${ch.icon} 第${ch.id}章</span><span>${priority} (${s.answered > 0 ? p + '%' : '未学習'})</span></div>`;
+    });
+    el.innerHTML = html;
+  }
 
   // グローバルに公開
   window.showScreen = showScreen;
   window.startWeakMode = startWeakMode;
   window.startMockExam = startMockExam;
+  window.startSpacedMode = startSpacedMode;
   window.showDashboard = showDashboard;
   window.nextQuestion = nextQuestion;
   window.retryQuiz = retryQuiz;
@@ -377,4 +532,6 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
   window.toggleTheme = toggleTheme;
   window.exportData = exportData;
   window.importData = importData;
+  window.printSummary = printSummary;
+  window.filterGlossary = filterGlossary;
 })();
