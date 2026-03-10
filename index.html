@@ -92,6 +92,7 @@
       <div class="card">
         <h2 style="margin-bottom:20px;">📚 分野別学習</h2>
         <div class="chapter-list" id="chapter-list"></div>
+        <div id="chapter-guide" class="chapter-guide-box" style="margin-top:20px;"></div>
       </div>
     </div>
 
@@ -100,6 +101,7 @@
       <div class="card">
         <div class="quiz-header">
           <span class="quiz-progress" id="quiz-progress">1 / 10</span>
+          <span class="quiz-tag" id="quiz-tag"></span>
           <button class="bookmark-btn" id="quiz-bookmark" onclick="toggleBookmark()" title="ブックマーク">☆</button>
           <span class="quiz-level" id="quiz-level">L1</span>
         </div>
@@ -152,6 +154,10 @@
       <div class="card" id="dash-mock-card">
         <h3 style="margin-bottom:12px;">🎯 模擬試験履歴</h3>
         <div id="dash-mock-list" style="font-size:0.85rem;"></div>
+      </div>
+      <div class="card">
+        <h3 style="margin-bottom:12px;">🏆 実績バッジ</h3>
+        <div id="dash-badges" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
       </div>
       <div class="card">
         <h3 style="margin-bottom:12px;">📊 苦手分野分析</h3>

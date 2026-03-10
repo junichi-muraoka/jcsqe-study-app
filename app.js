@@ -84,6 +84,30 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
     all.innerHTML = '<span class="ch-icon">🎲</span><span class="ch-name">全章ランダム</span><span class="ch-badge">' + QUESTIONS.length + '問</span>';
     all.onclick = () => startChapterMode(0);
     el.appendChild(all);
+
+    // 章別学習ガイド (#10)
+    const guideEl = document.getElementById('chapter-guide');
+    if (guideEl) {
+      let weakCh = null, minScore = 100;
+      CHAPTERS.forEach(ch => {
+        const s = d.chapterStats[ch.id] || { answered: 0, correct: 0 };
+        if (s.answered > 5) {
+          const p = Math.round(s.correct / s.answered * 100);
+          if (p < minScore) { minScore = p; weakCh = ch; }
+        }
+      });
+      if (weakCh && minScore < 80) {
+        guideEl.innerHTML = `<div class="chapter-guide-title">💡 おすすめの学習: 第${weakCh.id}章 ${weakCh.name}</div><p>正答率が${minScore}%と低めです。この分野を集中的に復習し、解説をじっくり読み込むことでスコアアップが狙えます。</p>`;
+        guideEl.classList.remove('hidden');
+      } else if (d.totalAnswered > 0) {
+        guideEl.innerHTML = `<div class="chapter-guide-title">💡 バランスよく学習中</div><p>順調に学習が進んでいます。模擬試験に挑戦して実力を試してみましょう！</p>`;
+        guideEl.classList.remove('hidden');
+      } else {
+        guideEl.innerHTML = `<div class="chapter-guide-title">💡 まずは分野別学習からスタート</div><p>上のリストから学習したい分野を選んでみましょう。</p>`;
+        guideEl.classList.remove('hidden');
+      }
+    }
+    el.appendChild(all);
   }
 
   // ── 分野別学習 ──
@@ -144,6 +168,14 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
     const lvl = document.getElementById('quiz-level');
     lvl.textContent = q.level;
     lvl.className = 'quiz-level ' + q.level.toLowerCase();
+    
+    // 難易度タグ (#9)
+    const tagEl = document.getElementById('quiz-tag');
+    if (tagEl) {
+      if (q.tag) { tagEl.textContent = q.tag; tagEl.className = 'quiz-tag ' + (q.tag==='要注意'?'tag-warn':'tag-hot'); tagEl.classList.remove('hidden'); }
+      else { tagEl.classList.add('hidden'); }
+    }
+
     document.getElementById('quiz-question').textContent = q.question;
     document.getElementById('quiz-explanation').classList.add('hidden');
     document.getElementById('quiz-next-box').classList.add('hidden');
@@ -320,6 +352,24 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
     const ml = document.getElementById('dash-mock-list');
     if (mh.length === 0) { ml.innerHTML = '<p style="color:var(--text-muted);">まだ模擬試験を受けていません</p>'; }
     else { ml.innerHTML = mh.slice(-5).reverse().map(m => `<div class="mock-item"><span class="mock-date">${m.date.slice(0,10)}</span><span class="mock-score ${m.pct >= 70 ? 'pass' : 'fail'}">${m.pct}% (${m.score}/${m.total})</span></div>`).join(''); }
+
+    // 実績バッジ (#19)
+    const badges = [
+      { id: 'b1', icon: '🩸', name: 'ファーストブラッド', desc: '初めて正解する', check: () => d.totalCorrect >= 1 },
+      { id: 'b2', icon: '🌱', name: 'ビギナー', desc: '10問以上解答する', check: () => d.totalAnswered >= 10 },
+      { id: 'b3', icon: '💪', name: 'ベテラン', desc: '50問以上解答する', check: () => d.totalAnswered >= 50 },
+      { id: 'b4', icon: '👑', name: 'マスター', desc: '100問以上解答する', check: () => d.totalAnswered >= 100 },
+      { id: 'b5', icon: '🔥', name: 'ストリーク3', desc: '3日連続で学習する', check: () => (d.streak && d.streak.count >= 3) },
+      { id: 'b6', icon: '💯', name: '模試マスター', desc: '模擬試験で100点を取る', check: () => mh.some(m => m.pct === 100) },
+      { id: 'b7', icon: '🎯', name: 'パーフェクト章', desc: '章ごとの正答率100%(10問以上)', check: () => Object.values(d.chapterStats).some(s => s.answered >= 10 && s.correct === s.answered) }
+    ];
+    const bEl = document.getElementById('dash-badges');
+    if (bEl) {
+      bEl.innerHTML = badges.map(b => {
+        const unlocked = b.check();
+        return `<div class="badge-item ${unlocked ? 'unlocked' : ''}"><div class="badge-icon">${b.icon}</div><div class="badge-info"><div class="badge-name">${b.name}</div><div class="badge-desc">${unlocked ? '取得済み' : b.desc}</div></div></div>`;
+      }).join('');
+    }
 
     // 苦手分野分析 (#24)
     const aEl = document.getElementById('dash-analysis');
