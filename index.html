@@ -37,6 +37,10 @@
           <div class="stat-card"><div class="stat-value" id="home-rate">--%</div><div class="stat-label">正答率</div></div>
           <div class="stat-card"><div class="stat-value" id="home-weak">0</div><div class="stat-label">弱点問題</div></div>
         </div>
+        <div class="home-sub-stats">
+          <span id="home-streak" class="streak-badge">🔥 0日連続</span>
+          <span id="home-level" class="level-badge">⭐ Lv.1</span>
+        </div>
         <div id="home-predict" class="pass-predict hidden">
           <div class="predict-label">🎯 合格予測</div>
           <div class="predict-bar"><div class="predict-fill" id="predict-fill"></div></div>
@@ -53,6 +57,11 @@
           <span class="icon">🧠</span>
           <span class="label">間隔反復</span>
           <span class="desc">忘却曲線に基づく復習</span>
+        </div>
+        <div class="nav-card" onclick="startDailyChallenge()">
+          <span class="icon">🌟</span>
+          <span class="label">デイリー</span>
+          <span class="desc">毎日5問チャレンジ</span>
         </div>
         <div class="nav-card" onclick="startWeakMode()">
           <span class="icon">🔄</span>
@@ -91,6 +100,7 @@
       <div class="card">
         <div class="quiz-header">
           <span class="quiz-progress" id="quiz-progress">1 / 10</span>
+          <button class="bookmark-btn" id="quiz-bookmark" onclick="toggleBookmark()" title="ブックマーク">☆</button>
           <span class="quiz-level" id="quiz-level">L1</span>
         </div>
         <div class="progress-bar"><div class="progress-fill" id="quiz-bar" style="width:0%"></div></div>

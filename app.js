@@ -5,6 +5,7 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
 
   const STORAGE_KEY = 'jcsqe_study_data';
   let state = { mode: null, chapter: null, questions: [], idx: 0, score: 0, answers: [], timer: null, timeLeft: 0 };
+  let comboCount = 0;
 
   // ── データ永続化 ──
   function loadData() {
@@ -12,7 +13,7 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
     catch { return defaultData(); }
   }
   function saveData(d) { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); }
-  function defaultData() { return { totalAnswered: 0, totalCorrect: 0, chapterStats: {}, weakIds: [], history: [], mockHistory: [], dailyActivity: {} }; }
+  function defaultData() { return { totalAnswered: 0, totalCorrect: 0, chapterStats: {}, weakIds: [], history: [], mockHistory: [], dailyActivity: {}, bookmarks: [], streak: { lastDate: null, count: 0 }, xp: 0 }; }
   function resetData() {
     if (!confirm('学習データをすべてリセットしますか？')) return;
     localStorage.removeItem(STORAGE_KEY);
@@ -27,7 +28,7 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
     if (state.timer && id !== 'quiz') { clearInterval(state.timer); state.timer = null; }
   }
 
-  // ── ホーム画面統計 + 合格予測 (#22) ──
+  // ── ホーム画面統計 + 合格予測 + ストリーク + レベル ──
   function updateHomeStats() {
     const d = loadData();
     const box = document.getElementById('home-stats');
@@ -37,6 +38,15 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
       const rate = Math.round(d.totalCorrect / d.totalAnswered * 100);
       document.getElementById('home-rate').textContent = rate + '%';
       document.getElementById('home-weak').textContent = d.weakIds.length;
+      // ストリーク (#2)
+      const streak = d.streak || { count: 0 };
+      document.getElementById('home-streak').textContent = '🔥 ' + streak.count + '日連続';
+      // レベル (#21)
+      const xp = d.xp || 0;
+      const level = Math.floor(xp / 50) + 1;
+      const titles = ['初心者','見習い','エンジニア','マスター','マエストロ'];
+      const title = titles[Math.min(Math.floor((level-1)/5), titles.length-1)];
+      document.getElementById('home-level').textContent = '⭐ Lv.' + level + ' ' + title;
       // 合格予測
       const chapCount = Object.keys(d.chapterStats).length;
       const coverage = Math.min(chapCount / 5, 1);
@@ -148,6 +158,7 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
       btn.onclick = () => selectAnswer(i);
       container.appendChild(btn);
     });
+    updateBookmarkBtn();
 
     if (state.mode === 'mock') {
       document.getElementById('quiz-next-btn').textContent = state.idx >= total - 1 ? '結果を見る →' : '次の問題 →';
@@ -186,7 +197,26 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
     if (!d.dailyActivity) d.dailyActivity = {};
     const today = new Date().toISOString().slice(0, 10);
     d.dailyActivity[today] = (d.dailyActivity[today] || 0) + 1;
+    // ストリーク更新 (#2)
+    if (!d.streak) d.streak = { lastDate: null, count: 0 };
+    if (d.streak.lastDate !== today) {
+      const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+      d.streak.count = (d.streak.lastDate === yesterday.toISOString().slice(0, 10)) ? d.streak.count + 1 : 1;
+      d.streak.lastDate = today;
+    }
+    // XP獲得 (#21)
+    if (!d.xp) d.xp = 0;
+    d.xp += isCorrect ? 10 : 2;
     saveData(d);
+    // 紙吹雪 & コンボ (#6)
+    if (isCorrect && state.mode !== 'mock') {
+      comboCount++;
+      showConfetti();
+      if (comboCount >= 3) showCombo(comboCount);
+    } else { comboCount = 0; }
+    // ブックマーク状態更新
+    updateBookmarkBtn();
+
 
     // 模擬試験は解説なしで次へ進む
     if (state.mode === 'mock') {
@@ -520,11 +550,81 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
     el.innerHTML = html;
   }
 
+  // ── 紙吹雪エフェクト (#6) ──
+  function showConfetti() {
+    const c = document.createElement('div'); c.className = 'confetti-container';
+    const colors = ['#6366f1','#8b5cf6','#06b6d4','#f59e0b','#10b981','#ef4444','#ec4899'];
+    for (let i = 0; i < 20; i++) {
+      const p = document.createElement('div'); p.className = 'confetti';
+      p.style.left = Math.random() * 100 + '%'; p.style.top = '-10px';
+      p.style.background = colors[Math.floor(Math.random() * colors.length)];
+      p.style.animationDelay = Math.random() * 0.3 + 's';
+      p.style.animationDuration = (1 + Math.random()) + 's';
+      c.appendChild(p);
+    }
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 2000);
+  }
+
+  function showCombo(count) {
+    const msgs = { 3: '🔥 Nice!', 5: '⚡ Excellent!', 10: '💎 Perfect!' };
+    const msg = count >= 10 ? msgs[10] : count >= 5 ? msgs[5] : msgs[3];
+    const el = document.createElement('div'); el.className = 'combo-toast';
+    el.textContent = msg + ' x' + count;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1000);
+  }
+
+  // ── ブックマーク (#3) ──
+  function toggleBookmark() {
+    if (!state.questions[state.idx]) return;
+    const qId = state.questions[state.idx].id;
+    const d = loadData();
+    if (!d.bookmarks) d.bookmarks = [];
+    if (d.bookmarks.includes(qId)) { d.bookmarks = d.bookmarks.filter(id => id !== qId); }
+    else { d.bookmarks.push(qId); }
+    saveData(d);
+    updateBookmarkBtn();
+  }
+
+  function updateBookmarkBtn() {
+    if (!state.questions[state.idx]) return;
+    const qId = state.questions[state.idx].id;
+    const d = loadData();
+    const btn = document.getElementById('quiz-bookmark');
+    if (btn) {
+      const isBookmarked = (d.bookmarks || []).includes(qId);
+      btn.textContent = isBookmarked ? '★' : '☆';
+      btn.classList.toggle('active', isBookmarked);
+    }
+  }
+
+  // ── デイリーチャレンジ (#20) ──
+  function startDailyChallenge() {
+    const today = new Date().toISOString().slice(0, 10);
+    const seed = today.split('-').join('');
+    // 日付ベースで5問を選出（同じ日は同じ問題）
+    let qs = [...QUESTIONS];
+    // 簡易シード付きシャッフル
+    for (let i = qs.length - 1; i > 0; i--) {
+      const j = (parseInt(seed) * (i + 1) * 9301 + 49297) % qs.length;
+      [qs[i], qs[j < 0 ? 0 : j]] = [qs[j < 0 ? 0 : j], qs[i]];
+    }
+    qs = qs.slice(0, 5);
+    state.mode = 'daily'; state.chapter = null;
+    state.questions = qs; state.idx = 0; state.score = 0; state.answers = [];
+    comboCount = 0;
+    document.getElementById('quiz-timer-box').classList.add('hidden');
+    showScreen('quiz');
+    renderQuestion();
+  }
+
   // グローバルに公開
   window.showScreen = showScreen;
   window.startWeakMode = startWeakMode;
   window.startMockExam = startMockExam;
   window.startSpacedMode = startSpacedMode;
+  window.startDailyChallenge = startDailyChallenge;
   window.showDashboard = showDashboard;
   window.nextQuestion = nextQuestion;
   window.retryQuiz = retryQuiz;
@@ -534,4 +634,5 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
   window.importData = importData;
   window.printSummary = printSummary;
   window.filterGlossary = filterGlossary;
+  window.toggleBookmark = toggleBookmark;
 })();
