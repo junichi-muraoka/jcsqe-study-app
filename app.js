@@ -20,12 +20,31 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
     showScreen('home');
   }
 
-  // ── 画面切り替え ──
+  // ── 画面切り替え (ボトムナビ用) ──
+  function switchTab(tabId) {
+    // Hide all tab screens
+    document.querySelectorAll('.tab-screen').forEach(s => s.classList.remove('active'));
+    // Show target tab
+    document.getElementById(tabId).classList.add('active');
+    
+    // Update nav icons
+    document.querySelectorAll('.header-item').forEach(n => n.classList.remove('active'));
+    const navBtn = document.getElementById('nav-btn-' + tabId.replace('tab-', ''));
+    if (navBtn) navBtn.classList.add('active');
+    
+    // Hide full screens
+    document.getElementById('quiz').classList.remove('active');
+    document.getElementById('result').classList.remove('active');
+
+    if (tabId === 'tab-home') updateHomeStats();
+    if (tabId === 'tab-stats') updateDashboardStats();
+    if (state.timer) { clearInterval(state.timer); state.timer = null; }
+  }
+
+  // フルスクリーン用 (クイズ・結果)
   function showScreen(id) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
-    if (id === 'home') updateHomeStats();
-    if (state.timer && id !== 'quiz') { clearInterval(state.timer); state.timer = null; }
+    if (id === 'home') switchTab('tab-home');
   }
 
   // ── ホーム画面統計 + 合格予測 + ストリーク + レベル ──
@@ -330,7 +349,7 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
   }
 
   // ── ダッシュボード ──
-  function showDashboard() {
+  function updateDashboardStats() {
     const d = loadData();
     document.getElementById('dash-total').textContent = d.totalAnswered;
     document.getElementById('dash-correct').textContent = d.totalCorrect;
@@ -409,7 +428,10 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
         return `<p style="margin-bottom:6px;">• [${ch.icon}] ${q.question.substring(0, 40)}…</p>`;
       }).join('');
     }
-    showScreen('dashboard');
+  }
+
+  function showDashboard() {
+    switchTab('tab-stats');
   }
 
   // 印刷用まとめ (#26)
@@ -671,11 +693,13 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
 
   // グローバルに公開
   window.showScreen = showScreen;
+  window.switchTab = switchTab;
   window.startWeakMode = startWeakMode;
   window.startMockExam = startMockExam;
   window.startSpacedMode = startSpacedMode;
   window.startDailyChallenge = startDailyChallenge;
   window.showDashboard = showDashboard;
+  window.updateDashboardStats = updateDashboardStats;
   window.nextQuestion = nextQuestion;
   window.retryQuiz = retryQuiz;
   window.resetData = resetData;

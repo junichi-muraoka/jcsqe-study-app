@@ -455,3 +455,127 @@ body[data-theme="light"] .header h1 {
 .badge-info { display: flex; flex-direction: column; }
 .badge-name { font-size: 0.75rem; font-weight: 700; color: var(--text-primary); }
 .badge-desc { font-size: 0.65rem; color: var(--text-muted); }
+
+/* =========================================
+   UI v2: Top Navigation Styles (Fixed)
+========================================= */
+
+.content-wrapper {
+  padding-top: 80px; /* Space for top nav */
+}
+
+.top-header-nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  width: 100vw;
+  height: 60px;
+  background: rgba(10, 14, 26, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-glass);
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: center !important;
+  align-items: center !important;
+  z-index: 99999;
+}
+
+.top-header-nav .header-item {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 1;
+  max-width: 150px;
+  height: 100%;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition);
+  gap: 8px; /* icon and text spacing */
+}
+
+.top-header-nav .header-icon {
+  font-size: 1.2rem;
+  transition: transform 0.3s;
+}
+
+.top-header-nav .header-item span {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.top-header-nav .header-item.active {
+  color: var(--accent-light);
+  box-shadow: inset 0 -3px 0 var(--accent);
+}
+
+.top-header-nav .header-item.active .header-icon {
+  transform: scale(1.1) translateY(2px);
+  filter: drop-shadow(0 0 8px var(--accent-glow));
+}
+
+.top-header-nav .header-item:hover:not(.active) {
+  color: var(--text-primary);
+}
+
+@media (max-width: 600px) {
+  .top-header-nav .header-item {
+    flex-direction: column !important;
+    gap: 2px;
+  }
+  .top-header-nav .header-icon {
+    font-size: 1.4rem;
+  }
+  .top-header-nav .header-item span {
+    font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .nav-item {
+    flex-direction: column !important; /* Stack on mobile */
+    gap: 2px;
+  }
+  .nav-item .nav-icon {
+    font-size: 1.4rem;
+  }
+  .nav-item span {
+    font-size: 0.65rem;
+  }
+}
+
+.nav-item span {
+  font-size: 0.7rem; font-weight: 600;
+}
+
+.nav-item.active {
+  color: var(--accent-light);
+  /* Optional: Add a subtle bottom border indicator for the active tab */
+  box-shadow: inset 0 -3px 0 var(--accent);
+}
+
+.nav-item.active .nav-icon {
+  transform: scale(1.1) translateY(2px);
+  filter: drop-shadow(0 0 8px var(--accent-glow));
+}
+
+.nav-item:hover:not(.active) {
+  color: var(--text-primary);
+}
+
+/* Full Screen Overlays (Quiz, Result) */
+.full-screen {
+  position: fixed !important;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: var(--bg-primary);
+  z-index: 2000; /* Above top nav */
+  padding: 20px;
+  overflow-y: auto;
+  animation: fadeSlideUp 0.3s ease !important;
+}
+
+/* Adjusting Print for UI v2 */
+@media print {
+  .top-nav { display: none !important; }
+  .content-wrapper { padding-top: 0 !important; }
+}
