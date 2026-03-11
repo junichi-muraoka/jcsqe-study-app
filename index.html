@@ -10,15 +10,15 @@
   <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
-  <!-- ================= トップナビゲーション ================= -->
-  <nav class="top-header-nav">
+  <!-- ================= ナビゲーション (Sidebar / Bottom Nav) ================= -->
+  <nav class="app-nav">
     <div class="header-item active" onclick="switchTab('tab-home')" id="nav-btn-home">
       <div class="header-icon">🏠</div>
       <span>ホーム</span>
     </div>
-    <div class="header-item" onclick="switchTab('tab-learn')" id="nav-btn-learn">
-      <div class="header-icon">📚</div>
-      <span>学ぶ</span>
+    <div class="header-item" onclick="switchTab('tab-glossary')" id="nav-btn-glossary">
+      <div class="header-icon">📖</div>
+      <span>用語集</span>
     </div>
     <div class="header-item" onclick="switchTab('tab-stats')" id="nav-btn-stats">
       <div class="header-icon">📊</div>
@@ -36,9 +36,25 @@
 
       <!-- ================= 🏠 HOME TAB ================= -->
       <div id="tab-home" class="screen tab-screen active">
-        <div class="header">
-          <h1>JCSQE初級 合格対策</h1>
-          <p>SQuBOK Guide 第3版準拠 ｜ 全127問収録</p>
+        
+        <!-- ヒーローエリア -->
+        <div class="hero-section">
+          <div class="hero-content">
+            <div>
+              <div class="hero-title">JCSQE初級 合格対策</div>
+              <div class="hero-subtitle">SQuBOK Guide 第3版準拠 ｜ 全127問収録</div>
+            </div>
+            
+            <div id="home-stats" class="hero-stats-row hidden">
+              <span id="home-streak" class="streak-badge">🔥 0日連続</span>
+              <span id="home-level" class="level-badge">⭐ Lv.1</span>
+              <div id="home-predict" class="pass-predict hidden" style="margin-top:0; flex:1; min-width:150px;">
+                <div class="predict-label" style="color:rgba(255,255,255,0.8);">🎯 合格予測</div>
+                <div class="predict-bar"><div class="predict-fill" id="predict-fill"></div></div>
+                <div class="predict-value" id="predict-value" style="color:#fff;">--%</div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="exam-info-card card" id="exam-info">
@@ -54,19 +70,8 @@
           </div>
         </div>
 
-        <div id="home-stats" class="card hidden">
-          <div class="home-sub-stats" style="margin-bottom:12px; margin-top:0;">
-            <span id="home-streak" class="streak-badge">🔥 0日連続</span>
-            <span id="home-level" class="level-badge">⭐ Lv.1</span>
-          </div>
-          <div id="home-predict" class="pass-predict hidden" style="margin-bottom:12px; margin-top:0;">
-            <div class="predict-label">🎯 合格予測</div>
-            <div class="predict-bar"><div class="predict-fill" id="predict-fill"></div></div>
-            <div class="predict-value" id="predict-value">--%</div>
-          </div>
-        </div>
-
-        <div class="nav-grid">
+        <h3 style="margin-bottom: 12px; font-size: 1.1rem;">🚀 学習メニュー</h3>
+        <div class="horizontal-scroll-snap">
           <div class="nav-card" onclick="startDailyChallenge()">
             <span class="icon">🌟</span>
             <span class="label">今日の5問</span>
@@ -88,23 +93,22 @@
             <span class="desc">本番形式 40問/60分</span>
           </div>
         </div>
-      </div>
 
-      <!-- ================= 📚 LEARN TAB ================= -->
-      <div id="tab-learn" class="screen tab-screen">
-        <div class="header" style="margin-bottom: 20px;">
-          <h2>学習メニュー</h2>
-          <p>カテゴリ別に知識を深める</p>
-        </div>
-        
-        <div class="card">
+        <div class="card" style="margin-bottom: 24px;">
           <h3 style="margin-bottom:20px;">📚 分野別学習</h3>
           <div class="chapter-list" id="chapter-list"></div>
           <div id="chapter-guide" class="chapter-guide-box" style="margin-top:20px;"></div>
         </div>
+      </div>
+
+      <!-- ================= 📖 GLOSSARY TAB ================= -->
+      <div id="tab-glossary" class="screen tab-screen">
+        <div class="header" style="margin-bottom: 20px;">
+          <h2>SQuBOK用語集</h2>
+          <p>試験によく出る重要な技術用語</p>
+        </div>
 
         <div class="card">
-          <h3 style="margin-bottom:16px;">📖 SQuBOK用語集</h3>
           <input type="text" id="glossary-search" placeholder="🔍 用語を検索..." oninput="filterGlossary()" style="width:100%;padding:10px 14px;border:1px solid var(--border-glass);border-radius:var(--radius-sm);background:var(--bg-glass);color:var(--text-primary);font-family:inherit;font-size:0.9rem;margin-bottom:16px;">
           <div id="glossary-list"></div>
         </div>

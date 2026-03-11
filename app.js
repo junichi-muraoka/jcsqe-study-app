@@ -20,15 +20,16 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
     showScreen('home');
   }
 
-  // ── 画面切り替え (ボトムナビ用) ──
+  // ── 画面切り替え (ボトムナビ / サイドバー用) ──
   function switchTab(tabId) {
     // Hide all tab screens
     document.querySelectorAll('.tab-screen').forEach(s => s.classList.remove('active'));
     // Show target tab
-    document.getElementById(tabId).classList.add('active');
+    const targetTab = document.getElementById(tabId);
+    if (targetTab) targetTab.classList.add('active');
     
     // Update nav icons
-    document.querySelectorAll('.header-item').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll('.app-nav .header-item').forEach(n => n.classList.remove('active'));
     const navBtn = document.getElementById('nav-btn-' + tabId.replace('tab-', ''));
     if (navBtn) navBtn.classList.add('active');
     

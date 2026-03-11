@@ -457,125 +457,275 @@ body[data-theme="light"] .header h1 {
 .badge-desc { font-size: 0.65rem; color: var(--text-muted); }
 
 /* =========================================
-   UI v2: Top Navigation Styles (Fixed)
+   UI v3: Sidebar & Bottom Nav (Responsive)
 ========================================= */
 
-.content-wrapper {
-  padding-top: 80px; /* Space for top nav */
+:root {
+  --sidebar-width: 240px;
+  --bottom-nav-height: 65px;
 }
 
-.top-header-nav {
+/* Base Content Wrapper */
+.content-wrapper {
+  transition: padding 0.3s ease;
+  padding-bottom: calc(var(--bottom-nav-height) + 20px); /* For mobile bottom nav */
+  padding-top: 20px;
+}
+
+/* App Navigation Container */
+.app-nav {
   position: fixed;
-  top: 0; left: 0; right: 0;
-  width: 100vw;
-  height: 60px;
   background: rgba(10, 14, 26, 0.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border-glass);
-  display: flex !important;
-  flex-direction: row !important;
-  justify-content: center !important;
-  align-items: center !important;
+  border: 1px solid var(--border-glass);
+  display: flex;
   z-index: 99999;
+  transition: var(--transition);
 }
 
-.top-header-nav .header-item {
+.app-nav .header-item {
   display: flex !important;
-  flex-direction: row !important;
   align-items: center !important;
   justify-content: center !important;
-  flex: 1;
-  max-width: 150px;
-  height: 100%;
   color: var(--text-muted);
   cursor: pointer;
   transition: var(--transition);
-  gap: 8px; /* icon and text spacing */
+  gap: 8px;
 }
 
-.top-header-nav .header-icon {
-  font-size: 1.2rem;
+.app-nav .header-icon {
+  font-size: 1.4rem;
   transition: transform 0.3s;
 }
 
-.top-header-nav .header-item span {
+.app-nav .header-item span {
   font-size: 0.8rem;
   font-weight: 600;
 }
 
-.top-header-nav .header-item.active {
+.app-nav .header-item.active {
   color: var(--accent-light);
-  box-shadow: inset 0 -3px 0 var(--accent);
 }
 
-.top-header-nav .header-item.active .header-icon {
-  transform: scale(1.1) translateY(2px);
+.app-nav .header-item.active .header-icon {
+  transform: scale(1.1) translateY(-2px);
   filter: drop-shadow(0 0 8px var(--accent-glow));
 }
 
-.top-header-nav .header-item:hover:not(.active) {
+.app-nav .header-item:hover:not(.active) {
   color: var(--text-primary);
 }
 
-@media (max-width: 600px) {
-  .top-header-nav .header-item {
+/* --- Mobile: Bottom Navigation --- */
+@media (max-width: 767px) {
+  .app-nav {
+    bottom: 0; left: 0; right: 0;
+    width: 100vw;
+    height: var(--bottom-nav-height);
+    border-top: 1px solid var(--border-glass);
+    border-bottom: none;
+    flex-direction: row;
+  }
+  
+  .app-nav .header-item {
+    flex: 1;
     flex-direction: column !important;
-    gap: 2px;
+    gap: 4px;
+    height: 100%;
   }
-  .top-header-nav .header-icon {
-    font-size: 1.4rem;
+  
+  .app-nav .header-item span {
+    font-size: 0.7rem;
   }
-  .top-header-nav .header-item span {
-    font-size: 0.65rem;
-  }
-}
-
-@media (max-width: 600px) {
-  .nav-item {
-    flex-direction: column !important; /* Stack on mobile */
-    gap: 2px;
-  }
-  .nav-item .nav-icon {
-    font-size: 1.4rem;
-  }
-  .nav-item span {
-    font-size: 0.65rem;
+  
+  .app-nav .header-item.active {
+    box-shadow: inset 0 3px 0 var(--accent); /* Top border indicator for bottom nav */
+    background: linear-gradient(180deg, rgba(99,102,241,0.1) 0%, transparent 100%);
   }
 }
 
-.nav-item span {
-  font-size: 0.7rem; font-weight: 600;
+/* --- Desktop: Left Sidebar --- */
+@media (min-width: 768px) {
+  body {
+    display: flex; /* Helps structure layout */
+  }
+  
+  .app {
+    max-width: 1000px;
+    margin: 0 auto;
+    width: 100%;
+    /* Align next to sidebar */
+  }
+
+  .content-wrapper {
+    padding-left: calc(var(--sidebar-width) + 20px);
+    padding-bottom: 40px; /* Reset bottom padding */
+    padding-top: 40px;
+  }
+
+  .app-nav {
+    top: 20px;
+    left: 20px;
+    bottom: 20px;
+    width: var(--sidebar-width);
+    border-radius: var(--radius);
+    flex-direction: column;
+    padding: 30px 15px;
+    justify-content: flex-start;
+    gap: 15px;
+    box-shadow: var(--shadow);
+  }
+  
+  .app-nav::before {
+    content: 'JCSQE Study';
+    display: block;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 900;
+    margin-bottom: 30px;
+    background: linear-gradient(135deg, var(--accent-light), #06b6d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .app-nav .header-item {
+    width: 100%;
+    height: 50px;
+    justify-content: flex-start !important;
+    padding: 0 20px;
+    border-radius: var(--radius-sm);
+  }
+  
+  .app-nav .header-item span {
+    font-size: 0.95rem;
+  }
+  
+  .app-nav .header-item.active {
+    background: rgba(99,102,241,0.15);
+    border-left: 3px solid var(--accent);
+    box-shadow: none;
+  }
+  
+  .app-nav .header-item.active .header-icon {
+    transform: scale(1.1);
+  }
 }
 
-.nav-item.active {
+/* =========================================
+   UI v3: Hero Section & Horizontal Scroll
+========================================= */
+
+.hero-section {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95));
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius);
+  padding: 30px 24px;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.hero-section::before {
+  content: '';
+  position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+  background: radial-gradient(circle at center, rgba(99,102,241,0.15) 0%, transparent 60%);
+  pointer-events: none;
+  animation: rotateGlow 20s linear infinite;
+}
+
+@keyframes rotateGlow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.hero-title {
+  font-size: 1.8rem;
+  font-weight: 900;
+  margin-bottom: 5px;
+  color: #fff;
+}
+
+.hero-subtitle {
   color: var(--accent-light);
-  /* Optional: Add a subtle bottom border indicator for the active tab */
-  box-shadow: inset 0 -3px 0 var(--accent);
+  font-weight: 600;
+  font-size: 0.9rem;
 }
 
-.nav-item.active .nav-icon {
-  transform: scale(1.1) translateY(2px);
-  filter: drop-shadow(0 0 8px var(--accent-glow));
+.hero-stats-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
-.nav-item:hover:not(.active) {
-  color: var(--text-primary);
+/* Horizontal Scroll Container */
+.horizontal-scroll-snap {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 16px; /* Space for scrollbar */
+  margin-bottom: 10px;
+  -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+  /* Hide scrollbar for clean look */
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-glass) transparent;
 }
 
-/* Full Screen Overlays (Quiz, Result) */
+.horizontal-scroll-snap::-webkit-scrollbar {
+  height: 6px;
+}
+.horizontal-scroll-snap::-webkit-scrollbar-track {
+  background: transparent;
+}
+.horizontal-scroll-snap::-webkit-scrollbar-thumb {
+  background-color: var(--border-glass);
+  border-radius: 10px;
+}
+
+.horizontal-scroll-snap > * {
+  scroll-snap-align: start;
+  min-width: 140px; /* Minimum width for cards */
+  flex: 0 0 auto;
+}
+
+/* Adjust nav-card for horizontal layout */
+.horizontal-scroll-snap .nav-card {
+  margin: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 20px 16px;
+}
+
+.horizontal-scroll-snap .nav-card .icon {
+  font-size: 2.5rem;
+}
+
+/* Full Screen Overlays (Quiz, Result) - Adjust z-index above sidebar */
 .full-screen {
   position: fixed !important;
-  top: 0; left: 0; width: 100%; height: 100%;
+  top: 0; left: 0; width: 100vw; height: 100vh;
   background: var(--bg-primary);
-  z-index: 2000; /* Above top nav */
+  z-index: 200000; /* Above app nav */
   padding: 20px;
   overflow-y: auto;
   animation: fadeSlideUp 0.3s ease !important;
 }
 
-/* Adjusting Print for UI v2 */
+/* Adjusting Print for UI v3 */
 @media print {
-  .top-nav { display: none !important; }
-  .content-wrapper { padding-top: 0 !important; }
+  .app-nav { display: none !important; }
+  .content-wrapper { padding: 0 !important; }
 }
