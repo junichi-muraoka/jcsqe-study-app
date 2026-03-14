@@ -44,43 +44,68 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
 
   // フルスクリーン用 (クイズ・結果)
   function showScreen(id) {
-    document.getElementById(id).classList.add('active');
-    if (id === 'home') switchTab('tab-home');
+    document.querySelectorAll('.full-screen').forEach(s => s.classList.remove('active'));
+    if (id === 'home') {
+      switchTab('tab-home');
+      return;
+    }
+
+    document.querySelectorAll('.tab-screen').forEach(s => s.classList.remove('active'));
+    const target = document.getElementById(id);
+    if (target) target.classList.add('active');
+    else switchTab('tab-home');
+  }
+
+  function setTextIfPresent(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+    return el;
   }
 
   // ── ホーム画面統計 + 合格予測 + ストリーク + レベル ──
   function updateHomeStats() {
     const d = loadData();
     const box = document.getElementById('home-stats');
+    if (!box) return;
+
     if (d.totalAnswered > 0) {
       box.classList.remove('hidden');
-      document.getElementById('home-total').textContent = d.totalAnswered;
+      setTextIfPresent('home-total', d.totalAnswered);
       const rate = Math.round(d.totalCorrect / d.totalAnswered * 100);
-      document.getElementById('home-rate').textContent = rate + '%';
-      document.getElementById('home-weak').textContent = d.weakIds.length;
+      setTextIfPresent('home-rate', rate + '%');
+      setTextIfPresent('home-weak', d.weakIds.length);
       // ストリーク (#2)
       const streak = d.streak || { count: 0 };
-      document.getElementById('home-streak').textContent = '🔥 ' + streak.count + '日連続';
+      setTextIfPresent('home-streak', '🔥 ' + streak.count + '日連続');
       // レベル (#21)
       const xp = d.xp || 0;
       const level = Math.floor(xp / 50) + 1;
       const titles = ['初心者','見習い','エンジニア','マスター','マエストロ'];
       const title = titles[Math.min(Math.floor((level-1)/5), titles.length-1)];
-      document.getElementById('home-level').textContent = '⭐ Lv.' + level + ' ' + title;
+      setTextIfPresent('home-level', '⭐ Lv.' + level + ' ' + title);
       // 合格予測
-      const chapCount = Object.keys(d.chapterStats).length;
+      const chapCount = Object.keys(d.chapterStats || {}).length;
       const coverage = Math.min(chapCount / 5, 1);
       const volume = Math.min(d.totalAnswered / 200, 1);
       const predict = Math.round(rate * 0.5 + coverage * 25 + volume * 25);
       const clamped = Math.min(Math.max(predict, 0), 100);
       const pEl = document.getElementById('home-predict');
-      pEl.classList.remove('hidden');
+      if (pEl) pEl.classList.remove('hidden');
       const fill = document.getElementById('predict-fill');
-      fill.style.width = clamped + '%';
-      fill.style.background = clamped >= 70 ? 'linear-gradient(90deg, var(--success), #34d399)' : 'linear-gradient(90deg, var(--warning), var(--danger))';
-      document.getElementById('predict-value').textContent = clamped + '%';
-      document.getElementById('predict-value').style.color = clamped >= 70 ? 'var(--success)' : 'var(--danger)';
-    } else { box.classList.add('hidden'); }
+      if (fill) {
+        fill.style.width = clamped + '%';
+        fill.style.background = clamped >= 70 ? 'linear-gradient(90deg, var(--success), #34d399)' : 'linear-gradient(90deg, var(--warning), var(--danger))';
+      }
+      const predictValue = document.getElementById('predict-value');
+      if (predictValue) {
+        predictValue.textContent = clamped + '%';
+        predictValue.style.color = clamped >= 70 ? 'var(--success)' : 'var(--danger)';
+      }
+    } else {
+      box.classList.add('hidden');
+      const pEl = document.getElementById('home-predict');
+      if (pEl) pEl.classList.add('hidden');
+    }
   }
 
   // ── 章選択画面 ──
@@ -463,19 +488,25 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
   }
 
   // ── ライトモード切替 (#5) ──
+  function updateThemeToggle(theme) {
+    setTextIfPresent('theme-toggle', theme === 'light' ? '☀️' : '🌙');
+    const label = theme === 'light' ? 'ダークモードに切替' : 'ライトモードに切替';
+    setTextIfPresent('theme-toggle-label', label);
+    const btn = document.getElementById('theme-toggle-btn');
+    if (btn) btn.setAttribute('aria-label', label);
+  }
+
   function toggleTheme() {
     const body = document.body;
-    const isLight = body.getAttribute('data-theme') === 'light';
-    body.setAttribute('data-theme', isLight ? 'dark' : 'light');
-    document.getElementById('theme-toggle').textContent = isLight ? '🌙' : '☀️';
-    localStorage.setItem('jcsqe_theme', isLight ? 'dark' : 'light');
+    const nextTheme = body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    body.setAttribute('data-theme', nextTheme);
+    updateThemeToggle(nextTheme);
+    localStorage.setItem('jcsqe_theme', nextTheme);
   }
   function initTheme() {
-    const saved = localStorage.getItem('jcsqe_theme');
-    if (saved === 'light') {
-      document.body.setAttribute('data-theme', 'light');
-      document.getElementById('theme-toggle').textContent = '☀️';
-    }
+    const saved = localStorage.getItem('jcsqe_theme') === 'light' ? 'light' : 'dark';
+    document.body.setAttribute('data-theme', saved);
+    updateThemeToggle(saved);
   }
 
   // ── データエクスポート/インポート (#12) ──

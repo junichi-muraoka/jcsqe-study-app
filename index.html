@@ -48,6 +48,9 @@
             <div id="home-stats" class="hero-stats-row hidden">
               <span id="home-streak" class="streak-badge">🔥 0日連続</span>
               <span id="home-level" class="level-badge">⭐ Lv.1</span>
+              <span class="home-quick-stat"><strong id="home-total">0</strong>問解答</span>
+              <span class="home-quick-stat"><strong id="home-rate">0%</strong>正答</span>
+              <span class="home-quick-stat"><strong id="home-weak">0</strong>問弱点</span>
               <div id="home-predict" class="pass-predict hidden" style="margin-top:0; flex:1; min-width:150px;">
                 <div class="predict-label" style="color:rgba(255,255,255,0.8);">🎯 合格予測</div>
                 <div class="predict-bar"><div class="predict-fill" id="predict-fill"></div></div>
@@ -167,7 +170,9 @@
         
         <div class="card">
           <h3 style="margin-bottom:16px;">🎨 テーマ設定</h3>
-          <button class="btn btn-secondary btn-block" onclick="toggleTheme()" style="justify-content:center;">🌙 ライト/ダークモード切替</button>
+          <button class="btn btn-secondary btn-block" id="theme-toggle-btn" onclick="toggleTheme()" style="justify-content:center;">
+            <span id="theme-toggle" aria-hidden="true">🌙</span>&nbsp;<span id="theme-toggle-label">ライトモードに切替</span>
+          </button>
         </div>
 
         <div class="card">

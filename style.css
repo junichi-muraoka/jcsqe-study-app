@@ -668,6 +668,24 @@ body[data-theme="light"] .header h1 {
   flex-wrap: wrap;
 }
 
+.home-quick-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-glass);
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.home-quick-stat strong {
+  color: var(--accent-light);
+  font-size: 0.92rem;
+}
+
 /* Horizontal Scroll Container */
 .horizontal-scroll-snap {
   display: flex;
