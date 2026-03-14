@@ -41,15 +41,18 @@ try {
 
 const questions = context.QUESTIONS;
 
-// 2. 解説データを読み込み（EXP/EXP2 のエントリ検証用）
+// 2. 解説データを読み込み（EXP/EXP2/EXP3 のエントリ検証用）
 let expData = {}; // id -> { d: array }
 try {
-  const expContext = { EXP: {}, EXP2: {}, QUESTIONS: questions };
+  const expContext = { EXP: {}, EXP2: {}, EXP3: {}, QUESTIONS: questions };
   vm.createContext(expContext);
+  let expExtraCode = fs.readFileSync(path.join(baseDir, 'explanations_extra.js'), 'utf8');
+  expExtraCode = expExtraCode.replace(/const EXP3 = /g, 'EXP3 = ');
+  new vm.Script(expExtraCode).runInContext(expContext);
   let expCode = fs.readFileSync(path.join(baseDir, 'explanations.js'), 'utf8');
   expCode = expCode.replace(/const (EXP|EXP2) = /g, '$1 = ');
   new vm.Script(expCode).runInContext(expContext);
-  Object.assign(expData, expContext.EXP, expContext.EXP2);
+  Object.assign(expData, expContext.EXP, expContext.EXP2, expContext.EXP3);
 } catch (e) {
   err(`解説ファイルの読み込みに失敗: ${e.message}`);
   process.exit(1);

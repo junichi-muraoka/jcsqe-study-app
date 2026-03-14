@@ -55,6 +55,6 @@ const EXP2 = {
 };
 // QUESTIONSにマージ
 QUESTIONS.forEach(q => {
-  const e = EXP[q.id] || EXP2[q.id];
+  const e = EXP[q.id] || EXP2[q.id] || (typeof EXP3 !== 'undefined' ? EXP3[q.id] : null);
   if (e) { q.choiceDetails = e.d; q.source = "参照: " + e.s; }
 });

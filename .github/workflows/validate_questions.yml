@@ -11,6 +11,7 @@ on:
       - 'questions_extra2.js'
       - 'questions_extra3.js'
       - 'explanations.js'
+      - 'explanations_extra.js'
 
 jobs:
   validate:

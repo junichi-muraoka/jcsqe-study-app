@@ -52,21 +52,23 @@ GitHub Actions + `gh` CLI で Issue 本文をパース
 
 ---
 
-## 4. E2E テスト（アプリの動作確認）
+## 4. E2E テスト（アプリの動作確認）✅ 実装済み
 
-Playwright 等でブラウザ操作を自動化します。
+Playwright でブラウザ操作を自動化します。
 
 ### テスト例
 - ホーム画面が表示される
 - 「今日の 5 問」をクリック → クイズ開始
 - 1 問解答 → 解説が表示される
-- 模擬試験モードでタイマーが動く
+- 模擬試験モードでタイマーが表示される
 
 ### トリガー
-PR 作成・更新時
+PR で `index.html`, `app.js`, `style.css`, `questions*.js`, `explanations*.js` が変更されたとき
 
 ### 実装
-Playwright + GitHub Actions（要 Node.js 環境）
+- **テスト**: `tests/e2e.spec.js`
+- **設定**: `playwright.config.js`
+- **ワークフロー**: `.github/workflows/e2e.yml`
 
 ---
 
