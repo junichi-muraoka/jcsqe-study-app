@@ -1,0 +1,28 @@
+name: Validate Questions Data
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - master
+    paths:
+      - 'questions.js'
+      - 'questions_extra1.js'
+      - 'questions_extra2.js'
+      - 'questions_extra3.js'
+      - 'explanations.js'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate questions and explanations
+        run: node scripts/validate-questions.js

@@ -30,7 +30,17 @@ CIが落とされた（あるいは更新が必要だと気付いた）場合、
   3. 必要なファイル群を自動で編集・上書き。
   4. 変更を `git commit` し、ドキュメント更新を完了させる。
 
-## 3. まとめ：理想的な開発サイクル
+## 3. データ整合性チェック（問題・解説）
+
+問題データ（`questions*.js`）と解説データ（`explanations.js`）の整合性を PR 時に自動検証します。
+
+- **ファイル**: `.github/workflows/validate_questions.yml`
+- **トリガー**: `questions*.js` または `explanations.js` が変更された PR
+- **スクリプト**: `scripts/validate-questions.js`
+
+詳細な計画は [07_automated_testing_plan.md](07_automated_testing_plan.md) を参照してください。
+
+## 4. まとめ：理想的な開発サイクル
 
 1. **開発**: 開発者がコードを書き、新しい機能を追加する。
 2. **AI更新**: AIに `/update_docs` を指示し、ドキュメントの追従を任せる。
