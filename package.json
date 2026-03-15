@@ -4,6 +4,7 @@
   "description": "JCSQE初級 合格対策学習アプリ",
   "private": true,
   "scripts": {
+    "test": "node --test",
     "validate": "node scripts/validate-questions.js",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"

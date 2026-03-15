@@ -3,17 +3,28 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
 (function() {
   'use strict';
 
-  const STORAGE_KEY = 'jcsqe_study_data';
+  const { STORAGE_KEY, DATA_VERSION, defaultData, normalizeStudyData, parseImportedStudyData } = window.StudyData;
   let state = { mode: null, chapter: null, questions: [], idx: 0, score: 0, answers: [], timer: null, timeLeft: 0 };
   let comboCount = 0;
 
   // ── データ永続化 ──
   function loadData() {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || defaultData(); }
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return defaultData();
+      const parsed = JSON.parse(raw);
+      const normalized = normalizeStudyData(parsed);
+      const needsMigration = parsed.version !== DATA_VERSION
+        || Array.isArray(parsed.mockExams)
+        || typeof parsed.streak !== 'object'
+        || !Array.isArray(parsed.mockHistory)
+        || typeof parsed.spacedRepetition !== 'object';
+      if (needsMigration) saveData(normalized);
+      return normalized;
+    }
     catch { return defaultData(); }
   }
-  function saveData(d) { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); }
-  function defaultData() { return { totalAnswered: 0, totalCorrect: 0, chapterStats: {}, weakIds: [], history: [], mockHistory: [], dailyActivity: {}, bookmarks: [], streak: { lastDate: null, count: 0 }, xp: 0 }; }
+  function saveData(d) { localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizeStudyData(d))); }
   function resetData() {
     if (!confirm('学習データをすべてリセットしますか？')) return;
     localStorage.removeItem(STORAGE_KEY);
@@ -29,9 +40,15 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
     if (targetTab) targetTab.classList.add('active');
     
     // Update nav icons
-    document.querySelectorAll('.app-nav .header-item').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll('.app-nav .header-item').forEach(n => {
+      n.classList.remove('active');
+      n.removeAttribute('aria-current');
+    });
     const navBtn = document.getElementById('nav-btn-' + tabId.replace('tab-', ''));
-    if (navBtn) navBtn.classList.add('active');
+    if (navBtn) {
+      navBtn.classList.add('active');
+      navBtn.setAttribute('aria-current', 'page');
+    }
     
     // Hide full screens
     document.getElementById('quiz').classList.remove('active');
@@ -172,6 +189,18 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
     if (d.weakIds.length === 0) { alert('弱点問題はありません！素晴らしいです！'); return; }
     state.mode = 'weak'; state.chapter = null;
     let qs = QUESTIONS.filter(q => d.weakIds.includes(q.id));
+    shuffle(qs);
+    state.questions = qs; state.idx = 0; state.score = 0; state.answers = [];
+    document.getElementById('quiz-timer-box').classList.add('hidden');
+    showScreen('quiz');
+    renderQuestion();
+  }
+
+  function startBookmarkMode() {
+    const d = loadData();
+    if (!d.bookmarks || d.bookmarks.length === 0) { alert('ブックマーク問題はありません。'); return; }
+    state.mode = 'bookmark'; state.chapter = null;
+    let qs = QUESTIONS.filter(q => d.bookmarks.includes(q.id));
     shuffle(qs);
     state.questions = qs; state.idx = 0; state.score = 0; state.answers = [];
     document.getElementById('quiz-timer-box').classList.add('hidden');
@@ -327,6 +356,7 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
     if (state.timer) { clearInterval(state.timer); state.timer = null; }
     const total = state.questions.length;
     const pct = Math.round(state.score / total * 100);
+    const labels = ['A', 'B', 'C', 'D'];
     document.getElementById('result-score').textContent = pct + '%';
     document.getElementById('result-detail').textContent = `${state.score} / ${total} 正解`;
 
@@ -356,6 +386,58 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
     }).join('');
     document.getElementById('result-chapter-stats').innerHTML = statsHtml;
 
+    const weakestChapter = Object.keys(chStats)
+      .map(chId => {
+        const s = chStats[chId];
+        return {
+          chapter: CHAPTERS.find(c => c.id === parseInt(chId)),
+          pct: Math.round(s.correct / s.total * 100)
+        };
+      })
+      .sort((a, b) => a.pct - b.pct)[0];
+    const wrongAnswers = state.answers
+      .filter(a => !a.correct)
+      .map(a => {
+        const q = QUESTIONS.find(qq => qq.id === a.qid);
+        return { answer: a, question: q };
+      });
+
+    const summaryEl = document.getElementById('result-review-summary');
+    if (summaryEl) {
+      if (wrongAnswers.length === 0) {
+        summaryEl.innerHTML = '全問正解です。今回は復習対象がないので、そのまま次のセットか模擬試験へ進めます。';
+      } else if (weakestChapter && weakestChapter.chapter) {
+        summaryEl.innerHTML = `不正解は <strong>${wrongAnswers.length}問</strong> でした。まずは <strong>第${weakestChapter.chapter.id}章 ${weakestChapter.chapter.name}</strong>（正答率 ${weakestChapter.pct}%）を見直すのがおすすめです。`;
+      } else {
+        summaryEl.innerHTML = `不正解は <strong>${wrongAnswers.length}問</strong> でした。下の一覧から、間違えた問題の解説を優先して見直してください。`;
+      }
+    }
+
+    const wrongListEl = document.getElementById('result-wrong-list');
+    if (wrongListEl) {
+      if (wrongAnswers.length === 0) {
+        wrongListEl.innerHTML = '<div class="result-empty-note">今回の復習対象はありません。次は弱点克服や模擬試験でペースを維持しましょう。</div>';
+      } else {
+        wrongListEl.innerHTML = wrongAnswers.map(({ answer, question }) => {
+          const chapter = CHAPTERS.find(c => c.id === question.chapter);
+          const chosen = labels[answer.chosen] || '-';
+          const correct = labels[question.answer] || '-';
+          return `
+            <details class="review-item">
+              <summary>
+                <div class="review-meta">${chapter ? `${chapter.icon} 第${chapter.id}章` : '復習問題'} / 正答 ${correct}</div>
+                <div class="review-question">${question.question}</div>
+              </summary>
+              <div class="review-body">
+                <div class="review-answer">あなたの回答: ${chosen} / 正答: ${correct}</div>
+                <div class="review-explanation">${question.explanation || '解説はありません。'}</div>
+              </div>
+            </details>
+          `;
+        }).join('');
+      }
+    }
+
     // 模擬試験履歴保存 (#4)
     if (state.mode === 'mock') {
       const d = loadData();
@@ -371,6 +453,7 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
   function retryQuiz() {
     if (state.mode === 'chapter') startChapterMode(state.chapter);
     else if (state.mode === 'weak') startWeakMode();
+    else if (state.mode === 'bookmark') startBookmarkMode();
     else if (state.mode === 'mock') startMockExam();
   }
 
@@ -454,6 +537,26 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
         return `<p style="margin-bottom:6px;">• [${ch.icon}] ${q.question.substring(0, 40)}…</p>`;
       }).join('');
     }
+
+    // ブックマーク問題 (#40)
+    const bookmarks = d.bookmarks || [];
+    const bookmarkCountEl = document.getElementById('dash-bookmark-count');
+    const bookmarkListEl = document.getElementById('dash-bookmark-list');
+    if (bookmarkCountEl) bookmarkCountEl.textContent = bookmarks.length;
+    if (bookmarkListEl) {
+      if (bookmarks.length === 0) {
+        bookmarkListEl.innerHTML = '<p style="color:var(--text-muted);">ブックマークした問題はありません</p>';
+      } else {
+        bookmarkListEl.innerHTML = QUESTIONS
+          .filter(q => bookmarks.includes(q.id))
+          .slice(0, 8)
+          .map(q => {
+            const chapter = CHAPTERS.find(c => c.id === q.chapter);
+            return `<div class="mock-item"><div><span class="bookmark-item-title">${q.question.substring(0, 46)}…</span><span class="bookmark-item-meta">${chapter ? `${chapter.icon} 第${chapter.id}章` : ''} / ${q.level}</span></div></div>`;
+          })
+          .join('');
+      }
+    }
   }
 
   function showDashboard() {
@@ -525,13 +628,19 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
     const reader = new FileReader();
     reader.onload = function(e) {
       try {
-        const d = JSON.parse(e.target.result);
-        if (d.totalAnswered !== undefined) {
-          saveData(d);
-          alert('データを取り込みました！');
-          showDashboard();
-        } else { alert('無効なデータファイルです。'); }
-      } catch { alert('ファイルの読み込みに失敗しました。'); }
+        const parsed = JSON.parse(e.target.result);
+        const result = parseImportedStudyData(parsed);
+        if (result.error) {
+          alert(result.error);
+          return;
+        }
+        saveData(result.data);
+        alert('データを取り込みました。旧形式のデータは現在の形式へ変換しています。');
+        updateHomeStats();
+        showDashboard();
+      } catch {
+        alert('ファイルの読み込みに失敗しました。JSON形式を確認してください。');
+      }
     };
     reader.readAsText(file);
     event.target.value = '';
@@ -555,6 +664,11 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
         e.preventDefault();
         nextQuestion();
       }
+    }
+    if (screenId === 'tab-glossary' && glossaryFlashcardMode) {
+      if (e.key === 'ArrowRight') { e.preventDefault(); flashcardNext(); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); flashcardPrev(); }
+      if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flashcardFlip(); }
     }
     // Esc でホームに戻る
     if (e.key === 'Escape') showScreen('home');
@@ -606,25 +720,100 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
     saveData(d);
   }
 
-  // ── 用語集 (#8) ──
+  // ── 用語集 (#8) + フラッシュカード (#39) ──
+  let glossaryFlashcardMode = false;
+  let glossaryFlashcardItems = [];
+  let glossaryFlashcardIdx = 0;
+
+  function getFilteredGlossary() {
+    const f = (document.getElementById('glossary-search')?.value || '').toLowerCase();
+    if (!f) return [...(typeof GLOSSARY !== 'undefined' ? GLOSSARY : [])];
+    return GLOSSARY.filter(g => g.term.toLowerCase().includes(f) || g.reading.includes(f) || g.desc.includes(f));
+  }
+
   function renderGlossary(filter) {
     const el = document.getElementById('glossary-list');
+    const fcEl = document.getElementById('glossary-flashcard');
     if (!el || typeof GLOSSARY === 'undefined') return;
-    const f = (filter || '').toLowerCase();
+    const f = (filter ?? document.getElementById('glossary-search')?.value ?? '').toLowerCase();
     const items = GLOSSARY.filter(g => !f || g.term.toLowerCase().includes(f) || g.reading.includes(f) || g.desc.includes(f));
-    el.innerHTML = items.map(g =>
-      `<div style="padding:12px;margin-bottom:8px;background:var(--bg-glass);border:1px solid var(--border-glass);border-radius:var(--radius-sm);cursor:pointer;" onclick="this.querySelector('.g-desc').classList.toggle('hidden')">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-weight:700;">${g.term}</span>
-          <span style="font-size:0.7rem;padding:2px 8px;border-radius:12px;background:var(--ch${g.chapter});color:#fff;">第${g.chapter}章</span>
-        </div>
-        <div class="g-desc hidden" style="margin-top:8px;font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">${g.desc}</div>
-      </div>`
-    ).join('');
-    if (items.length === 0) el.innerHTML = '<p style="color:var(--text-muted);">該当する用語が見つかりません</p>';
+
+    if (glossaryFlashcardMode && fcEl) {
+      el.classList.add('hidden');
+      fcEl.classList.remove('hidden');
+      glossaryFlashcardItems = items.slice();
+      shuffle(glossaryFlashcardItems);
+      glossaryFlashcardIdx = 0;
+      renderFlashcard();
+    } else {
+      if (fcEl) fcEl.classList.add('hidden');
+      el.classList.remove('hidden');
+      el.innerHTML = items.map(g =>
+        `<div style="padding:12px;margin-bottom:8px;background:var(--bg-glass);border:1px solid var(--border-glass);border-radius:var(--radius-sm);cursor:pointer;" onclick="this.querySelector('.g-desc').classList.toggle('hidden')">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-weight:700;">${g.term}</span>
+            <span style="font-size:0.7rem;padding:2px 8px;border-radius:12px;background:var(--ch${g.chapter});color:#fff;">第${g.chapter}章</span>
+          </div>
+          <div class="g-desc hidden" style="margin-top:8px;font-size:0.85rem;color:var(--text-secondary);line-height:1.7;">${g.desc}</div>
+        </div>`
+      ).join('');
+      if (items.length === 0) el.innerHTML = '<p style="color:var(--text-muted);">該当する用語が見つかりません</p>';
+    }
   }
+
+  function toggleGlossaryMode() {
+    glossaryFlashcardMode = !glossaryFlashcardMode;
+    const btn = document.getElementById('glossary-mode-btn');
+    if (btn) {
+      btn.textContent = glossaryFlashcardMode ? '📋 一覧表示' : '🃏 フラッシュカード';
+      btn.setAttribute('aria-pressed', String(glossaryFlashcardMode));
+    }
+    renderGlossary();
+  }
+
+  function renderFlashcard() {
+    const front = document.getElementById('flashcard-front');
+    const back = document.getElementById('flashcard-back');
+    const counter = document.getElementById('flashcard-counter');
+    const inner = document.getElementById('flashcard-inner');
+    if (!front || !back || !counter || !inner) return;
+    if (glossaryFlashcardItems.length === 0) {
+      front.textContent = '該当する用語がありません';
+      back.classList.add('hidden');
+      counter.textContent = '0 / 0';
+      return;
+    }
+    const g = glossaryFlashcardItems[glossaryFlashcardIdx];
+    const ch = typeof CHAPTERS !== 'undefined' ? CHAPTERS.find(c => c.id === g.chapter) : null;
+    front.innerHTML = `<span class="flashcard-term">${g.term}</span><span class="flashcard-reading">${g.reading}</span>`;
+    back.innerHTML = `<div class="flashcard-desc">${g.desc}</div><span class="flashcard-chapter">${ch ? ch.icon + ' 第' + ch.id + '章' : ''}</span>`;
+    inner.classList.remove('flipped');
+    counter.textContent = `${glossaryFlashcardIdx + 1} / ${glossaryFlashcardItems.length}`;
+    document.getElementById('flashcard-prev')?.setAttribute('aria-disabled', glossaryFlashcardIdx === 0 ? 'true' : 'false');
+    document.getElementById('flashcard-next')?.setAttribute('aria-disabled', glossaryFlashcardIdx >= glossaryFlashcardItems.length - 1 ? 'true' : 'false');
+  }
+
+  function flashcardFlip() {
+    const inner = document.getElementById('flashcard-inner');
+    if (inner) inner.classList.toggle('flipped');
+  }
+
+  function flashcardNext() {
+    if (glossaryFlashcardIdx < glossaryFlashcardItems.length - 1) {
+      glossaryFlashcardIdx++;
+      renderFlashcard();
+    }
+  }
+
+  function flashcardPrev() {
+    if (glossaryFlashcardIdx > 0) {
+      glossaryFlashcardIdx--;
+      renderFlashcard();
+    }
+  }
+
   function filterGlossary() {
-    renderGlossary(document.getElementById('glossary-search').value);
+    renderGlossary(document.getElementById('glossary-search')?.value);
   }
 
   // ── 学習計画ジェネレータ (#25) ──
@@ -727,6 +916,7 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
   window.showScreen = showScreen;
   window.switchTab = switchTab;
   window.startWeakMode = startWeakMode;
+  window.startBookmarkMode = startBookmarkMode;
   window.startMockExam = startMockExam;
   window.startSpacedMode = startSpacedMode;
   window.startDailyChallenge = startDailyChallenge;
@@ -740,5 +930,9 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
   window.importData = importData;
   window.printSummary = printSummary;
   window.filterGlossary = filterGlossary;
+  window.toggleGlossaryMode = toggleGlossaryMode;
+  window.flashcardFlip = flashcardFlip;
+  window.flashcardNext = flashcardNext;
+  window.flashcardPrev = flashcardPrev;
   window.toggleBookmark = toggleBookmark;
 })();

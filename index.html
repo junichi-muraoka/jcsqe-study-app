@@ -7,27 +7,27 @@
   <meta name="theme-color" content="#0a0e1a">
   <link rel="manifest" href="manifest.json">
   <title>JCSQE初級 合格対策アプリ</title>
-  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
   <!-- ================= ナビゲーション (Sidebar / Bottom Nav) ================= -->
   <nav class="app-nav">
-    <div class="header-item active" onclick="switchTab('tab-home')" id="nav-btn-home">
-      <div class="header-icon">🏠</div>
+    <button type="button" class="header-item active" onclick="switchTab('tab-home')" id="nav-btn-home" aria-controls="tab-home" aria-current="page">
+      <span class="header-icon" aria-hidden="true">🏠</span>
       <span>ホーム</span>
-    </div>
-    <div class="header-item" onclick="switchTab('tab-glossary')" id="nav-btn-glossary">
-      <div class="header-icon">📖</div>
+    </button>
+    <button type="button" class="header-item" onclick="switchTab('tab-glossary')" id="nav-btn-glossary" aria-controls="tab-glossary">
+      <span class="header-icon" aria-hidden="true">📖</span>
       <span>用語集</span>
-    </div>
-    <div class="header-item" onclick="switchTab('tab-stats')" id="nav-btn-stats">
-      <div class="header-icon">📊</div>
+    </button>
+    <button type="button" class="header-item" onclick="switchTab('tab-stats')" id="nav-btn-stats" aria-controls="tab-stats">
+      <span class="header-icon" aria-hidden="true">📊</span>
       <span>成績</span>
-    </div>
-    <div class="header-item" onclick="switchTab('tab-settings')" id="nav-btn-settings">
-      <div class="header-icon">⚙️</div>
+    </button>
+    <button type="button" class="header-item" onclick="switchTab('tab-settings')" id="nav-btn-settings" aria-controls="tab-settings">
+      <span class="header-icon" aria-hidden="true">⚙️</span>
       <span>設定</span>
-    </div>
+    </button>
   </nav>
 
   <div class="app">
@@ -112,8 +112,22 @@
         </div>
 
         <div class="card">
-          <input type="text" id="glossary-search" placeholder="🔍 用語を検索..." oninput="filterGlossary()" style="width:100%;padding:10px 14px;border:1px solid var(--border-glass);border-radius:var(--radius-sm);background:var(--bg-glass);color:var(--text-primary);font-family:inherit;font-size:0.9rem;margin-bottom:16px;">
+          <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap;">
+            <input type="text" id="glossary-search" placeholder="🔍 用語を検索..." oninput="filterGlossary()" style="flex:1;min-width:140px;padding:10px 14px;border:1px solid var(--border-glass);border-radius:var(--radius-sm);background:var(--bg-glass);color:var(--text-primary);font-family:inherit;font-size:0.9rem;">
+            <button type="button" class="btn btn-secondary btn-sm" id="glossary-mode-btn" onclick="toggleGlossaryMode()" aria-pressed="false">🃏 フラッシュカード</button>
+          </div>
           <div id="glossary-list"></div>
+          <div id="glossary-flashcard" class="glossary-flashcard hidden">
+            <div class="flashcard-nav">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="flashcardPrev()" id="flashcard-prev">← 前へ</button>
+              <span id="flashcard-counter">1 / 30</span>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="flashcardNext()" id="flashcard-next">次へ →</button>
+            </div>
+            <div class="flashcard-inner" id="flashcard-inner" onclick="flashcardFlip()" role="button" tabindex="0" aria-label="カードをめくる">
+              <div class="flashcard-front" id="flashcard-front"></div>
+              <div class="flashcard-back" id="flashcard-back"></div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -159,6 +173,14 @@
         <div class="card" id="dash-weak-card">
           <h3 style="margin-bottom:12px;">🔄 弱点問題 (<span id="dash-weak-count">0</span>問)</h3>
           <div id="dash-weak-list" style="font-size:0.85rem;color:var(--text-secondary);"></div>
+        </div>
+
+        <div class="card" id="dash-bookmark-card">
+          <div class="bookmark-card-header">
+            <h3>⭐ ブックマーク問題 (<span id="dash-bookmark-count">0</span>問)</h3>
+            <button class="btn btn-secondary btn-sm" onclick="startBookmarkMode()">まとめて復習</button>
+          </div>
+          <div id="dash-bookmark-list" style="font-size:0.85rem;color:var(--text-secondary);"></div>
         </div>
       </div>
 
@@ -222,6 +244,11 @@
           <div class="result-label" id="result-detail">32 / 40 正解</div>
           <div id="result-pass" class="result-pass hidden">合格ライン達成！</div>
           <div class="chapter-stats mt-20" id="result-chapter-stats"></div>
+          <div class="result-review mt-20">
+            <h3 style="margin-bottom:12px;">📚 復習ガイド</h3>
+            <div id="result-review-summary" class="result-review-summary"></div>
+            <div id="result-wrong-list" class="result-wrong-list"></div>
+          </div>
           <div class="flex-row mt-20" style="flex-direction:column; gap:12px;">
             <button class="btn btn-primary btn-block" id="result-retry-btn" onclick="retryQuiz()" style="justify-content:center;">🔄 もう一度解く</button>
             <button class="btn btn-secondary btn-block" onclick="switchTab('tab-home')" style="justify-content:center;">🏠 ホームへ戻る</button>
@@ -232,13 +259,14 @@
     </div> <!-- .content-wrapper 終了 -->
   </div>
 
-  <script src="questions.js"></script>
-  <script src="questions_extra1.js"></script>
-  <script src="questions_extra2.js"></script>
-  <script src="questions_extra3.js"></script>
-  <script src="explanations_extra.js"></script>
-  <script src="explanations.js"></script>
-  <script src="glossary.js"></script>
-  <script src="app.js"></script>
+  <script src="questions.js" defer></script>
+  <script src="questions_extra1.js" defer></script>
+  <script src="questions_extra2.js" defer></script>
+  <script src="questions_extra3.js" defer></script>
+  <script src="explanations_extra.js" defer></script>
+  <script src="explanations.js" defer></script>
+  <script src="glossary.js" defer></script>
+  <script src="study-data.js" defer></script>
+  <script src="app.js" defer></script>
 </body>
 </html>

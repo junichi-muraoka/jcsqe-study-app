@@ -1,8 +1,8 @@
-const CACHE_NAME = 'jcsqe-v1';
+const CACHE_NAME = 'jcsqe-v9';
 const ASSETS = [
   './', './index.html', './style.css', './app.js',
   './questions.js', './questions_extra1.js', './questions_extra2.js', './questions_extra3.js',
-  './explanations_extra.js', './explanations.js', './manifest.json'
+  './explanations_extra.js', './explanations.js', './glossary.js', './study-data.js', './manifest.json'
 ];
 
 self.addEventListener('install', e => {

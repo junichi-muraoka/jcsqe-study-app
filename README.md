@@ -39,6 +39,7 @@
 ```bash
 git clone https://github.com/junichi-muraoka/jcsqe-study-app.git
 cd jcsqe-study-app
+npm test
 # 方法1: ブラウザで直接開く
 open index.html
 
