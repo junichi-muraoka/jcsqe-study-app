@@ -2,6 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![GitHub Pages](https://img.shields.io/badge/Demo-GitHub%20Pages-brightgreen)](https://junichi-muraoka.github.io/jcsqe-study-app/)
+[![CI](https://github.com/junichi-muraoka/jcsqe-study-app/actions/workflows/ci.yml/badge.svg)](https://github.com/junichi-muraoka/jcsqe-study-app/actions/workflows/ci.yml)
 [![Questions](https://img.shields.io/badge/収録問題数-127問-orange)]()
 
 > **SQuBOK Guide 第3版**に準拠した、JCSQE初級（ソフトウェア品質技術者資格試験）合格を目指す実践型学習Webアプリです。

@@ -6,7 +6,7 @@
 
 アプリケーションの仕様を変えたにも関わらず、設計書や仕様書の更新が追いついていない「ドキュメントの陳腐化」を防ぎます。
 
-- **ファイル**: `.github/workflows/docs_check.yml`
+- **ファイル**: `.github/workflows/ci.yml` の `docs-check` job
 - **トリガー**: `master` ブランチに対する Pull Request の作成・更新時
 - **仕組み**:
   1. `app.js` や `index.html`, `style.css` などのアプリ本体コードに変更があったかを検知。
@@ -34,7 +34,7 @@ CIが落とされた（あるいは更新が必要だと気付いた）場合、
 
 問題データ（`questions*.js`）と解説データ（`explanations.js`）の整合性を PR 時に自動検証します。
 
-- **ファイル**: `.github/workflows/validate_questions.yml`
+- **ファイル**: `.github/workflows/ci.yml` の `validate` job
 - **トリガー**: `questions*.js` または `explanations.js` が変更された PR
 - **スクリプト**: `scripts/validate-questions.js`
 

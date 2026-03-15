@@ -25,7 +25,7 @@
 
 ### 実装
 - **スクリプト**: `scripts/validate-questions.js`
-- **ワークフロー**: `.github/workflows/validate_questions.yml`
+- **ワークフロー**: `.github/workflows/ci.yml` の `validate` job
 
 ---
 
@@ -73,8 +73,15 @@ Playwright でブラウザ操作を自動化します。
 ### 実装
 - **テスト**: `tests/e2e.spec.js`
 - **設定**: `playwright.config.js`
-- **ワークフロー**: `.github/workflows/e2e.yml`
-- **補足**: 実行後は Playwright の HTML レポートを artifact として保存
+- **ワークフロー**: `.github/workflows/ci.yml` の `e2e` job
+- **補足**: 実行後は Playwright の HTML レポートに加え、失敗時のスクリーンショット・動画・トレースを artifact として保存
+
+## 4.1 ドキュメント同期チェック（PR 向け）✅ 実装済み・運用中
+
+アプリ本体の変更が入った PR で、`docs/` または `README.md` の更新漏れを検知します。
+
+### 実装
+- **ワークフロー**: `.github/workflows/ci.yml` の `docs-check` job
 
 ---
 
@@ -96,7 +103,7 @@ Issue 作成時、または PR で問題データを追加したとき
 | 3    | Issue 作成時のバリデーション | 中   | 不完全な Issue を減らせる      |
 | 4    | E2E テスト                   | 大   | リグレッションを防げる         |
 
-**おすすめ**: まずは「1. データ整合性チェック」から着手。既存の `docs_check.yml` と同様のワークフローで、問題・解説ファイルの変更時のみ実行する形にできる。
+**おすすめ**: まずは「1. データ整合性チェック」から着手。現在は `ci.yml` に統合されており、変更ファイルに応じて必要な job のみを実行する構成になっています。
 
 ---
 

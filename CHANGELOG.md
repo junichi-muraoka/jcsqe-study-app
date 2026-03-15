@@ -10,8 +10,11 @@
 ### 変更
 - `generateStudyPlan()` を成績タブ更新時に再計算するように変更
 - `docs/03_features.md` と `docs/05_future_roadmap.md` を現状実装に合わせて更新
-- GitHub Actions の `validate_questions.yml` / `e2e.yml` を `npm ci` ベースに統一し、`master` push・手動実行・Playwright レポート保存に対応
-- `docs_check.yml` の対象判定を見直し、`tests/` や `scripts/` の変更で不要にドキュメント更新を要求しないよう改善
+- GitHub Actions の CI を `npm ci` ベースに統一し、`master` push・手動実行・Playwright レポート保存に対応
+- ドキュメント同期チェックの対象判定を見直し、`tests/` や `scripts/` の変更で不要にドキュメント更新を要求しないよう改善
+- GitHub Actions を `.github/workflows/ci.yml` に統合し、変更ファイルに応じて `validate` / `e2e` / `docs-check` job を切り替える構成に整理
+- Playwright の失敗時にスクリーンショット・動画・トレースを保持し、artifact として取得できるよう改善
+- README に CI ステータスバッジを追加
 
 ## [1.1.0] - 2026-03-10
 
