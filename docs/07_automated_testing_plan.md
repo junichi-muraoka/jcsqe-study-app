@@ -6,7 +6,7 @@
 
 ---
 
-## 1. データ整合性チェック（優先度高）✅ 実装済み
+## 1. データ整合性チェック（優先度高）✅ 実装済み・運用中
 
 `questions.js` と `explanations.js` の整合性を PR 時に検証します。
 
@@ -19,7 +19,9 @@
 - ID の重複がない
 
 ### トリガー
-PR で `questions*.js` または `explanations.js` が変更されたとき
+- PR で `questions*.js` / `explanations*.js` / 検証スクリプトが変更されたとき
+- `master` への push
+- GitHub Actions の手動実行（`workflow_dispatch`）
 
 ### 実装
 - **スクリプト**: `scripts/validate-questions.js`
@@ -52,7 +54,7 @@ GitHub Actions + `gh` CLI で Issue 本文をパース
 
 ---
 
-## 4. E2E テスト（アプリの動作確認）✅ 実装済み
+## 4. E2E テスト（アプリの動作確認）✅ 実装済み・運用中
 
 Playwright でブラウザ操作を自動化します。
 
@@ -61,14 +63,18 @@ Playwright でブラウザ操作を自動化します。
 - 「今日の 5 問」をクリック → クイズ開始
 - 1 問解答 → 解説が表示される
 - 模擬試験モードでタイマーが表示される
+- 成績タブに学習計画カードが表示される
 
 ### トリガー
-PR で `index.html`, `app.js`, `style.css`, `questions*.js`, `explanations*.js` が変更されたとき
+- PR で `index.html`, `app.js`, `style.css`, `questions*.js`, `explanations*.js`, `tests/**`, `playwright.config.js` が変更されたとき
+- `master` への push
+- GitHub Actions の手動実行（`workflow_dispatch`）
 
 ### 実装
 - **テスト**: `tests/e2e.spec.js`
 - **設定**: `playwright.config.js`
 - **ワークフロー**: `.github/workflows/e2e.yml`
+- **補足**: 実行後は Playwright の HTML レポートを artifact として保存
 
 ---
 

@@ -6,9 +6,13 @@ on:
     branches:
       - master
 
+permissions:
+  contents: read
+
 jobs:
   check-docs-updated:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -18,8 +22,8 @@ jobs:
       - name: Check for modified app files
         id: check_app_files
         run: |
-          # Check if html, css, or js files outside of tests/docs have been modified
-          if git diff --name-only origin/${{ github.base_ref }}...${{ github.sha }} | grep -E '\.(html|js|css)$' | grep -v 'docs/'; then
+          # Check if application html/css/js files changed, excluding docs/tests/scripts helpers
+          if git diff --name-only origin/${{ github.base_ref }}...${{ github.sha }} | grep -E '\.(html|js|css)$' | grep -Ev '^(docs/|tests/|scripts/)'; then
             echo "app_modified=true" >> $GITHUB_OUTPUT
           else
             echo "app_modified=false" >> $GITHUB_OUTPUT
