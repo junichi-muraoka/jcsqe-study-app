@@ -251,6 +251,7 @@
           </div>
           <div class="flex-row mt-20" style="flex-direction:column; gap:12px;">
             <button class="btn btn-primary btn-block" id="result-retry-btn" onclick="retryQuiz()" style="justify-content:center;">🔄 もう一度解く</button>
+            <button class="btn btn-secondary btn-block hidden" id="result-retry-wrong-btn" style="justify-content:center;">📚 間違えた問題を復習</button>
             <button class="btn btn-secondary btn-block" onclick="switchTab('tab-home')" style="justify-content:center;">🏠 ホームへ戻る</button>
           </div>
         </div>
@@ -267,6 +268,8 @@
   <script src="explanations.js" defer></script>
   <script src="glossary.js" defer></script>
   <script src="study-data.js" defer></script>
+  <script src="js/storage.js" defer></script>
+  <script src="js/state.js" defer></script>
   <script src="app.js" defer></script>
 </body>
 </html>

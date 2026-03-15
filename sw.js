@@ -1,6 +1,7 @@
-const CACHE_NAME = 'jcsqe-v9';
+const CACHE_NAME = 'jcsqe-v10';
 const ASSETS = [
   './', './index.html', './style.css', './app.js',
+  './js/storage.js', './js/state.js',
   './questions.js', './questions_extra1.js', './questions_extra2.js', './questions_extra3.js',
   './explanations_extra.js', './explanations.js', './glossary.js', './study-data.js', './manifest.json'
 ];

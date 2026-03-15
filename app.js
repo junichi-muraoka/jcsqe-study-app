@@ -3,28 +3,13 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
 (function() {
   'use strict';
 
-  const { STORAGE_KEY, DATA_VERSION, defaultData, normalizeStudyData, parseImportedStudyData } = window.StudyData;
-  let state = { mode: null, chapter: null, questions: [], idx: 0, score: 0, answers: [], timer: null, timeLeft: 0 };
+  const { parseImportedStudyData } = window.StudyData;
+  const loadData = window.JCSQE.loadData;
+  const saveData = window.JCSQE.saveData;
+  const state = window.JCSQE.state;
   let comboCount = 0;
 
   // ── データ永続化 ──
-  function loadData() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return defaultData();
-      const parsed = JSON.parse(raw);
-      const normalized = normalizeStudyData(parsed);
-      const needsMigration = parsed.version !== DATA_VERSION
-        || Array.isArray(parsed.mockExams)
-        || typeof parsed.streak !== 'object'
-        || !Array.isArray(parsed.mockHistory)
-        || typeof parsed.spacedRepetition !== 'object';
-      if (needsMigration) saveData(normalized);
-      return normalized;
-    }
-    catch { return defaultData(); }
-  }
-  function saveData(d) { localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizeStudyData(d))); }
   function resetData() {
     if (!confirm('学習データをすべてリセットしますか？')) return;
     localStorage.removeItem(STORAGE_KEY);
@@ -169,7 +154,6 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
         guideEl.classList.remove('hidden');
       }
     }
-    el.appendChild(all);
   }
 
   // ── 分野別学習 ──
@@ -196,12 +180,15 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
     renderQuestion();
   }
 
-  function startBookmarkMode() {
+  function startBookmarkMode(firstId) {
     const d = loadData();
     if (!d.bookmarks || d.bookmarks.length === 0) { alert('ブックマーク問題はありません。'); return; }
     state.mode = 'bookmark'; state.chapter = null;
     let qs = QUESTIONS.filter(q => d.bookmarks.includes(q.id));
     shuffle(qs);
+    if (firstId && qs.some(q => q.id === firstId)) {
+      qs = [qs.find(q => q.id === firstId), ...qs.filter(q => q.id !== firstId)];
+    }
     state.questions = qs; state.idx = 0; state.score = 0; state.answers = [];
     document.getElementById('quiz-timer-box').classList.add('hidden');
     showScreen('quiz');
@@ -447,6 +434,15 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
       saveData(d);
     }
     document.getElementById('result-retry-btn').onclick = () => retryQuiz();
+    const retryWrongBtn = document.getElementById('result-retry-wrong-btn');
+    if (retryWrongBtn) {
+      if (wrongAnswers.length > 0) {
+        retryWrongBtn.classList.remove('hidden');
+        retryWrongBtn.onclick = () => startRetryWrongMode();
+      } else {
+        retryWrongBtn.classList.add('hidden');
+      }
+    }
     showScreen('result');
   }
 
@@ -455,6 +451,24 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
     else if (state.mode === 'weak') startWeakMode();
     else if (state.mode === 'bookmark') startBookmarkMode();
     else if (state.mode === 'mock') startMockExam();
+    else if (state.mode === 'retryWrong') startRetryWrongMode();
+  }
+
+  // 模擬試験・結果画面: 間違えた問題だけを復習 (#38)
+  function startRetryWrongMode() {
+    const wrongIds = state.answers.filter(a => !a.correct).map(a => a.qid);
+    if (wrongIds.length === 0) return;
+    state.mode = 'retryWrong';
+    state.chapter = null;
+    const qs = wrongIds.map(id => QUESTIONS.find(q => q.id === id)).filter(Boolean);
+    shuffle(qs);
+    state.questions = qs;
+    state.idx = 0;
+    state.score = 0;
+    state.answers = [];
+    document.getElementById('quiz-timer-box').classList.add('hidden');
+    showScreen('quiz');
+    renderQuestion();
   }
 
   // ── ダッシュボード ──
@@ -549,12 +563,16 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
       } else {
         bookmarkListEl.innerHTML = QUESTIONS
           .filter(q => bookmarks.includes(q.id))
-          .slice(0, 8)
+          .slice(0, 12)
           .map(q => {
             const chapter = CHAPTERS.find(c => c.id === q.chapter);
-            return `<div class="mock-item"><div><span class="bookmark-item-title">${q.question.substring(0, 46)}…</span><span class="bookmark-item-meta">${chapter ? `${chapter.icon} 第${chapter.id}章` : ''} / ${q.level}</span></div></div>`;
+            return `<div class="mock-item bookmark-item" data-qid="${q.id}" role="button" tabindex="0"><div><span class="bookmark-item-title">${q.question.substring(0, 46)}…</span><span class="bookmark-item-meta">${chapter ? `${chapter.icon} 第${chapter.id}章` : ''} / ${q.level}</span></div></div>`;
           })
           .join('');
+        bookmarkListEl.querySelectorAll('.bookmark-item').forEach(el => {
+          el.addEventListener('click', () => startBookmarkMode(parseInt(el.dataset.qid, 10)));
+          el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); startBookmarkMode(parseInt(el.dataset.qid, 10)); } });
+        });
       }
     }
   }
