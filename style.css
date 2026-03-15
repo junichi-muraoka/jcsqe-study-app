@@ -395,6 +395,17 @@ body[data-theme="light"] .header h1 {
 .analysis-strong { background: var(--success-bg); color: var(--success); }
 .analysis-weak { background: var(--danger-bg); color: var(--danger); }
 
+/* Study Plan (#25) */
+.study-plan-content h4 {
+  margin-bottom: 8px;
+  color: var(--accent-light);
+  font-size: 0.95rem;
+}
+.study-plan-content p {
+  margin-bottom: 6px;
+  line-height: 1.8;
+}
+
 /* Print Styles (#26) */
 @media print {
   body { background: #fff !important; color: #000 !important; }

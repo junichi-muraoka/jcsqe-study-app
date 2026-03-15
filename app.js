@@ -427,6 +427,7 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
       else if (p < 60) aHtml += `<div class="analysis-item analysis-weak">⚠️ 第${ch.id}章 ${ch.name.substring(0,10)} — 要強化 (${p}%)</div>`;
     });
     aEl.innerHTML = aHtml || '<p style="color:var(--text-muted);">データが不足しています。もう少し学習を進めてください。</p>';
+    generateStudyPlan();
 
     // 学習ヒートマップ (#23)
     const hmEl = document.getElementById('dash-heatmap');

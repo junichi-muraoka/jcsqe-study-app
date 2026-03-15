@@ -32,4 +32,11 @@ test.describe('JCSQE学習アプリ E2E', () => {
     await expect(page.locator('#quiz')).toBeVisible({ timeout: 5000 });
     await expect(page.locator('#quiz-timer')).toBeVisible({ timeout: 3000 });
   });
+
+  test('成績タブに学習計画カードが表示される', async ({ page }) => {
+    await page.goto('/');
+    await page.getByText('成績').first().click();
+    await expect(page.locator('#tab-stats')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('#plan-result')).toContainText('1日の目安', { timeout: 3000 });
+  });
 });
