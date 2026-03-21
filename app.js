@@ -8,6 +8,9 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
   const saveData = window.JCSQE.saveData;
   const state = window.JCSQE.state;
   let comboCount = 0;
+  let glossaryFlashcardMode = false;
+  let glossaryFlashcardItems = [];
+  let glossaryFlashcardIdx = 0;
 
   // ── データ永続化 ──
   function resetData() {
@@ -739,10 +742,6 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
   }
 
   // ── 用語集 (#8) + フラッシュカード (#39) ──
-  let glossaryFlashcardMode = false;
-  let glossaryFlashcardItems = [];
-  let glossaryFlashcardIdx = 0;
-
   function getFilteredGlossary() {
     const f = (document.getElementById('glossary-search')?.value || '').toLowerCase();
     if (!f) return [...(typeof GLOSSARY !== 'undefined' ? GLOSSARY : [])];

@@ -57,7 +57,128 @@ CIが落とされた（あるいは更新が必要だと気付いた）場合、
 
 詳細な計画は [07_automated_testing_plan.md](07_automated_testing_plan.md) を参照してください。
 
-## 4. まとめ：理想的な開発サイクル
+## 4. バグ改修フロー
+
+バグ発見時は Issue を作成し、改修完了後には原因・対策・再発防止を記録して横展開に活かします。
+
+- **Issue テンプレート**: `.github/ISSUE_TEMPLATE/bug_report.md`
+- **報告時（発見者が記入）**: 現象、再現手順、期待値、実際の動作、発生環境、発生条件、重大度、影響範囲、回避策、添付
+- **修正後（修正者が記入）**: 原因、対策、検証方法、横展開、再発防止、関連PR
+
+**運用ルール**:
+1. バグ発見 → Issue 作成（報告時セクションを記入）
+2. 修正 PR 作成 → 関連 Issue をリンク
+3. **PR マージ前に** 該当 Issue の「修正後」セクションを記入
+4. マージ後、Issue をクローズ
+
+## 5. バグ改修 CI/CD フロー
+
+テスト → バグ発見 → 起票 → 改修 → 横展開 → リグレッション → 完了の一連の流れを CI/CD で担保します。
+
+```mermaid
+flowchart TB
+    subgraph test [テスト]
+        T1[Unit/Validate]
+        T2[E2E]
+    end
+    subgraph discover [バグ発見]
+        D1[CI失敗]
+        D2[手動テスト]
+    end
+    subgraph ticket [起票]
+        I1[Issue作成]
+    end
+    subgraph fix [改修]
+        F1[fixブランチ]
+        F2[PR作成]
+    end
+    subgraph lateral [横展開]
+        L1[同様箇所確認]
+    end
+    subgraph regression [リグレッション]
+        R1[CI再実行]
+    end
+    subgraph done [完了]
+        M1[マージ]
+        M2[Issueクローズ]
+    end
+
+    T1 --> D1
+    T2 --> D1
+    D1 --> I1
+    D2 --> I1
+    I1 --> F1
+    F1 --> F2
+    F2 --> L1
+    L1 --> R1
+    R1 -->|Pass| M1
+    M1 --> M2
+```
+
+### 各ステップの説明
+
+| ステップ | 内容 |
+|----------|------|
+| **テスト** | L1: `npm test`（unit + validate）、L2: Playwright E2E（app 変更時） |
+| **バグ発見** | CI 失敗、または手動テストで不具合を検知 |
+| **起票** | Issue を作成し、報告時セクションを記入。main への push でテスト失敗時は自動で Issue が作成される |
+| **改修** | fix ブランチで修正し、PR を作成 |
+| **横展開** | 同様の実装箇所がないか確認し、必要に応じて修正 |
+| **リグレッション** | PR に push するたびに CI が再実行。全テスト通過でリグレッションなしとみなす |
+| **完了** | マージ後、`Closes #N` で Issue が自動クローズ |
+
+### 自動 vs 手動 起票フロー
+
+| 発見経路 | 起票方法 | トリガー |
+|----------|----------|----------|
+| **main への push で npm test 失敗** | 自動 | `test.yml` の `create-regression-issue` |
+| **main への push で E2E 失敗** | 自動 | `e2e.yml` の `create-regression-issue` |
+| **PR で test/E2E 失敗** | 手動 | 開発者が対応（修正中とみなす） |
+| **手動テストで発見** | 手動 | `npm run bug:sync`（issues/*.md 一括）または `npm run bug:report` |
+
+### main への push 失敗時の自動 Issue 作成
+
+`master` ブランチへの直接 push でテストが失敗した場合、リグレッション検知のため自動で Issue が作成されます。
+
+| ワークフロー | 対象 | タイトル例 |
+|-------------|------|------------|
+| `test.yml` | `npm test` 失敗 | `[Regression] Tests failed on main @ abc1234` |
+| `e2e.yml` | E2E 失敗 | `[Regression] E2E tests failed on main @ abc1234` |
+
+- **本文**: 失敗したコミット、ワークフロー実行ログへのリンク、修正後セクションのひな形
+- **トリガー**: `push` のみ。PR 上の失敗では作成されません（修正中とみなす）
+- **E2E の実行**: `push` と `pull_request` の両方で、app ファイル変更時に実行
+
+### 手動起票の簡略化
+
+手動テストでバグを発見した場合、以下で素早く Issue を作成できます。
+
+```bash
+# issues/bug-*.md を GitHub Issue に一括同期（推奨）
+npm run bug:sync
+
+# テンプレート本文をプリフィルして新規 Issue 作成
+npm run bug:report
+
+# ブラウザで New Issue を開く
+npm run bug:report:web
+```
+
+**`bug:sync`**: `issues/` フォルダ内の `bug-*.md` を走査し、未起票のものを `gh issue create` で一括作成します。`issues/.synced.json` で起票済みを管理するため、二重起票は発生しません。`gh auth login` 済みである必要があります。
+
+**`bug:report`**: 実行後、タイトルを入力するよう促されます。`[Bug] 現象の概要` のように記入してください。
+
+### Branch Protection の推奨設定
+
+main の品質を守るため、以下を推奨します。
+
+- **Require a pull request before merging**: 有効化
+- **Require status checks to pass**: 有効化し、`test` を必須に
+- **Do not allow bypassing the above settings**: 管理者も含めて適用（任意）
+
+詳細は [CONTRIBUTING.md](../CONTRIBUTING.md) を参照してください。
+
+## 6. まとめ：理想的な開発サイクル
 
 1. **開発**: 開発者がコードを書き、新しい機能を追加する。
 2. **AI更新**: AIに `/update_docs` を指示し、ドキュメントの追従を任せる。

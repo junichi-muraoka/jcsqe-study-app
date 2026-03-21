@@ -75,22 +75,22 @@
 
         <h3 style="margin-bottom: 12px; font-size: 1.1rem;">🚀 学習メニュー</h3>
         <div class="horizontal-scroll-snap">
-          <div class="nav-card" onclick="startDailyChallenge()">
+          <div class="nav-card" data-testid="nav-daily" onclick="startDailyChallenge()">
             <span class="icon">🌟</span>
             <span class="label">今日の5問</span>
             <span class="desc">デイリーチャレンジ</span>
           </div>
-          <div class="nav-card" onclick="startWeakMode()">
+          <div class="nav-card" data-testid="nav-weak" onclick="startWeakMode()">
             <span class="icon">🔄</span>
             <span class="label">弱点克服</span>
             <span class="desc">間違えた問題を復習</span>
           </div>
-          <div class="nav-card" onclick="startSpacedMode()">
+          <div class="nav-card" data-testid="nav-spaced" onclick="startSpacedMode()">
             <span class="icon">🧠</span>
             <span class="label">間隔反復</span>
             <span class="desc">忘却曲線に基づく復習</span>
           </div>
-          <div class="nav-card" onclick="startMockExam()">
+          <div class="nav-card" data-testid="nav-mock" onclick="startMockExam()">
             <span class="icon">🎯</span>
             <span class="label">模擬試験</span>
             <span class="desc">本番形式 40問/60分</span>
@@ -209,55 +209,56 @@
         </div>
       </div>
 
-      <!-- ================= クイズ・結果画面 (フルスクリーン) ================= -->
-      <!-- クイズ画面 -->
-      <div id="quiz" class="screen full-screen">
-        <button class="btn btn-secondary btn-back" onclick="switchTab('tab-home')">← やめる</button>
-        <div class="text-center mb-20 hidden" id="quiz-timer-box">
-          <div class="timer" id="quiz-timer">60:00</div>
-        </div>
-        <div class="card">
-          <div class="quiz-header">
-            <span class="quiz-progress" id="quiz-progress">1 / 10</span>
-            <span class="quiz-tag" id="quiz-tag"></span>
-            <button class="bookmark-btn" id="quiz-bookmark" onclick="toggleBookmark()" title="ブックマーク">☆</button>
-            <span class="quiz-level" id="quiz-level">L1</span>
-          </div>
-          <div class="progress-bar"><div class="progress-fill" id="quiz-bar" style="width:0%"></div></div>
-          <p class="quiz-question" id="quiz-question"></p>
-          <div class="choices" id="quiz-choices"></div>
-          <div id="quiz-explanation" class="explanation hidden">
-            <h4>💡 解説</h4>
-            <div id="quiz-explanation-text"></div>
-          </div>
-          <div class="mt-20 text-center hidden" id="quiz-next-box" style="text-align:right;">
-            <button class="btn btn-primary btn-sm" onclick="nextQuestion()" id="quiz-next-btn">次の問題 →</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 結果画面 -->
-      <div id="result" class="screen full-screen">
-        <div class="card result-card">
-          <h2 style="margin-bottom:20px;">📝 結果</h2>
-          <div class="result-score" id="result-score">80%</div>
-          <div class="result-label" id="result-detail">32 / 40 正解</div>
-          <div id="result-pass" class="result-pass hidden">合格ライン達成！</div>
-          <div class="chapter-stats mt-20" id="result-chapter-stats"></div>
-          <div class="result-review mt-20">
-            <h3 style="margin-bottom:12px;">📚 復習ガイド</h3>
-            <div id="result-review-summary" class="result-review-summary"></div>
-            <div id="result-wrong-list" class="result-wrong-list"></div>
-          </div>
-          <div class="flex-row mt-20" style="flex-direction:column; gap:12px;">
-            <button class="btn btn-primary btn-block" id="result-retry-btn" onclick="retryQuiz()" style="justify-content:center;">🔄 もう一度解く</button>
-            <button class="btn btn-secondary btn-block hidden" id="result-retry-wrong-btn" style="justify-content:center;">📚 間違えた問題を復習</button>
-            <button class="btn btn-secondary btn-block" onclick="switchTab('tab-home')" style="justify-content:center;">🏠 ホームへ戻る</button>
-          </div>
-        </div>
-      </div>
-
     </div> <!-- .content-wrapper 終了 -->
+  </div>
+
+  <!-- ================= クイズ・結果画面 (フルスクリーン) ================= -->
+  <!-- bodyの直下に配置し、サイドバー(z-index:99999)より上に表示されるようにする -->
+  <!-- クイズ画面 -->
+  <div id="quiz" class="screen full-screen">
+    <button class="btn btn-secondary btn-back" onclick="switchTab('tab-home')">← やめる</button>
+    <div class="text-center mb-20 hidden" id="quiz-timer-box">
+      <div class="timer" id="quiz-timer">60:00</div>
+    </div>
+    <div class="card">
+      <div class="quiz-header">
+        <span class="quiz-progress" id="quiz-progress">1 / 10</span>
+        <span class="quiz-tag" id="quiz-tag"></span>
+        <button class="bookmark-btn" id="quiz-bookmark" onclick="toggleBookmark()" title="ブックマーク">☆</button>
+        <span class="quiz-level" id="quiz-level">L1</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="quiz-bar" style="width:0%"></div></div>
+      <p class="quiz-question" id="quiz-question"></p>
+      <div class="choices" id="quiz-choices"></div>
+      <div id="quiz-explanation" class="explanation hidden">
+        <h4>💡 解説</h4>
+        <div id="quiz-explanation-text"></div>
+      </div>
+      <div class="mt-20 text-center hidden" id="quiz-next-box" style="text-align:right;">
+        <button class="btn btn-primary btn-sm" onclick="nextQuestion()" id="quiz-next-btn">次の問題 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 結果画面 -->
+  <div id="result" class="screen full-screen">
+    <div class="card result-card">
+      <h2 style="margin-bottom:20px;">📝 結果</h2>
+      <div class="result-score" id="result-score">80%</div>
+      <div class="result-label" id="result-detail">32 / 40 正解</div>
+      <div id="result-pass" class="result-pass hidden">合格ライン達成！</div>
+      <div class="chapter-stats mt-20" id="result-chapter-stats"></div>
+      <div class="result-review mt-20">
+        <h3 style="margin-bottom:12px;">📚 復習ガイド</h3>
+        <div id="result-review-summary" class="result-review-summary"></div>
+        <div id="result-wrong-list" class="result-wrong-list"></div>
+      </div>
+      <div class="flex-row mt-20" style="flex-direction:column; gap:12px;">
+        <button class="btn btn-primary btn-block" id="result-retry-btn" onclick="retryQuiz()" style="justify-content:center;">🔄 もう一度解く</button>
+        <button class="btn btn-secondary btn-block hidden" id="result-retry-wrong-btn" style="justify-content:center;">📚 間違えた問題を復習</button>
+        <button class="btn btn-secondary btn-block" onclick="switchTab('tab-home')" style="justify-content:center;">🏠 ホームへ戻る</button>
+      </div>
+    </div>
   </div>
 
   <script src="questions.js" defer></script>

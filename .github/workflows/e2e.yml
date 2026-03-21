@@ -1,6 +1,16 @@
 name: E2E Tests
 
 on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'index.html'
+      - 'app.js'
+      - 'style.css'
+      - 'questions.js'
+      - 'questions_extra*.js'
+      - 'explanations*.js'
   pull_request:
     types: [opened, synchronize, reopened]
     branches:
@@ -34,3 +44,25 @@ jobs:
 
       - name: Run E2E tests
         run: npm run test:e2e
+
+  create-regression-issue:
+    needs: e2e
+    if: failure() && github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Create regression issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const shortSha = context.sha.substring(0, 7);
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const commitUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/commit/${context.sha}`;
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `[Regression] E2E tests failed on main @ ${shortSha}`,
+              body: `## 現象\nmain ブランチへの push で E2E テストが失敗しました。\n\n## 再現手順\n1. 以下のコミットを確認\n2. \`npm run test:e2e\` をローカルで実行\n\n## 発生環境\n- コミット: ${commitUrl}\n- ワークフロー実行: ${runUrl}\n\n## 期待値\n全 E2E テストが通過すること\n\n## 実際の動作\nE2E テストが失敗している\n\n---\n\n## 🔧 修正後（修正者が記入）\n\n### 原因\n<!-- 根本原因を簡潔に -->\n\n### 対策\n<!-- 実施した修正内容 -->\n\n### 検証方法\n<!-- 修正が正しいことを確認する手順 -->\n\n### 横展開\n<!-- 同様の実装箇所の有無と対応状況 -->\n\n### 再発防止\n<!-- テスト追加、ドキュメント更新、CI強化など -->\n\n### 関連PR\n<!-- 修正PRのリンク（例: #123） -->`,
+              labels: ['bug']
+            });

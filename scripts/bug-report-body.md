@@ -1,11 +1,3 @@
----
-name: 🐛 バグ報告
-about: 不具合を報告する
-title: "[Bug] "
-labels: bug
-assignees: ''
----
-
 ## 📌 報告時（発見者が記入）
 
 ### 現象

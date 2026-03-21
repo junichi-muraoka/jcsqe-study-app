@@ -7,7 +7,10 @@
     "test": "node --test && node scripts/validate-questions.js",
     "validate": "node scripts/validate-questions.js",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "bug:report": "gh issue create --body-file scripts/bug-report-body.md --label bug",
+    "bug:report:web": "gh issue create --web",
+    "bug:sync": "node scripts/sync-bug-issues.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.40.0",
