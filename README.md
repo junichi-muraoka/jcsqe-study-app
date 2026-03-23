@@ -62,7 +62,7 @@ npx http-server ./ -p 8080 -o
 3. `firestore.rules` をデプロイする（`firebase deploy --only firestore:rules` またはコンソールでルール設定）。
 4. 認証ドメインに GitHub Pages の URL（例: `https://<user>.github.io`）を authorized domains に追加する。
 
-詳細は [docs/09_cloud_sync_firebase_spec.md](docs/09_cloud_sync_firebase_spec.md) を参照。
+**画面操作を順番に追う手順**は [docs/firebase_manual_setup.md](docs/firebase_manual_setup.md) を参照。仕様・エラー UX は [docs/09_cloud_sync_firebase_spec.md](docs/09_cloud_sync_firebase_spec.md)。
 
 ## 📝 JCSQE試験について
 
@@ -93,6 +93,7 @@ npx http-server ./ -p 8080 -o
 - [将来の拡張ロードマップ (05_future_roadmap.md)](docs/05_future_roadmap.md)
 - [開発・ドキュメント管理ワークフロー (06_development_workflow.md)](docs/06_development_workflow.md)
 - [クラウド同期・Firebase 制限とエラー UX (09_cloud_sync_firebase_spec.md)](docs/09_cloud_sync_firebase_spec.md)
+- [Firebase 手動セットアップ手順（コンソール・CLI）(firebase_manual_setup.md)](docs/firebase_manual_setup.md)
 - [実行環境一覧（本番・検証・Firebase）(environments.md)](docs/environments.md)
 
 ## 📄 ライセンス

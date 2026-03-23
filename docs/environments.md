@@ -16,6 +16,8 @@
 | **Production** | （未作成） | Firebase コンソールで作成後、ここに記載 |
 | **Staging** | （未作成） | 検証用は別プロジェクト推奨 |
 
+手動セットアップの具体手順: [firebase_manual_setup.md](./firebase_manual_setup.md)
+
 ## GitHub Actions
 
 - 手動デプロイ: [`.github/workflows/deploy-pages.yml`](../.github/workflows/deploy-pages.yml)（`workflow_dispatch`）
