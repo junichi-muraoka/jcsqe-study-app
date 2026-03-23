@@ -42,7 +42,7 @@
           <div class="hero-content">
             <div>
               <div class="hero-title">JCSQE初級 合格対策</div>
-              <div class="hero-subtitle">SQuBOK Guide 第3版準拠 ｜ 全127問収録</div>
+              <div class="hero-subtitle">SQuBOK Guide 第3版準拠 ｜ 全200問収録</div>
             </div>
             
             <div id="home-stats" class="hero-stats-row hidden">
@@ -212,9 +212,25 @@
     </div> <!-- .content-wrapper 終了 -->
   </div>
 
+  <!-- 出題数選択 (#46) -->
+  <div id="question-count-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="qcount-modal-title" onclick="if(event.target===this)closeQuestionCountModal()">
+    <div class="card modal-card" onclick="event.stopPropagation()">
+      <h3 id="qcount-modal-title" style="margin-bottom:8px;">出題数を選ぶ</h3>
+      <p id="qcount-modal-sub" style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px;line-height:1.5;"></p>
+      <div class="qcount-chips" id="qcount-chips">
+        <button type="button" class="btn btn-secondary qcount-chip" data-qcount="5">5問</button>
+        <button type="button" class="btn btn-secondary qcount-chip" data-qcount="10">10問</button>
+        <button type="button" class="btn btn-secondary qcount-chip" data-qcount="20">20問</button>
+        <button type="button" class="btn btn-secondary qcount-chip" data-qcount="all">全問</button>
+      </div>
+      <div class="flex-row" style="margin-top:20px;">
+        <button type="button" class="btn btn-secondary btn-block" style="justify-content:center;" onclick="closeQuestionCountModal()">キャンセル</button>
+        <button type="button" class="btn btn-primary btn-block" style="justify-content:center;" onclick="confirmQuestionCountModal()">開始</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ================= クイズ・結果画面 (フルスクリーン) ================= -->
-  <!-- bodyの直下に配置し、サイドバー(z-index:99999)より上に表示されるようにする -->
-  <!-- クイズ画面 -->
   <div id="quiz" class="screen full-screen">
     <button class="btn btn-secondary btn-back" onclick="switchTab('tab-home')">← やめる</button>
     <div class="text-center mb-20 hidden" id="quiz-timer-box">
@@ -240,7 +256,6 @@
     </div>
   </div>
 
-  <!-- 結果画面 -->
   <div id="result" class="screen full-screen">
     <div class="card result-card">
       <h2 style="margin-bottom:20px;">📝 結果</h2>
@@ -265,7 +280,9 @@
   <script src="questions_extra1.js" defer></script>
   <script src="questions_extra2.js" defer></script>
   <script src="questions_extra3.js" defer></script>
+  <script src="questions_extra4.js" defer></script>
   <script src="explanations_extra.js" defer></script>
+  <script src="explanations_exp3.js" defer></script>
   <script src="explanations.js" defer></script>
   <script src="glossary.js" defer></script>
   <script src="study-data.js" defer></script>

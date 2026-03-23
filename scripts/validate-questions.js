@@ -28,10 +28,11 @@ try {
   const q2 = fs.readFileSync(path.join(baseDir, 'questions_extra1.js'), 'utf8');
   const q3 = fs.readFileSync(path.join(baseDir, 'questions_extra2.js'), 'utf8');
   const q4 = fs.readFileSync(path.join(baseDir, 'questions_extra3.js'), 'utf8');
+  const q5 = fs.readFileSync(path.join(baseDir, 'questions_extra4.js'), 'utf8');
 
   const code = q1
     .replace(/const (CHAPTERS|QUESTIONS) = /g, '$1 = ')
-    + '\n' + q2 + '\n' + q3 + '\n' + q4;
+    + '\n' + q2 + '\n' + q3 + '\n' + q4 + '\n' + q5;
 
   new vm.Script(code).runInContext(context);
 } catch (e) {
@@ -49,6 +50,8 @@ try {
   let expExtraCode = fs.readFileSync(path.join(baseDir, 'explanations_extra.js'), 'utf8');
   expExtraCode = expExtraCode.replace(/const EXP3 = /g, 'EXP3 = ');
   new vm.Script(expExtraCode).runInContext(expContext);
+  const exp3Patch = fs.readFileSync(path.join(baseDir, 'explanations_exp3.js'), 'utf8');
+  new vm.Script(exp3Patch).runInContext(expContext);
   let expCode = fs.readFileSync(path.join(baseDir, 'explanations.js'), 'utf8');
   expCode = expCode.replace(/const (EXP|EXP2) = /g, '$1 = ');
   new vm.Script(expCode).runInContext(expContext);
@@ -85,8 +88,6 @@ for (const q of questions) {
   if (!q.explanation || typeof q.explanation !== 'string' || q.explanation.trim() === '') {
     err(`問題ID ${q.id} に explanation がありません`);
   }
-
-  // 選択肢別解説（EXP/EXP2）がある場合、4つ揃っているかは explanations.js 側でチェック
 
   // chapter 1-5
   if (![1, 2, 3, 4, 5].includes(q.chapter)) {

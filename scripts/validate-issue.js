@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Issue 作成時のバリデーション
- * テンプレートの必須項目が埋まっているかチェック
+ * Issue 作成時のバリデーション（GitHub Actions validate_issue.yml から実行）
+ * テンプレート必須項目が埋まっているかチェック
  *
  * 使用: node scripts/validate-issue.js <title> <body>
  * または環境変数: GITHUB_ISSUE_TITLE, GITHUB_ISSUE_BODY
@@ -21,7 +21,7 @@ function isEmptyOrPlaceholder(text) {
   const trimmed = text.trim();
   if (trimmed.length < 2) return true;
   if (EMPTY_PATTERNS.some(p => p.test(trimmed))) return true;
-  if (/^(なし|未記入|ー|—|-)$/.test(trimmed)) return true;
+  if (/^(なし|未記入|同上|\?|ー|—|-)$/.test(trimmed)) return true;
   return false;
 }
 
@@ -62,7 +62,7 @@ function validateQuestionRequest(body) {
     (chapter.length > 3 && !isEmptyOrPlaceholder(chapter));
 
   if (!hasChapter) {
-    errors.push('対象の章（第1章〜第5章）を指定してください');
+    errors.push('対象の章（第1章〜第5章のいずれか）を指定してください');
   }
 
   return errors;
@@ -93,7 +93,7 @@ function main() {
   } else if (isFeature) {
     errors = validateFeatureRequest(body);
   } else {
-    console.log('⚠️ テンプレートが判定できません。タイトルに [Bug] / [Question] / [Feature] を含めてください。');
+    console.log('ℹ️ テンプレート対象外のためスキップ。タイトルに [Bug] / [Question] / [Feature] を含めてください。');
     process.exit(0);
   }
 
