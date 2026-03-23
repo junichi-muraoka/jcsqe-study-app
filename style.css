@@ -148,7 +148,12 @@ body::before {
 }
 .chapter-item:hover { background: rgba(255,255,255,0.08); transform: translateX(4px); }
 .chapter-item .ch-icon { font-size: 1.6rem; }
-.chapter-item .ch-name { flex: 1; font-weight: 500; }
+.chapter-item .ch-name { flex: 1; font-weight: 500; line-height: 1.45; }
+.chapter-item .ch-name .ch-num {
+  font-weight: 700;
+  color: var(--accent-light);
+  margin-right: 4px;
+}
 .chapter-item .ch-badge {
   padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;
   background: var(--accent-glow); color: var(--accent-light);
@@ -659,11 +664,14 @@ body[data-theme="light"] .header h1 {
 }
 
 .app-nav .header-icon {
-  font-size: 1.4rem;
+  font-size: 1.5rem;
+  line-height: 1;
+  display: block;
   transition: transform 0.3s;
 }
 
-.app-nav .header-item span {
+/* ラベル用のみ（.header-icon は span だが下記で上書きされていたため :not で除外） */
+.app-nav .header-item span:not(.header-icon) {
   font-size: 0.8rem;
   font-weight: 600;
 }
@@ -705,8 +713,12 @@ body[data-theme="light"] .header h1 {
     height: 100%;
   }
   
-  .app-nav .header-item span {
+  .app-nav .header-item span:not(.header-icon) {
     font-size: 0.7rem;
+  }
+
+  .app-nav .header-item .header-icon {
+    font-size: 1.55rem;
   }
   
   .app-nav .header-item.active {
@@ -767,8 +779,12 @@ body[data-theme="light"] .header h1 {
     border-radius: var(--radius-sm);
   }
   
-  .app-nav .header-item span {
+  .app-nav .header-item span:not(.header-icon) {
     font-size: 0.95rem;
+  }
+
+  .app-nav .header-item .header-icon {
+    font-size: 1.35rem;
   }
   
   .app-nav .header-item.active {

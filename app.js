@@ -124,7 +124,7 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
       const pct = cs.answered > 0 ? Math.round(cs.correct / cs.answered * 100) + '%' : '未学習';
       const item = document.createElement('div');
       item.className = 'chapter-item';
-      item.innerHTML = `<span class="ch-icon">${ch.icon}</span><span class="ch-name">${ch.name}</span><span class="ch-badge">${qs.length}問 / ${pct}</span>`;
+      item.innerHTML = `<span class="ch-icon">${ch.icon}</span><span class="ch-name"><span class="ch-num">第${ch.id}章</span> ${ch.name}</span><span class="ch-badge">${qs.length}問 / ${pct}</span>`;
       item.onclick = () => startChapterMode(ch.id);
       el.appendChild(item);
     });
