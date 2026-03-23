@@ -1,0 +1,39 @@
+name: Validate Issue
+
+on:
+  issues:
+    types: [opened, edited]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate issue
+        env:
+          GITHUB_ISSUE_TITLE: ${{ github.event.issue.title }}
+          GITHUB_ISSUE_BODY: ${{ github.event.issue.body }}
+        run: node scripts/validate-issue.js
+
+      - name: Comment on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `⚠️ **Issue バリデーション結果**\n\n必須項目が不足しています。テンプレートの各項目を記入してください。\n\n- バグ報告: 再現手順（3ステップ以上）、環境（OS・ブラウザ）\n- 問題追加: 対象の章（第1章〜第5章）\n- 機能提案: 提案内容`
+            })

@@ -47,17 +47,17 @@ CIが落とされた（あるいは更新が必要だと気付いた）場合、
   3. 必要なファイル群を自動で編集・上書き。
   4. 変更を `git commit` し、ドキュメント更新を完了させる。
 
-## 3. データ整合性チェック（問題・解説）
+## 4. データ整合性チェック（問題・解説）
 
-問題データ（`questions*.js`）と解説データ（`explanations.js`）の整合性を PR 時に自動検証します。
+問題データ（`questions*.js`）と解説データ（`explanations.js` / `explanations_exp3.js`）の整合性を PR 時に自動検証します。
 
 - **ファイル**: `.github/workflows/validate_questions.yml`
-- **トリガー**: `questions*.js` または `explanations.js` が変更された PR
+- **トリガー**: `questions*.js` または `explanations.js` / `explanations_exp3.js` が変更された PR
 - **スクリプト**: `scripts/validate-questions.js`
 
 詳細な計画は [07_automated_testing_plan.md](07_automated_testing_plan.md) を参照してください。
 
-## 4. バグ改修フロー
+## 5. バグ改修フロー
 
 バグ発見時は Issue を作成し、改修完了後には原因・対策・再発防止を記録して横展開に活かします。
 
@@ -71,7 +71,7 @@ CIが落とされた（あるいは更新が必要だと気付いた）場合、
 3. **PR マージ前に** 該当 Issue の「修正後」セクションを記入
 4. マージ後、Issue をクローズ
 
-## 5. バグ改修 CI/CD フロー
+## 6. バグ改修 CI/CD フロー
 
 テスト → バグ発見 → 起票 → 改修 → 横展開 → リグレッション → 完了の一連の流れを CI/CD で担保します。
 
@@ -178,13 +178,30 @@ main の品質を守るため、以下を推奨します。
 
 詳細は [CONTRIBUTING.md](../CONTRIBUTING.md) を参照してください。
 
-## 6. まとめ：理想的な開発サイクル
+## 7. E2E テスト（Playwright）
+
+PR でアプリ本体が変更されたとき、Playwright による E2E テストが自動実行されます。
+
+- **ファイル**: `.github/workflows/e2e.yml`
+- **テスト**: `tests/e2e.spec.js`
+- **Playwright MCP との連携**: [08_hybrid_testing_strategy.md](08_hybrid_testing_strategy.md) にハイブリッド構成案を記載
+
+## 8. Issue 作成時のバリデーション
+
+Issue 作成・編集時に、テンプレートの必須項目が埋まっているか自動チェックします。
+
+- **ファイル**: `.github/workflows/validate_issue.yml`
+- **スクリプト**: `scripts/validate-issue.js`
+- **対象**: [Bug] 再現手順・環境、[Question] 対象の章、[Feature] 提案内容
+
+## 9. まとめ：理想的な開発サイクル
 
 1. **開発**: 開発者がコードを書き、新しい機能を追加する。
 2. **AI更新**: AIに `/update_docs` を指示し、ドキュメントの追従を任せる。
 3. **テスト実行**: `npm test` と GitHub Actions で回帰がないことを確認する。
-4. **PR作成**: GitHubにプッシュしPull Requestを作成する。
-5. **CI通過**: GitHub Actions がテストとドキュメント更新を確認し、グリーン（✅）になる。
-6. **マージ**: 安心して `master` へ取り込む。
+4. **（任意）テスト生成**: Playwright MCP で AI にテストコード生成を依頼し、`tests/` に追加。
+5. **PR作成**: GitHubにプッシュしPull Requestを作成する。
+6. **CI通過**: GitHub Actions がテストとドキュメント更新を確認し、グリーン（✅）になる。
+7. **マージ**: 安心して `master` へ取り込む。
 
 この仕組みにより、開発スピードを落とさずに常に最新の設計書・仕様書を維持することができます。
