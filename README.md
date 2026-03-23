@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![GitHub Pages](https://img.shields.io/badge/Demo-GitHub%20Pages-brightgreen)](https://junichi-muraoka.github.io/jcsqe-study-app/)
-[![Questions](https://img.shields.io/badge/収録問題数-127問-orange)]()
+[![Questions](https://img.shields.io/badge/収録問題数-200問-orange)]()
 
 > **SQuBOK Guide 第3版**に準拠した、JCSQE初級（ソフトウェア品質技術者資格試験）合格を目指す実践型学習Webアプリです。
 
@@ -22,11 +22,11 @@
 
 | 章 | テーマ | 問題数 |
 |----|--------|--------|
-| 第1章 | ソフトウェア品質の基本概念 | 24問 |
-| 第2章 | ソフトウェア品質マネジメント | 23問 |
-| 第3章 | ソフトウェア品質技術 | 30問 |
-| 第4章 | 専門的なソフトウェア品質の概念と技術 | 23問 |
-| 第5章 | ソフトウェア品質の応用領域 | 27問 |
+| 第1章 | ソフトウェア品質の基本概念 | 40問 |
+| 第2章 | ソフトウェア品質マネジメント | 40問 |
+| 第3章 | ソフトウェア品質技術 | 40問 |
+| 第4章 | 専門的なソフトウェア品質の概念と技術 | 40問 |
+| 第5章 | ソフトウェア品質の応用領域 | 40問 |
 
 ## 🚀 使い方
 

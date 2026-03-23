@@ -4,7 +4,7 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
   'use strict';
 
   const STORAGE_KEY = 'jcsqe_study_data';
-  let state = { mode: null, chapter: null, questions: [], idx: 0, score: 0, answers: [], timer: null, timeLeft: 0 };
+  let state = { mode: null, chapter: null, questions: [], idx: 0, score: 0, answers: [], timer: null, timeLeft: 0, sessionLimit: null };
   let comboCount = 0;
 
   // ── データ永続化 ──
@@ -17,7 +17,7 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
   function resetData() {
     if (!confirm('学習データをすべてリセットしますか？')) return;
     localStorage.removeItem(STORAGE_KEY);
-    showScreen('home');
+    switchTab('tab-home');
   }
 
   // ── 画面切り替え (ボトムナビ / サイドバー用) ──
@@ -127,14 +127,71 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
         guideEl.classList.remove('hidden');
       }
     }
-    el.appendChild(all);
+  }
+
+  // ── 出題数モーダル (#46) ──
+  let qcountOnConfirm = null;
+
+  function sliceByLimit(qs, limit) {
+    if (limit === 'all') return qs.slice();
+    const n = Math.min(limit, qs.length);
+    return qs.slice(0, n);
+  }
+
+  function openQuestionCountModal(opts) {
+    const { title, subtitle, onConfirm } = opts;
+    qcountOnConfirm = onConfirm;
+    const modal = document.getElementById('question-count-modal');
+    document.getElementById('qcount-modal-title').textContent = title;
+    document.getElementById('qcount-modal-sub').textContent = subtitle;
+    const chips = modal.querySelectorAll('.qcount-chip');
+    const maxCount = opts.maxCount;
+    const defaultPreset = maxCount >= 10 ? '10' : (maxCount >= 5 ? '5' : 'all');
+    chips.forEach(chip => {
+      chip.classList.toggle('active', chip.dataset.qcount === defaultPreset);
+    });
+    modal.classList.remove('hidden');
+  }
+
+  function closeQuestionCountModal() {
+    document.getElementById('question-count-modal').classList.add('hidden');
+    qcountOnConfirm = null;
+  }
+
+  function confirmQuestionCountModal() {
+    const cb = qcountOnConfirm;
+    const modal = document.getElementById('question-count-modal');
+    const sel = modal.querySelector('.qcount-chip.active');
+    if (!cb || !sel) { closeQuestionCountModal(); return; }
+    const v = sel.dataset.qcount;
+    const limit = v === 'all' ? 'all' : parseInt(v, 10);
+    closeQuestionCountModal();
+    cb(limit);
   }
 
   // ── 分野別学習 ──
-  function startChapterMode(chId) {
-    state.mode = 'chapter'; state.chapter = chId;
+  function startChapterMode(chId, limitOverride) {
+    if (limitOverride === undefined) {
+      const pool = chId === 0 ? [...QUESTIONS] : QUESTIONS.filter(q => q.chapter === chId);
+      const maxCount = pool.length;
+      const ch = chId === 0 ? null : CHAPTERS.find(c => c.id === chId);
+      const label = chId === 0 ? '全章ランダム' : `第${chId}章 ${ch ? ch.name : ''}`;
+      openQuestionCountModal({
+        title: '出題数を選ぶ',
+        subtitle: `「${label.trim()}」— 最大${maxCount}問まで出題できます（選んだ数が多い場合はシャッフル後に先頭から出題します）。`,
+        maxCount,
+        onConfirm: (limit) => runChapterQuiz(chId, limit)
+      });
+      return;
+    }
+    runChapterQuiz(chId, limitOverride);
+  }
+
+  function runChapterQuiz(chId, limit) {
+    state.mode = 'chapter'; state.chapter = chId; state.sessionLimit = limit;
     let qs = chId === 0 ? [...QUESTIONS] : QUESTIONS.filter(q => q.chapter === chId);
     shuffle(qs);
+    qs = sliceByLimit(qs, limit);
     state.questions = qs; state.idx = 0; state.score = 0; state.answers = [];
     document.getElementById('quiz-timer-box').classList.add('hidden');
     showScreen('quiz');
@@ -142,12 +199,29 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
   }
 
   // ── 弱点克服 ──
-  function startWeakMode() {
+  function startWeakMode(limitOverride) {
     const d = loadData();
     if (d.weakIds.length === 0) { alert('弱点問題はありません！素晴らしいです！'); return; }
-    state.mode = 'weak'; state.chapter = null;
+    const pool = QUESTIONS.filter(q => d.weakIds.includes(q.id));
+    const maxCount = pool.length;
+    if (limitOverride === undefined) {
+      openQuestionCountModal({
+        title: '出題数を選ぶ',
+        subtitle: `弱点克服 — 最大${maxCount}問まで出題できます。`,
+        maxCount,
+        onConfirm: (limit) => runWeakQuiz(limit)
+      });
+      return;
+    }
+    runWeakQuiz(limitOverride);
+  }
+
+  function runWeakQuiz(limit) {
+    const d = loadData();
+    state.mode = 'weak'; state.chapter = null; state.sessionLimit = limit;
     let qs = QUESTIONS.filter(q => d.weakIds.includes(q.id));
     shuffle(qs);
+    qs = sliceByLimit(qs, limit);
     state.questions = qs; state.idx = 0; state.score = 0; state.answers = [];
     document.getElementById('quiz-timer-box').classList.add('hidden');
     showScreen('quiz');
@@ -157,7 +231,7 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
   // ── 模擬試験 ──
   function startMockExam() {
     if (!confirm('模擬試験を開始します。\n40問・60分制限です。よろしいですか？')) return;
-    state.mode = 'mock'; state.chapter = null;
+    state.mode = 'mock'; state.chapter = null; state.sessionLimit = null;
     let qs = [...QUESTIONS]; shuffle(qs); qs = qs.slice(0, 40);
     state.questions = qs; state.idx = 0; state.score = 0; state.answers = [];
     state.timeLeft = 60 * 60;
@@ -344,9 +418,11 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
   }
 
   function retryQuiz() {
-    if (state.mode === 'chapter') startChapterMode(state.chapter);
-    else if (state.mode === 'weak') startWeakMode();
+    if (state.mode === 'chapter') startChapterMode(state.chapter, state.sessionLimit);
+    else if (state.mode === 'weak') startWeakMode(state.sessionLimit);
+    else if (state.mode === 'spaced') startSpacedMode(state.sessionLimit);
     else if (state.mode === 'mock') startMockExam();
+    else if (state.mode === 'daily') startDailyChallenge();
   }
 
   // ── ダッシュボード ──
@@ -526,11 +602,28 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
       }
     }
     // Esc でホームに戻る
-    if (e.key === 'Escape') showScreen('home');
+    if (e.key === 'Escape') {
+      const qcm = document.getElementById('question-count-modal');
+      if (qcm && !qcm.classList.contains('hidden')) {
+        closeQuestionCountModal();
+        e.preventDefault();
+        return;
+      }
+      switchTab('tab-home');
+    }
   });
 
   // ── 初期化 ──
   buildChapterList();
+  const qcountChips = document.getElementById('qcount-chips');
+  if (qcountChips) {
+    qcountChips.addEventListener('click', function(e) {
+      const chip = e.target.closest('.qcount-chip');
+      if (!chip) return;
+      qcountChips.querySelectorAll('.qcount-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    });
+  }
   updateHomeStats();
   updateExamInfo();
   initTheme();
@@ -538,20 +631,38 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
   generateStudyPlan();
 
   // ── 間隔反復 (#1) ──
-  function startSpacedMode() {
+  function getDueSpacedPool() {
     const d = loadData();
     const sr = d.spacedRepetition || {};
     const now = Date.now();
-    // 復習すべき問題: nextReview が今日以前のもの
-    let dueQs = QUESTIONS.filter(q => {
+    return QUESTIONS.filter(q => {
       const info = sr[q.id];
-      if (!info) return true; // 未学習は対象
+      if (!info) return true;
       return info.nextReview <= now;
     });
+  }
+
+  function startSpacedMode(limitOverride) {
+    let dueQs = getDueSpacedPool();
     if (dueQs.length === 0) { alert('今日の復習はすべて完了！🎉 明日また来てください。'); return; }
+    const maxCount = dueQs.length;
+    if (limitOverride === undefined) {
+      openQuestionCountModal({
+        title: '出題数を選ぶ',
+        subtitle: `間隔反復 — 最大${maxCount}問まで出題できます。`,
+        maxCount,
+        onConfirm: (limit) => runSpacedQuiz(limit)
+      });
+      return;
+    }
+    runSpacedQuiz(limitOverride);
+  }
+
+  function runSpacedQuiz(limit) {
+    let dueQs = getDueSpacedPool();
     shuffle(dueQs);
-    dueQs = dueQs.slice(0, 20); // 最大20問
-    state.mode = 'spaced'; state.chapter = null;
+    dueQs = sliceByLimit(dueQs, limit);
+    state.mode = 'spaced'; state.chapter = null; state.sessionLimit = limit;
     state.questions = dueQs; state.idx = 0; state.score = 0; state.answers = [];
     document.getElementById('quiz-timer-box').classList.add('hidden');
     showScreen('quiz');
@@ -684,7 +795,7 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
       [qs[i], qs[j < 0 ? 0 : j]] = [qs[j < 0 ? 0 : j], qs[i]];
     }
     qs = qs.slice(0, 5);
-    state.mode = 'daily'; state.chapter = null;
+    state.mode = 'daily'; state.chapter = null; state.sessionLimit = null;
     state.questions = qs; state.idx = 0; state.score = 0; state.answers = [];
     comboCount = 0;
     document.getElementById('quiz-timer-box').classList.add('hidden');
@@ -710,4 +821,6 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
   window.printSummary = printSummary;
   window.filterGlossary = filterGlossary;
   window.toggleBookmark = toggleBookmark;
+  window.closeQuestionCountModal = closeQuestionCountModal;
+  window.confirmQuestionCountModal = confirmQuestionCountModal;
 })();

@@ -10,7 +10,9 @@ on:
       - 'questions_extra1.js'
       - 'questions_extra2.js'
       - 'questions_extra3.js'
+      - 'questions_extra4.js'
       - 'explanations.js'
+      - 'explanations_exp3.js'
 
 jobs:
   validate:

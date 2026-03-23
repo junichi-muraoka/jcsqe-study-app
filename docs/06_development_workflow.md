@@ -32,7 +32,7 @@ CIが落とされた（あるいは更新が必要だと気付いた）場合、
 
 ## 3. データ整合性チェック（問題・解説）
 
-問題データ（`questions*.js`）と解説データ（`explanations.js`）の整合性を PR 時に自動検証します。
+問題データ（`questions*.js`）と解説データ（`explanations.js` / `explanations_exp3.js`）の整合性を PR 時に自動検証します。
 
 - **ファイル**: `.github/workflows/validate_questions.yml`
 - **トリガー**: `questions*.js` または `explanations.js` が変更された PR

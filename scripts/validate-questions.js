@@ -28,10 +28,11 @@ try {
   const q2 = fs.readFileSync(path.join(baseDir, 'questions_extra1.js'), 'utf8');
   const q3 = fs.readFileSync(path.join(baseDir, 'questions_extra2.js'), 'utf8');
   const q4 = fs.readFileSync(path.join(baseDir, 'questions_extra3.js'), 'utf8');
+  const q5 = fs.readFileSync(path.join(baseDir, 'questions_extra4.js'), 'utf8');
 
   const code = q1
     .replace(/const (CHAPTERS|QUESTIONS) = /g, '$1 = ')
-    + '\n' + q2 + '\n' + q3 + '\n' + q4;
+    + '\n' + q2 + '\n' + q3 + '\n' + q4 + '\n' + q5;
 
   new vm.Script(code).runInContext(context);
 } catch (e) {
@@ -44,12 +45,13 @@ const questions = context.QUESTIONS;
 // 2. 解説データを読み込み（EXP/EXP2 のエントリ検証用）
 let expData = {}; // id -> { d: array }
 try {
-  const expContext = { EXP: {}, EXP2: {}, QUESTIONS: questions };
+  const expContext = { EXP: {}, EXP2: {}, EXP3: {}, QUESTIONS: questions };
   vm.createContext(expContext);
-  let expCode = fs.readFileSync(path.join(baseDir, 'explanations.js'), 'utf8');
-  expCode = expCode.replace(/const (EXP|EXP2) = /g, '$1 = ');
+  let expCode = fs.readFileSync(path.join(baseDir, 'explanations_exp3.js'), 'utf8')
+    + '\n' + fs.readFileSync(path.join(baseDir, 'explanations.js'), 'utf8');
+  expCode = expCode.replace(/const (EXP|EXP2|EXP3) = /g, '$1 = ');
   new vm.Script(expCode).runInContext(expContext);
-  Object.assign(expData, expContext.EXP, expContext.EXP2);
+  Object.assign(expData, expContext.EXP, expContext.EXP2, expContext.EXP3);
 } catch (e) {
   err(`解説ファイルの読み込みに失敗: ${e.message}`);
   process.exit(1);

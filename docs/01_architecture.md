@@ -11,8 +11,10 @@
  ├── style.css         ... 全スタイリング（CSS変数、レスポンシブメディアクエリ含む）
  ├── app.js            ... アプリケーションのメインロジック（画面遷移、状態管理、機能実装）
  ├── questions.js      ... 問題データ（ID, 問題文, 選択肢, 正答）と章リスト
+ ├── questions_extra1.js … questions_extra4.js … 追加問題（`QUESTIONS.push` でマージ）
  ├── glossary.js       ... 用語集データ
- ├── explanations.js   ... 問題ごとの詳細解説データ（分離して管理）
+ ├── explanations.js   ... 選択肢別解説 EXP / EXP2 と `QUESTIONS` へのマージ処理
+ ├── explanations_exp3.js … 追加問題（id 128〜）の選択肢別解説 EXP3（`explanations.js` より先に読込）
  ├── sw.js             ... ServiceWorker（PWA・オフライン対応用）
  └── manifest.json     ... PWA用マニフェストファイル
 ```

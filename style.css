@@ -729,3 +729,39 @@ body[data-theme="light"] .header h1 {
   .app-nav { display: none !important; }
   .content-wrapper { padding: 0 !important; }
 }
+
+/* 出題数モーダル (#46) */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 400000;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.hidden { display: none !important; }
+.modal-card {
+  max-width: 400px;
+  width: 100%;
+  margin: 0;
+}
+.qcount-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.qcount-chip {
+  flex: 1 1 calc(50% - 4px);
+  min-width: 72px;
+  padding: 12px 14px;
+  font-size: 0.9rem;
+}
+.qcount-chip.active {
+  background: linear-gradient(135deg, var(--accent), #7c3aed);
+  color: #fff;
+  border-color: var(--accent-light);
+  box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.4);
+}
