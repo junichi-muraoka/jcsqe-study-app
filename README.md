@@ -82,6 +82,7 @@ npx http-server ./ -p 8080 -o
 - [UI設計・デザイン仕様 (04_ui_design.md)](docs/04_ui_design.md)
 - [将来の拡張ロードマップ (05_future_roadmap.md)](docs/05_future_roadmap.md)
 - [開発・ドキュメント管理ワークフロー (06_development_workflow.md)](docs/06_development_workflow.md)
+- [クラウド同期・Firebase 制限とエラー UX (09_cloud_sync_firebase_spec.md)](docs/09_cloud_sync_firebase_spec.md) — Issue #14 実装時の参照
 
 ## 📄 ライセンス
 

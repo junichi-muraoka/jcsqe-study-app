@@ -88,4 +88,6 @@
 - 学習データとして認識できる主要キーが存在しない JSON は、インポート時に拒否します。
 
 ## 3. 今後のクラウド化（Firebase対応）に向けた課題
-現在、上記ユーザーデータは各デバイスの `localStorage` のみに存在しています。ログイン機能（Issue #14）を実装する際は、このJSONオブジェクトを丸ごと、またはコレクションに分解して Firebase Firestore に保存・同期するアーキテクチャへのシフトが必要になります。
+現在、上記ユーザーデータは各デバイスの `localStorage` のみに存在しています。ログイン機能（[Issue #14](https://github.com/junichi-muraoka/jcsqe-study-app/issues/14)）を実装する際は、このJSONオブジェクトを丸ごと、またはコレクションに分解して Firebase Firestore に保存・同期するアーキテクチャへのシフトが必要になります。
+
+**無料枠・同期失敗時の UX・エラー文言**は仕様として [09_cloud_sync_firebase_spec.md](./09_cloud_sync_firebase_spec.md) に記載しています（Issue #14 本文の数値・実装方針と対になる「アプリ側の扱い」）。
