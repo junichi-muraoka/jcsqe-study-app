@@ -1,0 +1,27 @@
+name: Firestore rules check
+
+on:
+  pull_request:
+    paths:
+      - 'firestore.rules'
+      - 'firebase.json'
+  push:
+    branches:
+      - master
+    paths:
+      - 'firestore.rules'
+      - 'firebase.json'
+
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify rules file
+        run: |
+          test -f firestore.rules
+          test -f firebase.json
+          grep -q "rules_version" firestore.rules
+          grep -q "firestore" firebase.json

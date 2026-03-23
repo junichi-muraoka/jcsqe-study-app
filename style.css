@@ -969,3 +969,32 @@ body[data-theme="light"] .header h1 {
   border-color: var(--accent-light);
   box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.4);
 }
+
+/* Firebase 同期トースト (#14) */
+.sync-toast {
+  position: fixed;
+  bottom: calc(var(--bottom-nav-height, 65px) + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: min(92vw, 420px);
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  background: rgba(15, 23, 42, 0.96);
+  border: 1px solid var(--border-glass);
+  z-index: 100000;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: var(--text-primary);
+  box-shadow: var(--shadow);
+}
+.sync-toast-error {
+  border-color: var(--danger);
+}
+@media (min-width: 768px) {
+  .sync-toast {
+    bottom: 24px;
+    left: calc(var(--sidebar-width, 240px) + 24px);
+    transform: none;
+    max-width: 400px;
+  }
+}

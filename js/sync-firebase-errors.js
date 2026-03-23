@@ -74,6 +74,23 @@
           canRetry: true,
           continueLocal: true
         };
+      case 'auth/popup-blocked':
+      case 'auth/popup-closed-by-user':
+        return {
+          ...base,
+          title: 'ログインが完了しませんでした',
+          detail: 'ポップアップがブロックされたか、閉じられた可能性があります。',
+          canRetry: true,
+          continueLocal: true
+        };
+      case 'auth/network-request-failed':
+        return {
+          ...base,
+          title: '認証に接続できませんでした',
+          detail: 'ネットワークを確認してください。',
+          canRetry: true,
+          continueLocal: true
+        };
       default:
         if (/quota|resource-exhausted/i.test(rawMsg)) {
           return interpretSyncError({ code: 'resource-exhausted', message: rawMsg });

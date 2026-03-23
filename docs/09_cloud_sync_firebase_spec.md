@@ -49,10 +49,17 @@ Firebase JS SDK は失敗時に `FirebaseError` を投げ、`code`（例: `resou
 
 `js/sync-firebase-errors.js` の `JCSQE.interpretSyncError(err)` が、エラーコードを**ユーザー向け文言と推奨アクション**に変換する。
 
-- **ログイン前・Firebase 未読込でも読み込み可能**（将来 `index.html` で `app.js` より前に読み込む想定）。
-- 実際の Firestore 呼び出しは Issue #14 の実装時に本関数へ接続する。
+- `index.html` で `app.js` より前に読み込み済み。
+- `js/firebase-sync.js` が Firestore 失敗時に `#sync-toast` で表示する。
 
-### 3.2 UX 方針（推奨）
+### 3.2 実装済み同期ロジック
+
+- 設定タブに「クラウド同期」カード（Google ログイン・ログアウト）。
+- `js/firebase-config.js` が未設定の場合は同期を無効化し、説明文のみ表示。
+- `saveData` をラップし、**約 3.5 秒デバウンス**後に Firestore `users/{uid}` へ書き込み。
+- ログイン直後にクラウドから 1 回読み込み、`totalAnswered` が大きい方を優先してマージ。
+
+### 3.3 UX 方針（推奨）
 
 | 状況 | UI |
 |------|-----|
@@ -63,16 +70,16 @@ Firebase JS SDK は失敗時に `FirebaseError` を投げ、`code`（例: `resou
 
 **ブロッキングのモーダル**は、同期失敗だけでは出さない（学習継続を優先）。
 
-### 3.3 開発者向けログ
+### 3.4 開発者向けログ
 
 - `console.warn` / `console.error` に **生の `error.code` と message** を残し、Firebase コンソールの Usage と突き合わせ可能にする。
 
-## 4. 実装チェックリスト（Issue #14 用）
+## 4. 実装チェックリスト（Issue #14）
 
-- [ ] Firestore 読み書きを `interpretSyncError` 経由でユーザー通知（または共通ハンドラ）
-- [ ] 書き込みはデバウンス／バッチ済み（Issue #14 本文の方針）
-- [ ] 同期失敗時も `localStorage` への保存は継続
-- [ ] 設定画面に「最終同期時刻」「同期ステータス」の表示を検討
+- [x] Firestore 読み書き失敗時に `interpretSyncError` 経由でトースト表示
+- [x] 書き込みはデバウンス済み（Issue #14 本文の方針）
+- [x] 同期失敗時も `localStorage` への保存は継続（既存の `saveData` とは独立）
+- [ ] 設定画面の「最終同期」以外の詳細ステータス（任意）
 
 ## 5. 参照
 

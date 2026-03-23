@@ -53,6 +53,16 @@ npx http-server ./ -p 8080 -o
 - **CSS3** — ダークモード・グラスモーフィズムデザイン
 - **Vanilla JavaScript** — フレームワーク不使用、軽量動作
 - **localStorage** — 学習データの永続化（サーバー不要）
+- **Firebase（任意）** — Google ログインと Firestore への学習データ同期。[`js/firebase-config.js`](js/firebase-config.js) に Firebase コンソールの Web 設定を入れると有効（未設定でも従来どおりオフライン動作）
+
+### Firebase を有効にする手順（概要）
+
+1. [Firebase Console](https://console.firebase.google.com/) でプロジェクトを作成し、**Authentication（Google）** と **Cloud Firestore** を有効化する。
+2. プロジェクト設定から Web アプリ用の設定オブジェクトをコピーし、`js/firebase-config.js` の `firebaseConfig` に貼り付ける（テンプレは [`js/firebase-config.example.js`](js/firebase-config.example.js)）。
+3. `firestore.rules` をデプロイする（`firebase deploy --only firestore:rules` またはコンソールでルール設定）。
+4. 認証ドメインに GitHub Pages の URL（例: `https://<user>.github.io`）を authorized domains に追加する。
+
+詳細は [docs/09_cloud_sync_firebase_spec.md](docs/09_cloud_sync_firebase_spec.md) を参照。
 
 ## 📝 JCSQE試験について
 
@@ -82,7 +92,8 @@ npx http-server ./ -p 8080 -o
 - [UI設計・デザイン仕様 (04_ui_design.md)](docs/04_ui_design.md)
 - [将来の拡張ロードマップ (05_future_roadmap.md)](docs/05_future_roadmap.md)
 - [開発・ドキュメント管理ワークフロー (06_development_workflow.md)](docs/06_development_workflow.md)
-- [クラウド同期・Firebase 制限とエラー UX (09_cloud_sync_firebase_spec.md)](docs/09_cloud_sync_firebase_spec.md) — Issue #14 実装時の参照
+- [クラウド同期・Firebase 制限とエラー UX (09_cloud_sync_firebase_spec.md)](docs/09_cloud_sync_firebase_spec.md)
+- [実行環境一覧（本番・検証・Firebase）(environments.md)](docs/environments.md)
 
 ## 📄 ライセンス
 
