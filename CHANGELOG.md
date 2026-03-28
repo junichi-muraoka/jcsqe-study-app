@@ -2,6 +2,17 @@
 
 このプロジェクトの注目すべき変更はこのファイルに記録されます。
 
+## [1.2.1] - 2026-03-28
+
+### 追加
+- **運用 Runbook**: [docs/runbook.md](docs/runbook.md)（デプロイ不具合・Firebase 確認）
+- **コンテンツ編集ガイド**: [docs/content_authoring.md](docs/content_authoring.md)（問題・解説・validate ルール）
+
+### その他
+- ドキュメント追加提案を Issue [#58](https://github.com/junichi-muraoka/jcsqe-study-app/issues/58)〜[#63](https://github.com/junichi-muraoka/jcsqe-study-app/issues/63) として起票
+
+---
+
 ## [1.2.0] - 2026-03-28
 
 ### 追加
