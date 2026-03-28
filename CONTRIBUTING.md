@@ -49,6 +49,8 @@ npm run bug:report:web  # ブラウザで New Issue を開く
 
 新機能のアイデアがあれば、まず Issue で提案してください。
 
+バージョンや CHANGELOG の扱いは [docs/release_process.md](docs/release_process.md) を参照。
+
 ## 📋 プルリクエストの手順
 
 1. このリポジトリをフォーク

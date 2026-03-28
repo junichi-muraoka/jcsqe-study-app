@@ -2,6 +2,14 @@
 
 このプロジェクトの注目すべき変更はこのファイルに記録されます。
 
+## [1.2.2] - 2026-03-28
+
+### 追加
+- **リリース運用**: [docs/release_process.md](docs/release_process.md)（バージョン・CHANGELOG・PRD/STG との関係）
+- **セキュリティ・プライバシー概要**: [docs/security.md](docs/security.md)
+
+---
+
 ## [1.2.1] - 2026-03-28
 
 ### 追加
