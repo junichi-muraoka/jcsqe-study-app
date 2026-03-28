@@ -104,6 +104,8 @@ npx http-server ./ -p 8080 -o
 - [実行環境一覧（本番・検証・Firebase）(environments.md)](docs/environments.md)
 - [運用 Runbook（デプロイ・障害時）(runbook.md)](docs/runbook.md)
 - [コンテンツ編集ガイド（問題・解説）(content_authoring.md)](docs/content_authoring.md)
+- [リリース運用（バージョン・CHANGELOG）(release_process.md)](docs/release_process.md)
+- [セキュリティ・プライバシー概要 (security.md)](docs/security.md)
 
 ## 📄 ライセンス
 
