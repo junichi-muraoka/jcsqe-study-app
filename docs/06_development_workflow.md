@@ -180,7 +180,7 @@ main の品質を守るため、以下を推奨します。
 
 ## 7. 本番・検証デプロイ（GitHub Pages）
 
-静的アプリを **本番（PRD）** と **検証（STG）** の URL で公開する。詳細は [environments.md](environments.md) をマスターとする。
+静的アプリを **本番（PRD）** と **検証（STG）** の URL で公開する。詳細は [environments.md](environments.md) をマスターとする。障害時の確認手順は [runbook.md](runbook.md)。
 
 | 項目 | 内容 |
 |------|------|

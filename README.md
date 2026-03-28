@@ -102,6 +102,8 @@ npx http-server ./ -p 8080 -o
 - [クラウド同期・Firebase 制限とエラー UX (09_cloud_sync_firebase_spec.md)](docs/09_cloud_sync_firebase_spec.md)
 - [Firebase 手動セットアップ手順（コンソール・CLI）(firebase_manual_setup.md)](docs/firebase_manual_setup.md)
 - [実行環境一覧（本番・検証・Firebase）(environments.md)](docs/environments.md)
+- [運用 Runbook（デプロイ・障害時）(runbook.md)](docs/runbook.md)
+- [コンテンツ編集ガイド（問題・解説）(content_authoring.md)](docs/content_authoring.md)
 
 ## 📄 ライセンス
 
