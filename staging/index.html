@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="JCSQE初級 ソフトウェア品質技術者試験 合格対策学習アプリ - SQuBOK Guide第3版準拠">
+  <meta name="theme-color" content="#0a0e1a">
+  <link rel="manifest" href="manifest.json">
+  <title>JCSQE初級 合格対策アプリ</title>
+  <link rel="stylesheet" href="style.css?v=14">
+</head>
+<body>
+  <div id="sync-toast" class="sync-toast hidden" role="status" aria-live="polite"></div>
+  <!-- ================= ナビゲーション (Sidebar / Bottom Nav) ================= -->
+  <nav class="app-nav">
+    <button type="button" class="header-item active" onclick="switchTab('tab-home')" id="nav-btn-home" aria-controls="tab-home" aria-current="page">
+      <span class="header-icon" aria-hidden="true">🏠</span>
+      <span>ホーム</span>
+    </button>
+    <button type="button" class="header-item" onclick="switchTab('tab-glossary')" id="nav-btn-glossary" aria-controls="tab-glossary">
+      <span class="header-icon" aria-hidden="true">📖</span>
+      <span>用語集</span>
+    </button>
+    <button type="button" class="header-item" onclick="switchTab('tab-stats')" id="nav-btn-stats" aria-controls="tab-stats">
+      <span class="header-icon" aria-hidden="true">📊</span>
+      <span>成績</span>
+    </button>
+    <button type="button" class="header-item" onclick="switchTab('tab-settings')" id="nav-btn-settings" aria-controls="tab-settings">
+      <span class="header-icon" aria-hidden="true">⚙️</span>
+      <span>設定</span>
+    </button>
+  </nav>
+
+  <!-- クイズ・結果は .app の外（nav と同レベル）に置き、z-index がサイドバーより効くようにする (#49) -->
+  <div id="quiz" class="screen full-screen">
+    <button class="btn btn-secondary btn-back" onclick="switchTab('tab-home')">← やめる</button>
+    <div class="text-center mb-20 hidden" id="quiz-timer-box">
+      <div class="timer" id="quiz-timer">60:00</div>
+    </div>
+    <div class="card">
+      <div class="quiz-header">
+        <span class="quiz-progress" id="quiz-progress">1 / 10</span>
+        <span class="quiz-tag" id="quiz-tag"></span>
+        <button class="bookmark-btn" id="quiz-bookmark" onclick="toggleBookmark()" title="ブックマーク">☆</button>
+        <span class="quiz-level" id="quiz-level">L1</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="quiz-bar" style="width:0%"></div></div>
+      <p class="quiz-question" id="quiz-question"></p>
+      <div class="choices" id="quiz-choices"></div>
+      <div id="quiz-explanation" class="explanation hidden">
+        <h4>💡 解説</h4>
+        <div id="quiz-explanation-text"></div>
+      </div>
+      <div class="mt-20 text-center hidden" id="quiz-next-box" style="text-align:right;">
+        <button class="btn btn-primary btn-sm" onclick="nextQuestion()" id="quiz-next-btn">次の問題 →</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="result" class="screen full-screen">
+    <div class="card result-card">
+      <h2 style="margin-bottom:20px;">📝 結果</h2>
+      <div class="result-score" id="result-score">80%</div>
+      <div class="result-label" id="result-detail">32 / 40 正解</div>
+      <div id="result-pass" class="result-pass hidden">合格ライン達成！</div>
+      <div class="chapter-stats mt-20" id="result-chapter-stats"></div>
+      <div class="result-review mt-20">
+        <h3 style="margin-bottom:12px;">📚 復習ガイド</h3>
+        <div id="result-review-summary" class="result-review-summary"></div>
+        <div id="result-wrong-list" class="result-wrong-list"></div>
+      </div>
+      <div class="flex-row mt-20" style="flex-direction:column; gap:12px;">
+        <button class="btn btn-primary btn-block" id="result-retry-btn" onclick="retryQuiz()" style="justify-content:center;">🔄 もう一度解く</button>
+        <button class="btn btn-secondary btn-block hidden" id="result-retry-wrong-btn" style="justify-content:center;">📚 間違えた問題を復習</button>
+        <button class="btn btn-secondary btn-block" onclick="switchTab('tab-home')" style="justify-content:center;">🏠 ホームへ戻る</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="app">
+
+    <div class="content-wrapper">
+
+      <!-- ================= 🏠 HOME TAB ================= -->
+      <div id="tab-home" class="screen tab-screen active">
+        
+        <!-- ヒーローエリア -->
+        <div class="hero-section">
+          <div class="hero-content">
+            <div>
+              <div class="hero-title">JCSQE初級 合格対策</div>
+              <div class="hero-subtitle">SQuBOK Guide 第3版準拠 ｜ 全200問収録</div>
+            </div>
+            
+            <div id="home-stats" class="hero-stats-row hidden">
+              <span id="home-streak" class="streak-badge">🔥 0日連続</span>
+              <span id="home-level" class="level-badge">⭐ Lv.1</span>
+              <span class="home-quick-stat"><strong id="home-total">0</strong>問解答</span>
+              <span class="home-quick-stat"><strong id="home-rate">0%</strong>正答</span>
+              <span class="home-quick-stat"><strong id="home-weak">0</strong>問弱点</span>
+              <div id="home-predict" class="pass-predict hidden" style="margin-top:0; flex:1; min-width:150px;">
+                <div class="predict-label" style="color:rgba(255,255,255,0.8);">🎯 合格予測</div>
+                <div class="predict-bar"><div class="predict-fill" id="predict-fill"></div></div>
+                <div class="predict-value" id="predict-value" style="color:#fff;">--%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="exam-info-card card" id="exam-info">
+          <div class="exam-info-header">📅 次回 JCSQE初級試験</div>
+          <div class="exam-info-grid">
+            <div class="exam-info-item"><span class="exam-label">試験日</span><span class="exam-value" id="exam-date">—</span></div>
+            <div class="exam-info-item"><span class="exam-label">申込期限</span><span class="exam-value" id="exam-deadline">—</span></div>
+            <div class="exam-info-item"><span class="exam-label">残り</span><span class="exam-value exam-countdown" id="exam-countdown">—</span></div>
+          </div>
+          <div class="exam-info-actions">
+            <a href="https://www.juse.jp/jcsqe/exam/" target="_blank" rel="noopener" class="btn btn-primary btn-sm">🔗 申込はこちら</a>
+            <span class="exam-info-note">40問 / 60分 / 合格70%</span>
+          </div>
+        </div>
+
+        <h3 style="margin-bottom: 12px; font-size: 1.1rem;">🚀 学習メニュー</h3>
+        <div class="horizontal-scroll-snap">
+          <div class="nav-card" data-testid="nav-daily" onclick="startDailyChallenge()">
+            <span class="icon">🌟</span>
+            <span class="label">今日の5問</span>
+            <span class="desc">デイリーチャレンジ</span>
+          </div>
+          <div class="nav-card" data-testid="nav-weak" onclick="startWeakMode()">
+            <span class="icon">🔄</span>
+            <span class="label">弱点克服</span>
+            <span class="desc">間違えた問題を復習</span>
+          </div>
+          <div class="nav-card" data-testid="nav-spaced" onclick="startSpacedMode()">
+            <span class="icon">🧠</span>
+            <span class="label">間隔反復</span>
+            <span class="desc">忘却曲線に基づく復習</span>
+          </div>
+          <div class="nav-card" data-testid="nav-mock" onclick="startMockExam()">
+            <span class="icon">🎯</span>
+            <span class="label">模擬試験</span>
+            <span class="desc">本番形式 40問/60分</span>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 24px;">
+          <h3 style="margin-bottom:20px;">📚 分野別学習</h3>
+          <div class="chapter-list" id="chapter-list"></div>
+          <div id="chapter-guide" class="chapter-guide-box" style="margin-top:20px;"></div>
+        </div>
+      </div>
+
+      <!-- ================= 📖 GLOSSARY TAB ================= -->
+      <div id="tab-glossary" class="screen tab-screen">
+        <div class="header" style="margin-bottom: 20px;">
+          <h2>SQuBOK用語集</h2>
+          <p>試験によく出る重要な技術用語</p>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap;">
+            <input type="text" id="glossary-search" placeholder="🔍 用語を検索..." oninput="filterGlossary()" style="flex:1;min-width:140px;padding:10px 14px;border:1px solid var(--border-glass);border-radius:var(--radius-sm);background:var(--bg-glass);color:var(--text-primary);font-family:inherit;font-size:0.9rem;">
+            <button type="button" class="btn btn-secondary btn-sm" id="glossary-mode-btn" onclick="toggleGlossaryMode()" aria-pressed="false">🃏 フラッシュカード</button>
+          </div>
+          <div id="glossary-list"></div>
+          <div id="glossary-flashcard" class="glossary-flashcard hidden">
+            <div class="flashcard-nav">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="flashcardPrev()" id="flashcard-prev">← 前へ</button>
+              <span id="flashcard-counter">1 / 30</span>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="flashcardNext()" id="flashcard-next">次へ →</button>
+            </div>
+            <div class="flashcard-inner" id="flashcard-inner" onclick="flashcardFlip()" role="button" tabindex="0" aria-label="カードをめくる">
+              <div class="flashcard-front" id="flashcard-front"></div>
+              <div class="flashcard-back" id="flashcard-back"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= 📊 STATS TAB ================= -->
+      <div id="tab-stats" class="screen tab-screen">
+        <div class="header" style="margin-bottom: 20px; position:relative;">
+          <h2>学習データ</h2>
+          <p>あなたの成長記録</p>
+          <button class="btn btn-secondary btn-sm" onclick="printSummary()" style="position:absolute; right:10px; top:10px;">🖨️ 印刷</button>
+        </div>
+
+        <div class="stats-grid" style="margin-bottom:20px;">
+          <div class="stat-card"><div class="stat-value" id="dash-total">0</div><div class="stat-label">総回答数</div></div>
+          <div class="stat-card"><div class="stat-value" id="dash-rate">--%</div><div class="stat-label">正答率</div></div>
+          <div class="stat-card"><div class="stat-value" id="dash-correct">0</div><div class="stat-label">正解数</div></div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom:12px;">📅 学習ヒートマップ (過去90日)</h3>
+          <div id="dash-heatmap"></div>
+        </div>
+        
+        <div class="card">
+          <h3 style="margin-bottom:16px;">章別正答率</h3>
+          <div class="ring-charts" id="dash-rings"></div>
+        </div>
+
+        <div class="card" id="dash-mock-card">
+          <h3 style="margin-bottom:12px;">🎯 模擬試験履歴</h3>
+          <div id="dash-mock-list" style="font-size:0.85rem;"></div>
+        </div>
+        
+        <div class="card">
+          <h3 style="margin-bottom:12px;">🏆 実績バッジ</h3>
+          <div id="dash-badges" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+        </div>
+        
+        <div class="card">
+          <h3 style="margin-bottom:12px;">📊 苦手分野分析</h3>
+          <div id="dash-analysis" style="font-size:0.85rem;color:var(--text-secondary);"></div>
+        </div>
+
+        <div class="card" id="dash-weak-card">
+          <h3 style="margin-bottom:12px;">🔄 弱点問題 (<span id="dash-weak-count">0</span>問)</h3>
+          <div id="dash-weak-list" style="font-size:0.85rem;color:var(--text-secondary);"></div>
+        </div>
+
+        <div class="card" id="dash-bookmark-card">
+          <div class="bookmark-card-header">
+            <h3>⭐ ブックマーク問題 (<span id="dash-bookmark-count">0</span>問)</h3>
+            <button class="btn btn-secondary btn-sm" onclick="startBookmarkMode()">まとめて復習</button>
+          </div>
+          <div id="dash-bookmark-list" style="font-size:0.85rem;color:var(--text-secondary);"></div>
+        </div>
+      </div>
+
+      <!-- ================= ⚙️ SETTINGS TAB ================= -->
+      <div id="tab-settings" class="screen tab-screen">
+        <div class="header" style="margin-bottom: 20px;">
+          <h2>設定</h2>
+        </div>
+        
+        <div class="card" id="firebase-auth-card">
+          <h3 style="margin-bottom:16px;">☁️ クラウド同期</h3>
+          <p id="firebase-auth-line" style="font-size:0.9rem;color:var(--text-secondary);line-height:1.5;margin-bottom:12px;">読み込み中…</p>
+          <p id="firebase-sync-status" style="font-size:0.8rem;color:var(--text-muted);margin-bottom:12px;"></p>
+          <button type="button" class="btn btn-primary btn-block" id="firebase-signin-btn" style="justify-content:center;">Googleでログイン</button>
+          <button type="button" class="btn btn-secondary btn-block hidden" id="firebase-signout-btn" style="justify-content:center;">ログアウト</button>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom:16px;">🎨 テーマ設定</h3>
+          <button class="btn btn-secondary btn-block" id="theme-toggle-btn" onclick="toggleTheme()" style="justify-content:center;">
+            <span id="theme-toggle" aria-hidden="true">🌙</span>&nbsp;<span id="theme-toggle-label">ライトモードに切替</span>
+          </button>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom:16px;">💾 データ管理</h3>
+          <button class="btn btn-secondary btn-block" onclick="exportData()" style="justify-content:center; margin-bottom:12px;">📤 バックアップ出力 (JSON)</button>
+          <div style="position:relative; margin-bottom:12px;">
+            <input type="file" id="import-file" accept=".json" onchange="importData(event)" style="opacity:0;position:absolute;width:100%;height:100%;cursor:pointer;">
+            <button class="btn btn-secondary btn-block" style="justify-content:center;">📥 データを復元する</button>
+          </div>
+          <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin:20px 0;">
+          <button class="btn btn-primary btn-block" style="background:var(--danger); justify-content:center;" onclick="resetData()">⚠️ 学習データをリセット</button>
+        </div>
+      </div>
+
+    </div> <!-- .content-wrapper 終了 -->
+  </div>
+
+  <!-- 出題数選択 (#46) -->
+  <div id="question-count-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="qcount-modal-title" onclick="if(event.target===this)closeQuestionCountModal()">
+    <div class="card modal-card" onclick="event.stopPropagation()">
+      <h3 id="qcount-modal-title" style="margin-bottom:8px;">出題数を選ぶ</h3>
+      <p id="qcount-modal-sub" style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px;line-height:1.5;"></p>
+      <div class="qcount-chips" id="qcount-chips">
+        <button type="button" class="btn btn-secondary qcount-chip" data-qcount="5">5問</button>
+        <button type="button" class="btn btn-secondary qcount-chip" data-qcount="10">10問</button>
+        <button type="button" class="btn btn-secondary qcount-chip" data-qcount="20">20問</button>
+        <button type="button" class="btn btn-secondary qcount-chip" data-qcount="all">全問</button>
+      </div>
+      <div class="flex-row" style="margin-top:20px;">
+        <button type="button" class="btn btn-secondary btn-block" style="justify-content:center;" onclick="closeQuestionCountModal()">キャンセル</button>
+        <button type="button" class="btn btn-primary btn-block" style="justify-content:center;" onclick="confirmQuestionCountModal()">開始</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="questions.js" defer></script>
+  <script src="questions_extra1.js" defer></script>
+  <script src="questions_extra2.js" defer></script>
+  <script src="questions_extra3.js" defer></script>
+  <script src="questions_extra4.js" defer></script>
+  <script src="explanations_extra.js" defer></script>
+  <script src="explanations_exp3.js" defer></script>
+  <script src="explanations.js" defer></script>
+  <script src="glossary.js" defer></script>
+  <script src="study-data.js" defer></script>
+  <script src="js/storage.js" defer></script>
+  <script src="js/state.js" defer></script>
+  <script src="js/sync-firebase-errors.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js" defer></script>
+  <script src="js/firebase-config.js" defer></script>
+  <script src="js/firebase-sync.js" defer></script>
+  <script src="app.js" defer></script>
+</body>
+</html>

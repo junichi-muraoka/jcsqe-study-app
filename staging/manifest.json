@@ -1,0 +1,12 @@
+{
+  "name": "JCSQE初級 合格対策アプリ",
+  "short_name": "JCSQE学習",
+  "description": "SQuBOK Guide第3版準拠 ソフトウェア品質技術者試験 合格対策学習アプリ",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0a0e1a",
+  "theme_color": "#0a0e1a",
+  "icons": [
+    { "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>🎓</text></svg>", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
