@@ -56,6 +56,19 @@ npm run bug:report:web  # ブラウザで New Issue を開く
 5. ブランチをプッシュ（`git push origin feature/add-questions`）
 6. プルリクエストを作成
 
+## 🌐 デプロイとブランチ（本番・検証）
+
+公開サイトは **GitHub Pages** で、次の 2 環境に分かれています（詳細は [docs/environments.md](docs/environments.md)）。
+
+| 環境 | ブランチ | 公開 URL（本リポジトリ） |
+|------|----------|--------------------------|
+| 本番（PRD） | `master` | `https://junichi-muraoka.github.io/jcsqe-study-app/` |
+| 検証（STG） | `staging` | `https://junichi-muraoka.github.io/jcsqe-study-app/staging/` |
+
+- 通常の機能追加・修正は **PR → `master`** でよい。マージ後、Actions が **本番**を更新する。
+- **検証環境だけ先に触りたい**ときは、`staging` 向けの PR または `staging` への直接プッシュで **STG** が更新される（運用ルールはチームで決める）。
+- Pages のビルド元ブランチは **`gh-pages`**（Settings → Pages）。`master` 直デプロイではない点に注意。
+
 ## 📐 コーディング規約
 
 - JavaScript: Vanilla JS（フレームワーク不使用）

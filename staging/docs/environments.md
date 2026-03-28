@@ -4,12 +4,12 @@
 
 ## フロントエンド（静的アプリ）
 
-| 区分 | ブランチ | 公開 URL（例） | デプロイ |
-|------|----------|----------------|----------|
-| **Production（PRD）** | `master` | `https://<owner>.github.io/<repo>/` | `push` または `workflow_dispatch` → [Deploy GitHub Pages (STG / PRD)](../.github/workflows/deploy-github-pages.yml) |
-| **Staging（STG）** | `staging` | `https://<owner>.github.io/<repo>/staging/` | 同上 |
+| 区分 | ブランチ | 公開 URL（本リポジトリ） | デプロイ |
+|------|----------|--------------------------|----------|
+| **Production（PRD）** | `master` | [https://junichi-muraoka.github.io/jcsqe-study-app/](https://junichi-muraoka.github.io/jcsqe-study-app/) | `push` または `workflow_dispatch` → [Deploy GitHub Pages (STG / PRD)](../.github/workflows/deploy-github-pages.yml) |
+| **Staging（STG）** | `staging` | [https://junichi-muraoka.github.io/jcsqe-study-app/staging/](https://junichi-muraoka.github.io/jcsqe-study-app/staging/) | 同上 |
 
-実際の `<owner>` / `<repo>` はリポジトリに合わせる（例: `junichi-muraoka` / `jcsqe-study-app`）。
+他リポジトリに転用する場合は `https://<owner>.github.io/<repo>/` および `/staging/` に読み替える。
 
 ### 仕組み（GitHub Pages）
 
