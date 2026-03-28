@@ -23,6 +23,18 @@ test.describe('JCSQE学習アプリ E2E', () => {
     await expect(page.locator('.quiz-question')).toBeVisible();
   });
 
+  test('デスクトップでクイズ表示時、左端（サイドバー位置）の最前面がクイズで問題文が隠れない (#49)', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await page.goto('/', { waitUntil: 'load' });
+    await clickNavCard(page, 'nav-daily');
+    await expect(page.locator('#quiz.screen.active')).toBeVisible({ timeout: 5000 });
+    const hitIsQuiz = await page.evaluate(() => {
+      const el = document.elementFromPoint(48, 360);
+      return !!(el && el.closest('#quiz'));
+    });
+    expect(hitIsQuiz).toBe(true);
+  });
+
   test('1問解答すると解説が表示される', async ({ page }) => {
     await page.goto('/', { waitUntil: 'load' });
     await clickNavCard(page, 'nav-daily');

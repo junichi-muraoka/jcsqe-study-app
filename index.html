@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#0a0e1a">
   <link rel="manifest" href="manifest.json">
   <title>JCSQE初級 合格対策アプリ</title>
-  <link rel="stylesheet" href="style.css?v=13">
+  <link rel="stylesheet" href="style.css?v=14">
 </head>
 <body>
   <div id="sync-toast" class="sync-toast hidden" role="status" aria-live="polite"></div>
@@ -30,6 +30,52 @@
       <span>設定</span>
     </button>
   </nav>
+
+  <!-- クイズ・結果は .app の外（nav と同レベル）に置き、z-index がサイドバーより効くようにする (#49) -->
+  <div id="quiz" class="screen full-screen">
+    <button class="btn btn-secondary btn-back" onclick="switchTab('tab-home')">← やめる</button>
+    <div class="text-center mb-20 hidden" id="quiz-timer-box">
+      <div class="timer" id="quiz-timer">60:00</div>
+    </div>
+    <div class="card">
+      <div class="quiz-header">
+        <span class="quiz-progress" id="quiz-progress">1 / 10</span>
+        <span class="quiz-tag" id="quiz-tag"></span>
+        <button class="bookmark-btn" id="quiz-bookmark" onclick="toggleBookmark()" title="ブックマーク">☆</button>
+        <span class="quiz-level" id="quiz-level">L1</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="quiz-bar" style="width:0%"></div></div>
+      <p class="quiz-question" id="quiz-question"></p>
+      <div class="choices" id="quiz-choices"></div>
+      <div id="quiz-explanation" class="explanation hidden">
+        <h4>💡 解説</h4>
+        <div id="quiz-explanation-text"></div>
+      </div>
+      <div class="mt-20 text-center hidden" id="quiz-next-box" style="text-align:right;">
+        <button class="btn btn-primary btn-sm" onclick="nextQuestion()" id="quiz-next-btn">次の問題 →</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="result" class="screen full-screen">
+    <div class="card result-card">
+      <h2 style="margin-bottom:20px;">📝 結果</h2>
+      <div class="result-score" id="result-score">80%</div>
+      <div class="result-label" id="result-detail">32 / 40 正解</div>
+      <div id="result-pass" class="result-pass hidden">合格ライン達成！</div>
+      <div class="chapter-stats mt-20" id="result-chapter-stats"></div>
+      <div class="result-review mt-20">
+        <h3 style="margin-bottom:12px;">📚 復習ガイド</h3>
+        <div id="result-review-summary" class="result-review-summary"></div>
+        <div id="result-wrong-list" class="result-wrong-list"></div>
+      </div>
+      <div class="flex-row mt-20" style="flex-direction:column; gap:12px;">
+        <button class="btn btn-primary btn-block" id="result-retry-btn" onclick="retryQuiz()" style="justify-content:center;">🔄 もう一度解く</button>
+        <button class="btn btn-secondary btn-block hidden" id="result-retry-wrong-btn" style="justify-content:center;">📚 間違えた問題を復習</button>
+        <button class="btn btn-secondary btn-block" onclick="switchTab('tab-home')" style="justify-content:center;">🏠 ホームへ戻る</button>
+      </div>
+    </div>
+  </div>
 
   <div class="app">
 
@@ -235,52 +281,6 @@
       <div class="flex-row" style="margin-top:20px;">
         <button type="button" class="btn btn-secondary btn-block" style="justify-content:center;" onclick="closeQuestionCountModal()">キャンセル</button>
         <button type="button" class="btn btn-primary btn-block" style="justify-content:center;" onclick="confirmQuestionCountModal()">開始</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ================= クイズ・結果画面 (フルスクリーン) ================= -->
-  <div id="quiz" class="screen full-screen">
-    <button class="btn btn-secondary btn-back" onclick="switchTab('tab-home')">← やめる</button>
-    <div class="text-center mb-20 hidden" id="quiz-timer-box">
-      <div class="timer" id="quiz-timer">60:00</div>
-    </div>
-    <div class="card">
-      <div class="quiz-header">
-        <span class="quiz-progress" id="quiz-progress">1 / 10</span>
-        <span class="quiz-tag" id="quiz-tag"></span>
-        <button class="bookmark-btn" id="quiz-bookmark" onclick="toggleBookmark()" title="ブックマーク">☆</button>
-        <span class="quiz-level" id="quiz-level">L1</span>
-      </div>
-      <div class="progress-bar"><div class="progress-fill" id="quiz-bar" style="width:0%"></div></div>
-      <p class="quiz-question" id="quiz-question"></p>
-      <div class="choices" id="quiz-choices"></div>
-      <div id="quiz-explanation" class="explanation hidden">
-        <h4>💡 解説</h4>
-        <div id="quiz-explanation-text"></div>
-      </div>
-      <div class="mt-20 text-center hidden" id="quiz-next-box" style="text-align:right;">
-        <button class="btn btn-primary btn-sm" onclick="nextQuestion()" id="quiz-next-btn">次の問題 →</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="result" class="screen full-screen">
-    <div class="card result-card">
-      <h2 style="margin-bottom:20px;">📝 結果</h2>
-      <div class="result-score" id="result-score">80%</div>
-      <div class="result-label" id="result-detail">32 / 40 正解</div>
-      <div id="result-pass" class="result-pass hidden">合格ライン達成！</div>
-      <div class="chapter-stats mt-20" id="result-chapter-stats"></div>
-      <div class="result-review mt-20">
-        <h3 style="margin-bottom:12px;">📚 復習ガイド</h3>
-        <div id="result-review-summary" class="result-review-summary"></div>
-        <div id="result-wrong-list" class="result-wrong-list"></div>
-      </div>
-      <div class="flex-row mt-20" style="flex-direction:column; gap:12px;">
-        <button class="btn btn-primary btn-block" id="result-retry-btn" onclick="retryQuiz()" style="justify-content:center;">🔄 もう一度解く</button>
-        <button class="btn btn-secondary btn-block hidden" id="result-retry-wrong-btn" style="justify-content:center;">📚 間違えた問題を復習</button>
-        <button class="btn btn-secondary btn-block" onclick="switchTab('tab-home')" style="justify-content:center;">🏠 ホームへ戻る</button>
       </div>
     </div>
   </div>
