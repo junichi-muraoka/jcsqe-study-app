@@ -928,6 +928,14 @@ body[data-theme="light"] .header h1 {
   animation: fadeSlideUp 0.3s ease !important;
 }
 
+/* デスクトップ: クイズ/結果表示中はサイドバーをオーバーレイより下に (#49) */
+@media (min-width: 768px) {
+  body:has(#quiz.screen.active) .app-nav,
+  body:has(#result.screen.active) .app-nav {
+    z-index: 1000;
+  }
+}
+
 /* Adjusting Print for UI v3 */
 @media print {
   .app-nav { display: none !important; }
