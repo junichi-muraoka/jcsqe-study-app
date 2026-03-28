@@ -1,0 +1,86 @@
+# 本番（PRD）とステージング（STG）を GitHub Pages にデプロイする
+# - master  → gh-pages ブランチのルート（本番 URL）
+# - staging → gh-pages ブランチの /staging/（検証 URL）
+# peaceiris の keep_files により、PRD と STG のデプロイが互いに他方のファイルを消さない
+#
+# 初回セットアップ: リポジトリ Settings → Pages → Build and deployment で
+# Source を「Deploy from a branch」→ Branch「gh-pages」/ folder「/ (root)」に変更する。
+name: Deploy GitHub Pages (STG / PRD)
+
+on:
+  push:
+    branches:
+      - master
+      - staging
+  workflow_dispatch:
+
+concurrency:
+  group: gh-pages-deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run tests
+        run: npm test
+
+  deploy-production:
+    needs: test
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ steps.page-url.outputs.url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Page URL (PRD)
+        id: page-url
+        run: echo "url=https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/" >> $GITHUB_OUTPUT
+
+      - name: Deploy to gh-pages (root)
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: .
+          keep_files: true
+          exclude_assets: '.github,.git,tests,node_modules,package.json,package-lock.json,playwright.config.js'
+
+  deploy-staging:
+    needs: test
+    if: github.ref == 'refs/heads/staging'
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: ${{ steps.page-url.outputs.url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Page URL (STG)
+        id: page-url
+        run: echo "url=https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/staging/" >> $GITHUB_OUTPUT
+
+      - name: Deploy to gh-pages (/staging)
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: .
+          destination_dir: staging
+          keep_files: true
+          exclude_assets: '.github,.git,tests,node_modules,package.json,package-lock.json,playwright.config.js'

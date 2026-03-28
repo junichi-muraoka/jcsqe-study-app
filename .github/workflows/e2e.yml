@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - staging
     paths:
       - 'index.html'
       - 'app.js'

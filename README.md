@@ -31,7 +31,9 @@
 ## 🚀 使い方
 
 ### オンライン（GitHub Pages）
-👉 **[https://junichi-muraoka.github.io/jcsqe-study-app/](https://junichi-muraoka.github.io/jcsqe-study-app/)**
+👉 **本番（PRD）** [https://junichi-muraoka.github.io/jcsqe-study-app/](https://junichi-muraoka.github.io/jcsqe-study-app/)
+
+**検証（STG）**（`staging` ブランチ）: `https://junichi-muraoka.github.io/jcsqe-study-app/staging/`（初回は [docs/environments.md](docs/environments.md) の手順で Pages のソースを `gh-pages` にし、`staging` を push する）
 
 ブラウザでアクセスするだけですぐに学習を開始できます。
 
