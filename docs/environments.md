@@ -13,7 +13,7 @@
 
 ### 仕組み（GitHub Pages）
 
-1. ワークフロー [`.github/workflows/deploy-github-pages.yml`](../.github/workflows/deploy-github-pages.yml) が `peaceiris/actions-gh-pages` で **`gh-pages` ブランチ**に静的ファイルをプッシュする。
+1. ワークフロー [`.github/workflows/deploy-github-pages.yml`](../.github/workflows/deploy-github-pages.yml) が `rsync` で公開用ディレクトリ `_site` を作り（`.git` / `.github` / テスト等を除外）、`peaceiris/actions-gh-pages` で **`gh-pages` ブランチ**にプッシュする。
 2. **本番**はルート（`/`）、**STG**はサブディレクトリ（`/staging/`）。`keep_files: true` により、PRD デプロイで STG が消えず、STG デプロイで本番ルートが消えない。
 3. アセットは相対パス（`./`）のため、`/staging/` 配下でもそのまま動作する。
 

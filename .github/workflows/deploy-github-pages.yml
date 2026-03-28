@@ -51,14 +51,29 @@ jobs:
         id: page-url
         run: echo "url=https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/" >> $GITHUB_OUTPUT
 
+      # .git を exclude_assets で消すと peaceiris 初回デプロイが壊れるため、公開物だけ _site に集約する
+      - name: Prepare site directory
+        run: |
+          mkdir -p _site
+          rsync -a \
+            --exclude='_site/' \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='tests/' \
+            --exclude='node_modules/' \
+            --exclude='package.json' \
+            --exclude='package-lock.json' \
+            --exclude='playwright.config.js' \
+            ./ _site/
+
       - name: Deploy to gh-pages (root)
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
-          publish_dir: .
+          publish_dir: _site
           keep_files: true
-          exclude_assets: '.github,.git,tests,node_modules,package.json,package-lock.json,playwright.config.js'
+          exclude_assets: ''
 
   deploy-staging:
     needs: test
@@ -75,12 +90,26 @@ jobs:
         id: page-url
         run: echo "url=https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/staging/" >> $GITHUB_OUTPUT
 
+      - name: Prepare site directory
+        run: |
+          mkdir -p _site
+          rsync -a \
+            --exclude='_site/' \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='tests/' \
+            --exclude='node_modules/' \
+            --exclude='package.json' \
+            --exclude='package-lock.json' \
+            --exclude='playwright.config.js' \
+            ./ _site/
+
       - name: Deploy to gh-pages (/staging)
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
-          publish_dir: .
+          publish_dir: _site
           destination_dir: staging
           keep_files: true
-          exclude_assets: '.github,.git,tests,node_modules,package.json,package-lock.json,playwright.config.js'
+          exclude_assets: ''
