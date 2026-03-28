@@ -13,6 +13,15 @@
 
 README からは「ドキュメント一覧」で本ファイルへリンクするのみにし、利用者向けの長文はここに集約する。
 
+### 1.1 公開 URL（本番・検証）
+
+GitHub Pages では次の 2 URL が使われる（同一ホスト・パスが異なるだけ）。Firebase の **承認済みドメイン**はホスト単位のため、`junichi-muraoka.github.io` を 1 回登録すれば本番・STG 両方でログイン可能（詳細は [firebase_manual_setup.md](./firebase_manual_setup.md)）。
+
+| 環境 | URL（本リポジトリ） |
+|------|---------------------|
+| 本番（PRD） | `https://junichi-muraoka.github.io/jcsqe-study-app/` |
+| 検証（STG） | `https://junichi-muraoka.github.io/jcsqe-study-app/staging/` |
+
 ## 2. 制限事項（仕様として固定しておくこと）
 
 ### 2.1 Firestore（Spark）

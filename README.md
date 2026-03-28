@@ -1,7 +1,8 @@
 # 🎓 JCSQE初級 合格対策学習アプリ
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![GitHub Pages](https://img.shields.io/badge/Demo-GitHub%20Pages-brightgreen)](https://junichi-muraoka.github.io/jcsqe-study-app/)
+[![GitHub Pages PRD](https://img.shields.io/badge/Demo-PRD%20%28GitHub%20Pages%29-brightgreen)](https://junichi-muraoka.github.io/jcsqe-study-app/)
+[![STG](https://img.shields.io/badge/Demo-STG%20%28GitHub%20Pages%29-blue)](https://junichi-muraoka.github.io/jcsqe-study-app/staging/)
 [![Questions](https://img.shields.io/badge/収録問題数-200問-orange)]()
 
 > **SQuBOK Guide 第3版**に準拠した、JCSQE初級（ソフトウェア品質技術者資格試験）合格を目指す実践型学習Webアプリです。
@@ -31,9 +32,13 @@
 ## 🚀 使い方
 
 ### オンライン（GitHub Pages）
-👉 **本番（PRD）** [https://junichi-muraoka.github.io/jcsqe-study-app/](https://junichi-muraoka.github.io/jcsqe-study-app/)
 
-**検証（STG）**（`staging` ブランチ）: `https://junichi-muraoka.github.io/jcsqe-study-app/staging/`（初回は [docs/environments.md](docs/environments.md) の手順で Pages のソースを `gh-pages` にし、`staging` を push する）
+| 環境 | URL | 更新のしかた |
+|------|-----|----------------|
+| **本番（PRD）** | [junichi-muraoka.github.io/jcsqe-study-app/](https://junichi-muraoka.github.io/jcsqe-study-app/) | `master` へマージ・プッシュ |
+| **検証（STG）** | […/jcsqe-study-app/staging/](https://junichi-muraoka.github.io/jcsqe-study-app/staging/) | `staging` ブランチへプッシュ |
+
+デプロイの仕組み・Pages の初回設定は [docs/environments.md](docs/environments.md) を参照。
 
 ブラウザでアクセスするだけですぐに学習を開始できます。
 
@@ -62,7 +67,7 @@ npx http-server ./ -p 8080 -o
 1. [Firebase Console](https://console.firebase.google.com/) でプロジェクトを作成し、**Authentication（Google）** と **Cloud Firestore** を有効化する。
 2. プロジェクト設定から Web アプリ用の設定オブジェクトをコピーし、`js/firebase-config.js` の `firebaseConfig` に貼り付ける（テンプレは [`js/firebase-config.example.js`](js/firebase-config.example.js)）。
 3. `firestore.rules` をデプロイする（`firebase deploy --only firestore:rules` またはコンソールでルール設定）。
-4. 認証ドメインに GitHub Pages の URL（例: `https://<user>.github.io`）を authorized domains に追加する。
+4. 認証ドメインに GitHub Pages のホストを **承認済みドメイン**に追加する（`user.github.io` は本番・STG 共通。**パス** `/staging/` は同一オリジン内のためホスト追加は不要）。手順は [docs/firebase_manual_setup.md](docs/firebase_manual_setup.md)。
 
 **画面操作を順番に追う手順**は [docs/firebase_manual_setup.md](docs/firebase_manual_setup.md) を参照。仕様・エラー UX は [docs/09_cloud_sync_firebase_spec.md](docs/09_cloud_sync_firebase_spec.md)。
 
@@ -93,7 +98,7 @@ npx http-server ./ -p 8080 -o
 - [機能仕様書 (03_features.md)](docs/03_features.md)
 - [UI設計・デザイン仕様 (04_ui_design.md)](docs/04_ui_design.md)
 - [将来の拡張ロードマップ (05_future_roadmap.md)](docs/05_future_roadmap.md)
-- [開発・ドキュメント管理ワークフロー (06_development_workflow.md)](docs/06_development_workflow.md)
+- [開発・ドキュメント管理ワークフロー (06_development_workflow.md)](docs/06_development_workflow.md)（CI・**本番/検証デプロイ**）
 - [クラウド同期・Firebase 制限とエラー UX (09_cloud_sync_firebase_spec.md)](docs/09_cloud_sync_firebase_spec.md)
 - [Firebase 手動セットアップ手順（コンソール・CLI）(firebase_manual_setup.md)](docs/firebase_manual_setup.md)
 - [実行環境一覧（本番・検証・Firebase）(environments.md)](docs/environments.md)

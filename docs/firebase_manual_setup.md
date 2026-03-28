@@ -9,7 +9,8 @@
 
 | 項目 | 例 | メモ |
 |------|-----|------|
-| 本番の公開 URL | `https://junichi-muraoka.github.io/jcsqe-study-app/` | リポジトリの Pages 設定で確定 |
+| 本番（PRD）の URL | `https://junichi-muraoka.github.io/jcsqe-study-app/` | `master` → `gh-pages` ルート（[environments.md](./environments.md)） |
+| 検証（STG）の URL | `https://junichi-muraoka.github.io/jcsqe-study-app/staging/` | `staging` ブランチ → `gh-pages` の `/staging/`。オリジンは本番と同じ `junichi-muraoka.github.io` |
 | Firebase プロジェクト名 | 任意（コンソールで表示名） | 1 プロジェクトで十分な場合も多い |
 | 検証用を分けるか | 別プロジェクト or 同一プロジェクトで別用途 | 小規模なら本番 1 つからで可 |
 
@@ -65,13 +66,15 @@
 
 GitHub Pages の URL から **ログイン用ポップアップ**が動くには、Firebase がそのオリジンを許可している必要があります。
 
+**本番（`/`）も検証（`/staging/`）も**、ホストは同じ `junichi-muraoka.github.io` です（パスが違うだけ）。承認済みドメインに **ホスト名 1 つ**入っていれば、STG の URL でもログイン可能です。
+
 1. **Authentication** → **設定**（タブ）→ **承認済みドメイン**。
 2. 既に `localhost` があればそのまま（ローカル検証用）。
 3. **ドメインを追加**をクリックし、次を **それぞれ** 追加する（実際のユーザー名・リポジトリ名に合わせる）。
 
    | 追加するドメイン | 用途 |
    |------------------|------|
-   | `junichi-muraoka.github.io` | `user.github.io/repo` 形式の **ユーザ／組織 Pages** で使うホスト名 |
+   | `junichi-muraoka.github.io` | `user.github.io/repo` 形式の **ユーザ／組織 Pages**（PRD・STG 共通） |
    | （カスタムドメインを使う場合） | 例: `www.example.com` |
 
    **注意**: `https://` は付けない。ホスト名だけ（例: `junichi-muraoka.github.io`）。

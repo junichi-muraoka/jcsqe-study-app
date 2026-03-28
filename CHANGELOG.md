@@ -2,6 +2,17 @@
 
 このプロジェクトの注目すべき変更はこのファイルに記録されます。
 
+## [1.2.0] - 2026-03-28
+
+### 追加
+- **本番・検証デプロイ**: GitHub Actions（`deploy-github-pages.yml`）と `gh-pages` ブランチで **PRD**（`master` → ルート）と **STG**（`staging` → `/staging/`）を配信
+- **`staging` ブランチ**と GitHub Environments（`production` / `staging`）の参照
+
+### ドキュメント
+- [environments.md](docs/environments.md)、[01_architecture.md](docs/01_architecture.md)、[06_development_workflow.md](docs/06_development_workflow.md)、[CONTRIBUTING.md](CONTRIBUTING.md)、[README.md](README.md)、[firebase_manual_setup.md](docs/firebase_manual_setup.md)、[09_cloud_sync_firebase_spec.md](docs/09_cloud_sync_firebase_spec.md) に上記の運用を反映
+
+---
+
 ## [1.1.0] - 2026-03-10
 
 ### 追加
