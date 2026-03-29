@@ -48,6 +48,13 @@ jobs:
           CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
+      # スキップ時もジョブが「成功（緑）」になると Worker が無いのに誤解されるため、明示的に失敗させる
+      - name: Fail if deploy was skipped (secrets missing at run time)
+        if: steps.gate.outputs.skip == 'true'
+        run: |
+          echo "::error::デプロイは実行されませんでした。D1_DATABASE_ID / CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID を Repository secrets に入れたうえで、このワークフローを再実行してください。"
+          exit 1
+
       - name: Patch wrangler.toml with D1 database id
         if: steps.gate.outputs.skip != 'true'
         run: sed -i "s/REPLACE_WITH_WRANGLER_D1_CREATE_OUTPUT/$D1_DATABASE_ID/g" wrangler.toml
