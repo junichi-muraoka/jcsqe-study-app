@@ -2,6 +2,20 @@
 
 このプロジェクトの注目すべき変更はこのファイルに記録されます。
 
+## [1.2.8] - 2026-03-29
+
+### 修正
+- **ローカル日付**（[#68](https://github.com/junichi-muraoka/jcsqe-study-app/issues/68)）: ストリーク・日別アクティビティ（ヒートマップ）・今日の5問のシードに `getLocalDateKey()`（ブラウザのローカル暦）を使用。`StudyData.getLocalDateKey` を公開。
+- **無効な問題 ID**（[#69](https://github.com/junichi-muraoka/jcsqe-study-app/issues/69)）: `normalizeStudyData` に任意の `validQuestionIds` を渡したとき、`weakIds` / `bookmarks` / `spacedRepetition` をカタログに存在する ID のみに正規化。`storage.js`・インポート・Firebase 同期で `QUESTIONS` に基づき適用。
+
+### 修正（UI）
+- 学習計画ジェネレータ用の `#plan-result` が HTML に無く表示されなかったため、ホームタブにカードを追加。
+
+### テスト
+- E2E: 学習計画に「試験日」「1日の目安」が出ることを確認。
+
+---
+
 ## [1.2.7] - 2026-03-29
 
 ### 修正

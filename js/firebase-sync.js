@@ -88,7 +88,10 @@
       const local = J.loadData();
       const merged = mergeStudyData(local, remote);
       const norm = window.StudyData && window.StudyData.normalizeStudyData;
-      J.saveData(norm ? norm(merged) : merged);
+      const catalogOpts = typeof QUESTIONS !== 'undefined' && Array.isArray(QUESTIONS)
+        ? { validQuestionIds: QUESTIONS.map(function(q) { return q.id; }) }
+        : undefined;
+      J.saveData(norm ? norm(merged, catalogOpts) : merged);
       const st = document.getElementById('firebase-sync-status');
       if (st) st.textContent = '最終同期: ' + new Date().toLocaleString('ja-JP');
     }).catch(function(err) {

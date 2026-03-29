@@ -3,7 +3,7 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
 (function() {
   'use strict';
 
-  const { parseImportedStudyData, STORAGE_KEY } = window.StudyData;
+  const { parseImportedStudyData, STORAGE_KEY, getLocalDateKey } = window.StudyData;
   const loadData = window.JCSQE.loadData;
   const saveData = window.JCSQE.saveData;
   const state = window.JCSQE.state;
@@ -366,13 +366,15 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
     if (isCorrect && d.weakIds.includes(q.id)) d.weakIds = d.weakIds.filter(id => id !== q.id);
     // 日別アクティビティ記録 (#23)
     if (!d.dailyActivity) d.dailyActivity = {};
-    const today = new Date().toISOString().slice(0, 10);
+    const today = getLocalDateKey();
     d.dailyActivity[today] = (d.dailyActivity[today] || 0) + 1;
-    // ストリーク更新 (#2)
+    // ストリーク更新 (#2)（日付キーはローカル暦）
     if (!d.streak) d.streak = { lastDate: null, count: 0 };
     if (d.streak.lastDate !== today) {
-      const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
-      d.streak.count = (d.streak.lastDate === yesterday.toISOString().slice(0, 10)) ? d.streak.count + 1 : 1;
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayKey = getLocalDateKey(yesterday);
+      d.streak.count = (d.streak.lastDate === yesterdayKey) ? d.streak.count + 1 : 1;
       d.streak.lastDate = today;
     }
     // XP獲得 (#21)
@@ -610,8 +612,9 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
     const act = d.dailyActivity || {};
     let hmHtml = '<div class="heatmap-grid">';
     for (let i = 89; i >= 0; i--) {
-      const dt = new Date(); dt.setDate(dt.getDate() - i);
-      const key = dt.toISOString().slice(0, 10);
+      const dt = new Date();
+      dt.setDate(dt.getDate() - i);
+      const key = getLocalDateKey(dt);
       const cnt = act[key] || 0;
       const lvl = cnt === 0 ? '' : cnt <= 5 ? 'l1' : cnt <= 15 ? 'l2' : cnt <= 30 ? 'l3' : 'l4';
       hmHtml += `<div class="heatmap-cell ${lvl}" title="${key}: ${cnt}問"></div>`;
@@ -727,7 +730,10 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
     reader.onload = function(e) {
       try {
         const parsed = JSON.parse(e.target.result);
-        const result = parseImportedStudyData(parsed);
+        const importOpts = typeof QUESTIONS !== 'undefined' && Array.isArray(QUESTIONS)
+          ? { validQuestionIds: QUESTIONS.map(function(q) { return q.id; }) }
+          : undefined;
+        const result = parseImportedStudyData(parsed, importOpts);
         if (result.error) {
           alert(result.error);
           return;
@@ -1024,7 +1030,7 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
 
   // ── デイリーチャレンジ (#20) ──
   function startDailyChallenge() {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = getLocalDateKey();
     const seed = today.split('-').join('');
     // 日付ベースで5問を選出（同じ日は同じ問題）
     let qs = [...QUESTIONS];

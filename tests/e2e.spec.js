@@ -16,6 +16,13 @@ test.describe('JCSQE学習アプリ E2E', () => {
     await expect(page.locator('.nav-card')).toHaveCount(4, { timeout: 5000 });
   });
 
+  test('学習計画ジェネレータに試験日と1日の目安が表示される', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'load' });
+    const plan = page.locator('#plan-result');
+    await expect(plan).toContainText('試験日', { timeout: 5000 });
+    await expect(plan).toContainText('1日の目安');
+  });
+
   test('今日の5問をクリックしてクイズが開始される', async ({ page }) => {
     await page.goto('/', { waitUntil: 'load' });
     await clickNavCard(page, 'nav-daily');
