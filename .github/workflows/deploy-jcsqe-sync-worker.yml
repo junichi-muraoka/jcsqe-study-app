@@ -1,0 +1,86 @@
+# cloudflare/jcsqe-sync-worker を master へ push したときに自動デプロイ。
+# 初回のみ: Cloudflare で D1 を作成し、リポジトリ Secrets を設定する（README 参照）。
+name: Deploy JCSQE Sync Worker
+
+on:
+  push:
+    branches:
+      - master
+      - main
+    paths:
+      - 'cloudflare/jcsqe-sync-worker/**'
+      - '.github/workflows/deploy-jcsqe-sync-worker.yml'
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: cloudflare/jcsqe-sync-worker
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: cloudflare/jcsqe-sync-worker/package-lock.json
+
+      - name: Check required secrets
+        id: gate
+        run: |
+          if [ -z "$D1_ID" ] || [ -z "$CF_TOKEN" ] || [ -z "$CF_ACCOUNT" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::Worker deploy skipped. Set repository secrets: D1_DATABASE_ID, CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID (see cloudflare/jcsqe-sync-worker/README.md)."
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          D1_ID: ${{ secrets.D1_DATABASE_ID }}
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Patch wrangler.toml with D1 database id
+        if: steps.gate.outputs.skip != 'true'
+        run: sed -i "s/REPLACE_WITH_WRANGLER_D1_CREATE_OUTPUT/$D1_DATABASE_ID/g" wrangler.toml
+        env:
+          D1_DATABASE_ID: ${{ secrets.D1_DATABASE_ID }}
+
+      - name: Install dependencies
+        if: steps.gate.outputs.skip != 'true'
+        run: npm ci
+
+      - name: Apply D1 migrations (remote)
+        if: steps.gate.outputs.skip != 'true'
+        run: npx wrangler d1 migrations apply jcsqe-study-data --remote
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Upload SYNC_API_SECRET to Worker
+        if: steps.gate.outputs.skip != 'true'
+        run: |
+          if [ -z "$JCSQE_SYNC_API_SECRET" ]; then
+            echo "::warning::JCSQE_SYNC_API_SECRET is empty; skipping wrangler secret put. Set the secret and re-run workflow."
+            exit 0
+          fi
+          printf '%s' "$JCSQE_SYNC_API_SECRET" | npx wrangler secret put SYNC_API_SECRET
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          JCSQE_SYNC_API_SECRET: ${{ secrets.JCSQE_SYNC_API_SECRET }}
+
+      - name: Deploy Worker
+        if: steps.gate.outputs.skip != 'true'
+        run: npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

@@ -52,8 +52,19 @@ npm run deploy   # Cloudflare へデプロイ
 
 ## GitHub Pages から呼ぶとき
 
-- Worker の URL をフロントに設定（将来は設定画面や環境変数ビルド）
+- アプリの **設定**タブ「Cloudflare D1 同期」に Worker の URL と `SYNC_API_SECRET` を入力して保存する。
 - CORS はデフォルトで `https://junichi-muraoka.github.io` と localhost。別 URL なら `ALLOWED_ORIGIN` を `wrangler.toml` の `[vars]` かダッシュボードで変更
+
+## GitHub Actions で自動デプロイ（推奨）
+
+`master` へ `cloudflare/jcsqe-sync-worker/` の変更が push されると [.github/workflows/deploy-jcsqe-sync-worker.yml](../../.github/workflows/deploy-jcsqe-sync-worker.yml) が動きます。次の **Repository secrets** を設定しておくこと（未設定時はジョブがスキップされます）。
+
+| Secret | 説明 |
+|--------|------|
+| `D1_DATABASE_ID` | `npx wrangler d1 create jcsqe-study-data` の出力 UUID（`wrangler.toml` のプレースホルダを CI が置換） |
+| `CLOUDFLARE_API_TOKEN` | Workers / D1 用 API トークン |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare の Account ID |
+| `JCSQE_SYNC_API_SECRET` | `SYNC_API_SECRET` と同じ値（任意。空なら `wrangler secret put` はスキップ） |
 
 ## セキュリティ注意
 

@@ -1057,7 +1057,13 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
   window.startSpacedMode = startSpacedMode;
   window.startDailyChallenge = startDailyChallenge;
   window.showDashboard = showDashboard;
+  window.updateHomeStats = updateHomeStats;
   window.updateDashboardStats = updateDashboardStats;
+  window.refreshStudyUi = function refreshStudyUi() {
+    updateHomeStats();
+    buildChapterList();
+    generateStudyPlan();
+  };
   window.nextQuestion = nextQuestion;
   window.retryQuiz = retryQuiz;
   window.resetData = resetData;

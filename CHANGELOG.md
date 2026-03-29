@@ -2,6 +2,18 @@
 
 このプロジェクトの注目すべき変更はこのファイルに記録されます。
 
+## [1.2.10] - 2026-03-29
+
+### 追加
+- **Cloudflare D1 自動同期**: 設定タブで Worker URL とトークンを保存すると、学習データ保存時に D1 へ自動 PUT（`js/d1-sync.js`）
+- **GitHub Actions**: `cloudflare/jcsqe-sync-worker/` 変更時に Worker をマイグレーション・デプロイ（[Secrets 設定](docs/jcsqe_cloudflare_d1_sync.md)が必要なときはスキップ）
+- **npm scripts**: `worker:dev` / `worker:deploy`
+
+### ドキュメント
+- [docs/jcsqe_cloudflare_d1_sync.md](docs/jcsqe_cloudflare_d1_sync.md)、[docs/security.md](docs/security.md)、[cloudflare/jcsqe-sync-worker/README.md](cloudflare/jcsqe-sync-worker/README.md) を更新
+
+---
+
 ## [1.2.9] - 2026-03-29
 
 ### 追加

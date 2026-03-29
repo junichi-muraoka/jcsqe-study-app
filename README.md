@@ -102,7 +102,7 @@ npx http-server ./ -p 8080 -o
 - [将来の拡張ロードマップ (05_future_roadmap.md)](docs/05_future_roadmap.md)
 - [開発・ドキュメント管理ワークフロー (06_development_workflow.md)](docs/06_development_workflow.md)（CI・**本番/検証デプロイ**）
 - [クラウド同期・Firebase 制限とエラー UX (09_cloud_sync_firebase_spec.md)](docs/09_cloud_sync_firebase_spec.md)
-- [Cloudflare D1 同期の考え方（専用 DB + 専用 Worker）(jcsqe_cloudflare_d1_sync.md)](docs/jcsqe_cloudflare_d1_sync.md)
+- [Cloudflare D1 同期（専用 DB + Worker + 設定画面からの自動同期）(jcsqe_cloudflare_d1_sync.md)](docs/jcsqe_cloudflare_d1_sync.md)
 - [Firebase 手動セットアップ手順（コンソール・CLI）(firebase_manual_setup.md)](docs/firebase_manual_setup.md)
 - [実行環境一覧（本番・検証・Firebase）(environments.md)](docs/environments.md)
 - [インフラ・運用の見直しガイド（棚卸し・チェックリスト）(infrastructure_review.md)](docs/infrastructure_review.md)
