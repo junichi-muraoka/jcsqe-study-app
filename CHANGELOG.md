@@ -2,6 +2,14 @@
 
 このプロジェクトの注目すべき変更はこのファイルに記録されます。
 
+## [1.2.9] - 2026-03-29
+
+### 追加
+- [docs/jcsqe_cloudflare_d1_sync.md](docs/jcsqe_cloudflare_d1_sync.md): ut-qms の D1 とは別インスタンスとする方針の整理
+- [cloudflare/jcsqe-sync-worker/](cloudflare/jcsqe-sync-worker/): JCSQE 専用 Cloudflare Worker + D1 用の最小 API（`GET/PUT /api/study`、PoC 用 Bearer + `X-User-Id`）
+
+---
+
 ## [1.2.8] - 2026-03-29
 
 ### 修正

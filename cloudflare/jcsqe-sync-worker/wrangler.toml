@@ -1,0 +1,17 @@
+# JCSQE 専用 Worker + 専用 D1（ut-qms / Qraft の D1 とは別インスタンスで作成すること）
+name = "jcsqe-study-sync"
+main = "src/index.ts"
+compatibility_date = "2024-12-01"
+
+# 初回: wrangler d1 create jcsqe-study-data
+# 出力された database_id を下記に貼り付ける
+[[d1_databases]]
+binding = "DB"
+database_name = "jcsqe-study-data"
+database_id = "REPLACE_WITH_WRANGLER_D1_CREATE_OUTPUT"
+
+[vars]
+# 本番のオリジン（GitHub Pages）。STG や別 URL はデプロイ環境ごとに上書き可
+ALLOWED_ORIGIN = "https://junichi-muraoka.github.io"
+
+# SYNC_API_SECRET は wrangler secret put SYNC_API_SECRET で設定（平文をコミットしない）

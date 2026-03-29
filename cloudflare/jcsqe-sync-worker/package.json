@@ -1,0 +1,19 @@
+{
+  "name": "jcsqe-study-sync-worker",
+  "private": true,
+  "version": "0.1.0",
+  "description": "JCSQE 学習データ同期 API（Cloudflare Worker + 専用 D1）",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "cf-typegen": "wrangler types"
+  },
+  "dependencies": {
+    "hono": "^4.6.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241230.0",
+    "typescript": "^5.7.0",
+    "wrangler": "^3.99.0"
+  }
+}
