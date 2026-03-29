@@ -2,6 +2,13 @@
 
 このプロジェクトの注目すべき変更はこのファイルに記録されます。
 
+## [1.2.6] - 2026-03-29
+
+### その他
+- [docs/infrastructure_review.md](docs/infrastructure_review.md): インフラフォローアップ用に Issue [#64](https://github.com/junichi-muraoka/jcsqe-study-app/issues/64)〜[#67](https://github.com/junichi-muraoka/jcsqe-study-app/issues/67) へのリンクを追加
+
+---
+
 ## [1.2.5] - 2026-03-29
 
 ### 追加
