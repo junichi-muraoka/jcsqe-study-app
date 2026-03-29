@@ -955,7 +955,8 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
     if (!next) { el.innerHTML = '<p style="color:var(--text-muted);">次回の試験日程が設定されていません</p>'; return; }
     const daysLeft = Math.ceil((new Date(next.date) - now) / 86400000);
     const totalQs = QUESTIONS.length;
-    const perDay = Math.max(Math.ceil(totalQs * 2 / daysLeft), 3); // 2周を目標
+    // 試験日直前などで daysLeft が 0 になると 0 除算になり perDay が Infinity になるのを防ぐ
+    const perDay = Math.max(Math.ceil(totalQs * 2 / Math.max(1, daysLeft)), 3); // 2周を目標
     let html = `<div style="margin-bottom:16px;">
       <p><strong>📅 試験日:</strong> ${next.date} (${next.label})</p>
       <p><strong>⏱️ 残り:</strong> ${daysLeft}日</p>
