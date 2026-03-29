@@ -78,3 +78,16 @@
 | [release_process.md](./release_process.md) | バージョン・CHANGELOG |
 | [security.md](./security.md) | データ・公開リポの注意 |
 | [08_hybrid_testing_strategy.md](./08_hybrid_testing_strategy.md) | E2E と Playwright MCP（任意） |
+
+---
+
+## 5. 追跡用 Issue（フォローアップ）
+
+上記「3. 『未見直し』になりやすいポイント」の具体化として、次を起票済み。
+
+| Issue | 内容 |
+|-------|------|
+| [#64](https://github.com/junichi-muraoka/jcsqe-study-app/issues/64) | `environments.md` の Firebase プロジェクト ID・STG/PRD 方針 |
+| [#65](https://github.com/junichi-muraoka/jcsqe-study-app/issues/65) | リポジトリ設定の確認（Pages・ブランチ保護・Dependabot 等） |
+| [#66](https://github.com/junichi-muraoka/jcsqe-study-app/issues/66) | レガシー `deploy-pages.yml` の整理 |
+| [#67](https://github.com/junichi-muraoka/jcsqe-study-app/issues/67) | Actions の Node / Playwright と `package.json` の整合 |
