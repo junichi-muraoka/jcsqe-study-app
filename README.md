@@ -83,6 +83,8 @@ npx http-server ./ -p 8080 -o
 | 出題範囲 | SQuBOK Guide 第3版 |
 | 知識レベル | L1（知っている）〜 L3（概念と使い方がわかる） |
 
+**公式情報・本アプリの位置づけ**（過去問ではないこと・リンク集）は [docs/exam_meta.md](docs/exam_meta.md) を参照。
+
 ## 🤝 コントリビューション
 
 問題の追加・修正、機能改善のプルリクエストを歓迎します！
@@ -106,6 +108,8 @@ npx http-server ./ -p 8080 -o
 - [コンテンツ編集ガイド（問題・解説）(content_authoring.md)](docs/content_authoring.md)
 - [リリース運用（バージョン・CHANGELOG）(release_process.md)](docs/release_process.md)
 - [セキュリティ・プライバシー概要 (security.md)](docs/security.md)
+- [試験メタ・公式ソース (exam_meta.md)](docs/exam_meta.md)
+- [アクセシビリティ方針 (accessibility.md)](docs/accessibility.md)
 
 ## 📄 ライセンス
 
