@@ -9,11 +9,36 @@
     return Number.isFinite(num) && num >= 0 ? num : fallback;
   }
 
-  function normalizeIdList(value) {
+  /** ブラウザのローカル日付を YYYY-MM-DD で返す（ストリーク・ヒートマップ・デイリーと整合） */
+  function getLocalDateKey(date) {
+    const d = date instanceof Date ? date : new Date(date);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + day;
+  }
+
+  function buildValidQuestionSet(options) {
+    if (!options || !options.validQuestionIds) return null;
+    const raw = options.validQuestionIds;
+    const arr = Array.isArray(raw) ? raw : Array.from(raw);
+    const set = new Set();
+    arr.forEach(function(id) {
+      const n = typeof id === 'number' ? id : parseInt(id, 10);
+      if (Number.isInteger(n) && n > 0) set.add(n);
+    });
+    return set.size > 0 ? set : null;
+  }
+
+  function normalizeIdList(value, validSet) {
     if (!Array.isArray(value)) return [];
-    return [...new Set(value
+    let ids = [...new Set(value
       .map(v => parseInt(v, 10))
       .filter(v => Number.isInteger(v) && v > 0))];
+    if (validSet && validSet.size > 0) {
+      ids = ids.filter(function(id) { return validSet.has(id); });
+    }
+    return ids;
   }
 
   function normalizeChapterStats(value) {
@@ -55,10 +80,12 @@
     });
   }
 
-  function normalizeSpacedRepetition(value) {
+  function normalizeSpacedRepetition(value, validSet) {
     if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
     const normalized = {};
     Object.keys(value).forEach(key => {
+      const qid = parseInt(key, 10);
+      if (validSet && validSet.size > 0 && (!Number.isInteger(qid) || !validSet.has(qid))) return;
       const entry = value[key];
       if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return;
       normalized[key] = {
@@ -87,8 +114,10 @@
     };
   }
 
-  function normalizeStudyData(raw) {
+  function normalizeStudyData(raw, options) {
     if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return defaultData();
+
+    const validSet = buildValidQuestionSet(options || {});
 
     const totalAnswered = toNonNegativeNumber(raw.totalAnswered, 0);
     const totalCorrect = Math.min(toNonNegativeNumber(raw.totalCorrect, 0), totalAnswered);
@@ -104,12 +133,12 @@
       totalAnswered,
       totalCorrect,
       chapterStats: normalizeChapterStats(raw.chapterStats),
-      weakIds: normalizeIdList(raw.weakIds),
+      weakIds: normalizeIdList(raw.weakIds, validSet),
       history: Array.isArray(raw.history) ? raw.history : [],
       mockHistory: normalizeMockHistory(raw.mockHistory, raw.mockExams),
       dailyActivity: normalizeDailyActivity(raw.dailyActivity),
-      bookmarks: normalizeIdList(raw.bookmarks),
-      spacedRepetition: normalizeSpacedRepetition(raw.spacedRepetition),
+      bookmarks: normalizeIdList(raw.bookmarks, validSet),
+      spacedRepetition: normalizeSpacedRepetition(raw.spacedRepetition, validSet),
       streak: {
         lastDate: typeof streak.lastDate === 'string' ? streak.lastDate : null,
         count: toNonNegativeNumber(streak.count, 0)
@@ -118,7 +147,7 @@
     };
   }
 
-  function parseImportedStudyData(raw) {
+  function parseImportedStudyData(raw, options) {
     if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
       return { error: 'JSONの形式が不正です。学習データのオブジェクトを指定してください。' };
     }
@@ -133,7 +162,7 @@
       return { error: '学習データとして認識できる項目が見つかりません。' };
     }
 
-    return { data: normalizeStudyData(raw) };
+    return { data: normalizeStudyData(raw, options) };
   }
 
   const api = {
@@ -141,7 +170,8 @@
     DATA_VERSION,
     defaultData,
     normalizeStudyData,
-    parseImportedStudyData
+    parseImportedStudyData,
+    getLocalDateKey
   };
 
   if (typeof module !== 'undefined' && module.exports) {
