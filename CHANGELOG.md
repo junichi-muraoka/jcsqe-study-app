@@ -2,6 +2,19 @@
 
 このプロジェクトの注目すべき変更はこのファイルに記録されます。
 
+## [1.2.4] - 2026-03-29
+
+### 変更
+- [docs/08_hybrid_testing_strategy.md](docs/08_hybrid_testing_strategy.md): Playwright MCP の導入状況（未導入・任意）を明記
+- [docs/05_future_roadmap.md](docs/05_future_roadmap.md): 問題数 200 問達成・出題数モーダル・フラッシュカードの記述を現状に合わせて更新
+
+### Issue
+- [#48](https://github.com/junichi-muraoka/jcsqe-study-app/issues/48) クローズ（glossary 初期化は既に修正済みと確認）
+- [#47](https://github.com/junichi-muraoka/jcsqe-study-app/issues/47) クローズ（200 問達成済み）
+- [#45](https://github.com/junichi-muraoka/jcsqe-study-app/issues/45) に MCP ステータスをコメント
+
+---
+
 ## [1.2.3] - 2026-03-28
 
 ### 追加
