@@ -1,7 +1,7 @@
 # 実行環境一覧
 
 > **関連 Issue**: [#51](https://github.com/junichi-muraoka/jcsqe-study-app/issues/51) / CI/CD: [#52](https://github.com/junichi-muraoka/jcsqe-study-app/issues/52)  
-> ドキュメント整備: ~~#58〜#61~~ 反映済み。未着手: 試験メタ [#62](https://github.com/junichi-muraoka/jcsqe-study-app/issues/62)、a11y [#63](https://github.com/junichi-muraoka/jcsqe-study-app/issues/63)
+> ドキュメント整備: ~~#58〜#63~~ 反映済み（[exam_meta.md](./exam_meta.md)、[accessibility.md](./accessibility.md) 含む）。
 
 ## フロントエンド（静的アプリ）
 
