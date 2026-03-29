@@ -1,6 +1,6 @@
 {
   "name": "jcsqe-study-app",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "JCSQE初級 合格対策学習アプリ",
   "private": true,
   "scripts": {

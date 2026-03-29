@@ -2,6 +2,13 @@
 
 > **関連 Issue**: [#45](https://github.com/junichi-muraoka/jcsqe-study-app/issues/45)（任意・低優先度）
 
+## 導入状況
+
+| 項目 | 状態 |
+|------|------|
+| **Playwright（CI）** | 導入済み（[`.github/workflows/e2e.yml`](../.github/workflows/e2e.yml)、[`tests/e2e.spec.js`](../tests/e2e.spec.js)） |
+| **Playwright MCP** | **未導入**（任意）。AI による探索・テスト生成を行う場合のみ Cursor 等に MCP サーバーを追加する。優先度は低く、CI の E2E だけで回帰を担保できる間は後回しでよい。 |
+
 Playwright（CI用E2E）と Playwright MCP（AI駆動）の両方のメリットを活かす構成案です。
 
 ---
