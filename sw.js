@@ -1,8 +1,8 @@
-const CACHE_NAME = 'jcsqe-v13';
+const CACHE_NAME = 'jcsqe-v14';
 const ASSETS = [
   './', './index.html', './style.css', './app.js',
   './js/storage.js', './js/state.js', './js/sync-firebase-errors.js',
-  './js/firebase-config.js', './js/firebase-sync.js',
+  './js/firebase-config.js', './js/firebase-sync.js', './js/d1-sync.js',
   './questions.js', './questions_extra1.js', './questions_extra2.js', './questions_extra3.js', './questions_extra4.js',
   './explanations_extra.js', './explanations_exp3.js', './explanations.js', './glossary.js', './study-data.js', './manifest.json'
 ];
