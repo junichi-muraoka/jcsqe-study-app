@@ -2,6 +2,13 @@
 
 このプロジェクトの注目すべき変更はこのファイルに記録されます。
 
+## [1.2.5] - 2026-03-29
+
+### 追加
+- [docs/infrastructure_review.md](docs/infrastructure_review.md): GitHub Pages・Actions・Firebase・Dependabot などの構成一覧と定期レビュー用チェックリスト
+
+---
+
 ## [1.2.4] - 2026-03-29
 
 ### 変更
