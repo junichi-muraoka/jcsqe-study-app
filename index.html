@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#0a0e1a">
   <link rel="manifest" href="manifest.json">
   <title>JCSQE初級 合格対策アプリ</title>
-  <link rel="stylesheet" href="style.css?v=15">
+  <link rel="stylesheet" href="style.css?v=16">
 </head>
 <body>
   <div id="sync-toast" class="sync-toast hidden" role="status" aria-live="polite"></div>
@@ -250,6 +250,25 @@
           <button type="button" class="btn btn-secondary btn-block hidden" id="firebase-signout-btn" style="justify-content:center;">ログアウト</button>
         </div>
 
+        <div class="card" id="cf-d1-sync-card">
+          <h3 style="margin-bottom:12px;">☁️ Cloudflare D1 同期（Worker）</h3>
+          <p style="font-size:0.9rem;color:var(--text-secondary);line-height:1.5;margin-bottom:12px;">
+            デプロイした Worker の URL と API トークンを入れて保存すると、学習データの保存時に自動で D1 にバックアップします（Firebase とは別経路）。
+          </p>
+          <label for="d1-sync-base-url" style="display:block;margin-bottom:6px;font-size:0.85rem;">Worker の URL</label>
+          <input type="url" id="d1-sync-base-url" class="d1-sync-input" placeholder="https://jcsqe-study-sync.xxx.workers.dev" autocomplete="off" style="width:100%;padding:10px 12px;margin-bottom:12px;border:1px solid var(--border-glass);border-radius:var(--radius-sm);background:var(--bg-glass);color:var(--text-primary);font-family:inherit;font-size:0.9rem;box-sizing:border-box;">
+          <label for="d1-sync-token" style="display:block;margin-bottom:6px;font-size:0.85rem;">API トークン（Worker の SYNC_API_SECRET）</label>
+          <input type="password" id="d1-sync-token" class="d1-sync-input" placeholder="設定画面に表示しないでください" autocomplete="off" style="width:100%;padding:10px 12px;margin-bottom:12px;border:1px solid var(--border-glass);border-radius:var(--radius-sm);background:var(--bg-glass);color:var(--text-primary);font-family:inherit;font-size:0.9rem;box-sizing:border-box;">
+          <label style="display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:0.9rem;cursor:pointer;">
+            <input type="checkbox" id="d1-sync-enabled"> 保存時に自動で Cloudflare に同期する
+          </label>
+          <div class="flex-row" style="gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+            <button type="button" class="btn btn-primary btn-sm" id="d1-sync-save-btn">設定を保存して今すぐ同期</button>
+            <button type="button" class="btn btn-secondary btn-sm" id="d1-sync-pull-btn">クラウドから取得</button>
+          </div>
+          <p id="d1-sync-status" style="font-size:0.8rem;color:var(--text-muted);margin:0;" aria-live="polite"></p>
+        </div>
+
         <div class="card">
           <h3 style="margin-bottom:16px;">🎨 テーマ設定</h3>
           <button class="btn btn-secondary btn-block" id="theme-toggle-btn" onclick="toggleTheme()" style="justify-content:center;">
@@ -301,6 +320,7 @@
   <script src="glossary.js" defer></script>
   <script src="study-data.js" defer></script>
   <script src="js/storage.js" defer></script>
+  <script src="js/d1-sync.js" defer></script>
   <script src="js/state.js" defer></script>
   <script src="js/sync-firebase-errors.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js" defer></script>

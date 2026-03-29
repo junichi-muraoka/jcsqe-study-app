@@ -21,11 +21,23 @@
 - **運用**: デプロイ・シークレット・D1 バックアップは **JCSQE 用 Worker と D1** 単位で管理できます。
 - **将来**: 認証や監視を ut-qms と揃えたくなったら、**OAuth やダッシュボード**だけパターンを合わせる、という段階が可能です。
 
-## 4. フロントエンドとの接続（未実装の部分）
+## 4. フロントエンドとの接続（実装済み）
 
-- 現状のアプリは **localStorage** が正。Firebase は任意。
-- 本 Worker は **API の土台**です。アプリ本体からの `fetch`・UI（設定画面のトークン入力など）は **別タスク**で接続します。
+- **設定**タブの「**Cloudflare D1 同期（Worker）**」に Worker の URL と `SYNC_API_SECRET` を保存すると、**学習データを保存するたび**（`saveData`）に **自動で PUT** します（デバウンス約 3.5 秒）。
+- **クラウドから取得**で `GET` し、ローカルに上書き反映します（`js/d1-sync.js`）。
+- 端末識別用の `userId`（UUID）は `localStorage` の設定キーに保存されます。
 - CORS は GitHub Pages 想定で Worker 側に設定済み（`ALLOWED_ORIGIN` で変更可）。
+
+## 4.1 GitHub Actions で Worker を自動デプロイ
+
+リポジトリに次の **Secrets** を入れておくと、`cloudflare/jcsqe-sync-worker/` が `master` にマージされたとき **[Deploy JCSQE Sync Worker](https://github.com/junichi-muraoka/jcsqe-study-app/actions)** が **マイグレーション適用 → シークレット設定 → deploy** まで実行します（未設定のときはスキップしてノーティスを出します）。
+
+| Secret | 内容 |
+|--------|------|
+| `D1_DATABASE_ID` | `wrangler d1 create jcsqe-study-data` で表示された UUID |
+| `CLOUDFLARE_API_TOKEN` | Workers + D1 権限の API トークン |
+| `CLOUDFLARE_ACCOUNT_ID` | ダッシュボードの Account ID |
+| `JCSQE_SYNC_API_SECRET` | Worker の `SYNC_API_SECRET`（空なら deploy はするが secret put はスキップ） |
 
 ## 5. 認証モデル（現状の PoC）
 
