@@ -10,6 +10,7 @@
 
 ## 2. 公開リポジトリについて
 
+- **`npm test`** に含まれる **`scripts/check-no-secrets-in-git.js`** が、追跡ファイルに **Google API キー（`AIza…`）らしい文字列**などが含まれていないか検査する（CI でも実行）。誤コミットの抑止用。
 - ソースは **GitHub 上で公開**されているため、**クライアントに含まれるコード・設定は誰でも閲覧可能**と考える。
 - **API キー等をクライアントに埋め込むと漏洩リスクがある**（Firebase の Web API キーはクライアントに置く設計だが、**Firestore ルール**と **Authentication** でアクセスを制御する）。ルールは [firestore.rules](../firestore.rules) とコンソール設定が前提。
 
