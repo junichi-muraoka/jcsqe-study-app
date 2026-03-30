@@ -17,6 +17,7 @@ on:
     paths:
       - 'firestore.rules'
       - 'firebase.json'
+      - '.github/workflows/firestore-rules.yml'
   workflow_dispatch:
 
 jobs:
