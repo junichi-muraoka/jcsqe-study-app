@@ -13,11 +13,52 @@ if (!raw || !String(raw).trim()) {
   process.exit(0);
 }
 
+/**
+ * Secret に次のどれでも渡せる:
+ * - 1行の JSON: {"apiKey":"...",...}
+ * - Firebase コンソールのコピペ: const firebaseConfig = { apiKey: "...", ... };
+ */
+function parseFirebaseWebConfig(input) {
+  let s = String(input).trim();
+  if (s.charCodeAt(0) === 0xfeff) {
+    s = s.slice(1).trim();
+  }
+  try {
+    return JSON.parse(s);
+  } catch (_) {
+    const start = s.indexOf('{');
+    const end = s.lastIndexOf('}');
+    if (start === -1 || end === -1 || end <= start) {
+      throw new Error(
+        'JSON でも { で始まるオブジェクトでもありません。Firebase の「firebaseConfig」の { から } まで（apiKey / authDomain などが入ったブロック）を貼ってください。'
+      );
+    }
+    const slice = s.slice(start, end + 1);
+    try {
+      return JSON.parse(slice);
+    } catch (_) {
+      try {
+        return new Function('return ' + slice)();
+      } catch (e2) {
+        throw new Error(
+          'パースできませんでした。次のどちらかにしてください: (1) { "apiKey":"...", "authDomain":"..." } 形式の JSON 1行 (2) Firebase の firebaseConfig の { ... } ブロック全体。エラー: ' +
+            e2.message
+        );
+      }
+    }
+  }
+}
+
 let cfg;
 try {
-  cfg = JSON.parse(raw);
+  cfg = parseFirebaseWebConfig(raw);
 } catch (e) {
-  console.error('FIREBASE_WEB_CONFIG_JSON は有効な JSON である必要があります。', e.message);
+  console.error('FIREBASE_WEB_CONFIG_JSON:', e.message);
+  process.exit(1);
+}
+
+if (!cfg || typeof cfg !== 'object' || !cfg.apiKey) {
+  console.error('FIREBASE_WEB_CONFIG_JSON: apiKey を含むオブジェクトである必要があります。');
   process.exit(1);
 }
 

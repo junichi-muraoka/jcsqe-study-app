@@ -146,7 +146,9 @@ GitHub Pages の URL から **ログイン用ポップアップ**が動くには
 
 **GitHub Pages / Cloudflare にデプロイしてクラウド同期を使う（推奨）**
 
-1. フェーズ B の **`firebaseConfig` オブジェクト**を、**改行なしの 1 行 JSON** にした文字列として、GitHub の **Repository secrets** に **`FIREBASE_WEB_CONFIG_JSON`** として保存する（例: `{"apiKey":"…","authDomain":"…",…}`）。
+1. フェーズ B の **`firebaseConfig`** を、GitHub の **Repository secrets** の **`FIREBASE_WEB_CONFIG_JSON`** に保存する。次のどちらでも可（[`scripts/write-firebase-config.js`](../scripts/write-firebase-config.js) が解釈する）:  
+   - **1 行の JSON** — `{"apiKey":"…","authDomain":"…",…}`  
+   - **Firebase コンソールのまま** — `const firebaseConfig = { apiKey: "…", … };` の **ブロック全体**（`{` から `}` まで含む）
 2. `master` / `staging` などをプッシュすると、[deploy-github-pages.yml](../.github/workflows/deploy-github-pages.yml) または [deploy-cloudflare-pages.yml](../.github/workflows/deploy-cloudflare-pages.yml) が `scripts/write-firebase-config.js` で **`js/firebase-config.js` を上書き**してからデプロイする。
 3. Secret を未設定のままにすると、リポジトリ同梱の **プレースホルダ**のまま配信され、クラウド同期はオフのままです。
 
