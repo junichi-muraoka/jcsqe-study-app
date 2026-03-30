@@ -1,13 +1,21 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import { createRemoteJWKSet, jwtVerify } from 'jose';
 
 export interface Env {
   DB: D1Database;
-  SYNC_API_SECRET: string;
+  /** 旧クライアント用（Bearer が共有シークレットのとき）。新フロントは Firebase ID トークンのみ */
+  SYNC_API_SECRET?: string;
+  /** Firebase コンソールの project ID（公開情報）。ID トークンの aud / iss 検証に使用 */
+  FIREBASE_PROJECT_ID?: string;
   ALLOWED_ORIGIN?: string;
 }
 
 const app = new Hono<{ Bindings: Env }>();
+
+const JWKS = createRemoteJWKSet(
+  new URL('https://www.googleapis.com/oauth2/v3/certs')
+);
 
 app.use(
   '*',
@@ -34,17 +42,49 @@ function unauthorized() {
   });
 }
 
-function requireAuth(c: { req: { header: (n: string) => string | undefined }; env: Env }) {
+async function verifyFirebaseUid(
+  token: string,
+  projectId: string
+): Promise<string | null> {
+  try {
+    const { payload } = await jwtVerify(token, JWKS, {
+      issuer: `https://securetoken.google.com/${projectId}`,
+      audience: projectId,
+    });
+    const sub = payload.sub;
+    return typeof sub === 'string' && sub ? sub : null;
+  } catch {
+    return null;
+  }
+}
+
+async function resolveUserId(c: {
+  req: { header: (n: string) => string | undefined };
+  env: Env;
+}): Promise<string | null> {
   const auth = c.req.header('Authorization');
-  const userId = c.req.header('X-User-Id');
-  if (!auth?.startsWith('Bearer ') || !userId || userId.length > 128) {
-    return null;
-  }
+  if (!auth?.startsWith('Bearer ')) return null;
   const token = auth.slice(7).trim();
-  if (!token || token !== c.env.SYNC_API_SECRET) {
-    return null;
+  if (!token) return null;
+
+  const projectId = c.env.FIREBASE_PROJECT_ID?.trim();
+  if (projectId) {
+    const uid = await verifyFirebaseUid(token, projectId);
+    if (uid) return uid;
   }
-  return userId.trim();
+
+  const legacySecret = c.env.SYNC_API_SECRET;
+  const userId = c.req.header('X-User-Id');
+  if (
+    legacySecret &&
+    token === legacySecret &&
+    userId &&
+    userId.length > 0 &&
+    userId.length <= 128
+  ) {
+    return userId.trim();
+  }
+  return null;
 }
 
 app.get('/api/health', (c) =>
@@ -52,7 +92,7 @@ app.get('/api/health', (c) =>
 );
 
 app.get('/api/study', async (c) => {
-  const userId = requireAuth(c);
+  const userId = await resolveUserId(c);
   if (!userId) return unauthorized();
 
   const row = await c.env.DB.prepare(
@@ -76,7 +116,7 @@ app.get('/api/study', async (c) => {
 });
 
 app.put('/api/study', async (c) => {
-  const userId = requireAuth(c);
+  const userId = await resolveUserId(c);
   if (!userId) return unauthorized();
 
   let body: unknown;
@@ -87,7 +127,10 @@ app.put('/api/study', async (c) => {
   }
 
   if (!body || typeof body !== 'object' || !('data' in body)) {
-    return c.json({ error: 'expected_shape', detail: '{ "data": <study object> }' }, 400);
+    return c.json(
+      { error: 'expected_shape', detail: '{ "data": <study object> }' },
+      400
+    );
   }
 
   const payload = JSON.stringify((body as { data: unknown }).data);

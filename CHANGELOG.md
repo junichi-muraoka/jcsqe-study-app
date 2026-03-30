@@ -2,6 +2,14 @@
 
 このプロジェクトの注目すべき変更はこのファイルに記録されます。
 
+## [1.2.12] - 2026-03-29
+
+### 変更
+- **Cloudflare D1 同期**: エンドユーザーに Worker URL / 共有トークンを入力させない。Firebase ID トークンで Worker が認証（`jose`）。運用者は `js/d1-sync-config.js` に Worker のベース URL のみ記載。
+- **Worker**: `FIREBASE_PROJECT_ID` を `[vars]` に追加。GitHub Actions に `FIREBASE_PROJECT_ID` secret と `wrangler.toml` 置換ステップを追加。`SYNC_API_SECRET` はレガシー用で任意。
+
+---
+
 ## [1.2.11] - 2026-03-29
 
 ### 修正

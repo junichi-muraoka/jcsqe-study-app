@@ -23,28 +23,28 @@
 
 ## 4. フロントエンドとの接続（実装済み）
 
-- **設定**タブの「**Cloudflare D1 同期（Worker）**」に Worker の URL と `SYNC_API_SECRET` を保存すると、**学習データを保存するたび**（`saveData`）に **自動で PUT** します（デバウンス約 3.5 秒）。
+- **エンドユーザーは Worker URL や API トークンを入力しません。** 運用者が `js/d1-sync-config.js` に **Worker のベース URL だけ** 記載します（`d1-sync-config.example.js` を参照）。
+- **Google でログイン**（Firebase Auth）しているとき、ブラウザは **Firebase ID トークン**を `Authorization: Bearer` で送ります。Worker は Google の JWKS で検証し、トークンの `sub`（Firebase UID）を D1 の行キーにします。
+- **設定**タブで「保存時に自動で Cloudflare に同期する」を有効にすると、**学習データを保存するたび**（`saveData`）に **自動で PUT** します（デバウンス約 3.5 秒）。
 - **クラウドから取得**で `GET` し、ローカルに上書き反映します（`js/d1-sync.js`）。
-- 端末識別用の `userId`（UUID）は `localStorage` の設定キーに保存されます。
 - CORS は GitHub Pages 想定で Worker 側に設定済み（`ALLOWED_ORIGIN` で変更可）。
 
 ## 4.1 GitHub Actions で Worker を自動デプロイ
 
-リポジトリに次の **Secrets** を入れておくと、`cloudflare/jcsqe-sync-worker/` が `master` にマージされたとき **[Deploy JCSQE Sync Worker](https://github.com/junichi-muraoka/jcsqe-study-app/actions)** が **マイグレーション適用 → シークレット設定 → deploy** まで実行します（未設定のときはスキップしてノーティスを出します）。
+リポジトリに次の **Secrets** を入れておくと、`cloudflare/jcsqe-sync-worker/` が `master` にマージされたとき **[Deploy JCSQE Sync Worker](https://github.com/junichi-muraoka/jcsqe-study-app/actions)** が **マイグレーション適用 →（任意でレガシー secret）→ deploy** まで実行します。
 
 | Secret | 内容 |
 |--------|------|
 | `D1_DATABASE_ID` | `wrangler d1 create jcsqe-study-data` で表示された UUID |
 | `CLOUDFLARE_API_TOKEN` | Workers + D1 権限の API トークン |
 | `CLOUDFLARE_ACCOUNT_ID` | ダッシュボードの Account ID |
-| `JCSQE_SYNC_API_SECRET` | Worker の `SYNC_API_SECRET`（空なら deploy はするが secret put はスキップ） |
+| `FIREBASE_PROJECT_ID` | Firebase の project ID（Worker の JWT 検証用。`firebase-config.js` の `projectId` と一致） |
+| `JCSQE_SYNC_API_SECRET` | 任意。旧 Bearer 方式用。空なら `wrangler secret put` はスキップ |
 
-## 5. 認証モデル（現状の PoC）
+## 5. 認証モデル
 
-- **`Authorization: Bearer <SYNC_API_SECRET>`** … Worker の環境変数（シークレット）と一致させる。
-- **`X-User-Id: <UUID>`** … ブラウザが生成して保持するユーザー識別子（端末ごと）。サーバーはこれを主キーに保存。
-
-本番で **ログイン連携**する場合は、この Bearer を **ユーザーごとのトークン**や **JWT** に差し替える想定です。
+- **`Authorization: Bearer <Firebase ID トークン>`** … Worker が JWKS で検証。`sub` を `user_id` に使用。
+- **レガシー（互換）**: `Authorization: Bearer <SYNC_API_SECRET>` と **`X-User-Id`** … 旧 PoC 用。
 
 ## 6. 関連ファイル
 

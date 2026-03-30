@@ -13,5 +13,8 @@ database_id = "REPLACE_WITH_WRANGLER_D1_CREATE_OUTPUT"
 [vars]
 # 本番のオリジン（GitHub Pages）。STG や別 URL はデプロイ環境ごとに上書き可
 ALLOWED_ORIGIN = "https://junichi-muraoka.github.io"
+# Firebase コンソールの project ID（js/firebase-config.js の projectId と一致させる）
+# CI では Repository secret FIREBASE_PROJECT_ID で sed 置換される
+FIREBASE_PROJECT_ID = "REPLACE_WITH_FIREBASE_PROJECT_ID"
 
-# SYNC_API_SECRET は wrangler secret put SYNC_API_SECRET で設定（平文をコミットしない）
+# SYNC_API_SECRET は任意（旧クライアントのみ）。wrangler secret put SYNC_API_SECRET
