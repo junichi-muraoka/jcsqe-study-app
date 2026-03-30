@@ -2,10 +2,21 @@
 
 このプロジェクトの注目すべき変更はこのファイルに記録されます。
 
+## [1.2.15] - 2026-03-30
+
+### 削除
+- **Cloudflare D1 同期**（`js/d1-sync.js`、`js/d1-sync-config.js`、`cloudflare/jcsqe-sync-worker/`、GitHub Actions `deploy-jcsqe-sync-worker.yml`、当該ドキュメント）。クラウド同期は **Firebase（Firestore）のみ**とする。
+- **npm scripts**: `worker:dev` / `worker:deploy` を削除。
+
+### 修正
+- **Service Worker**: `CACHE_NAME` を `jcsqe-v19` に更新。
+
+---
+
 ## [1.2.14] - 2026-03-30
 
 ### 修正
-- **Service Worker**: `firebase-config.js` / `d1-sync-config.js` をキャッシュしない（常にネットワーク取得）。Firebase 設定を更新しても古いキャッシュで「未設定」のままになる問題を防ぐ。
+- **Service Worker**: `firebase-config.js`（および当時存在した `d1-sync-config.js`）をキャッシュしない（常にネットワーク取得）。Firebase 設定を更新しても古いキャッシュで「未設定」のままになる問題を防ぐ。
 
 ---
 

@@ -126,7 +126,7 @@ GitHub Pages の URL から **ログイン用ポップアップ**が動くには
 1. ローカルで [Firebase CLI](https://firebase.google.com/docs/cli) を入れ、`firebase login:ci` を実行して表示される **CI 用トークン**をコピーする（`npx firebase-tools login:ci` でも可）。
 2. GitHub リポジトリの **Settings → Secrets and variables → Actions** に次を追加する。
    - **`FIREBASE_TOKEN`** … 上記のトークン（**漏洩に注意**。定期的に再発行可）
-   - **`FIREBASE_PROJECT_ID`** … Firebase コンソールの project ID（Cloudflare Worker 用に既に入れている値と同じでよい）
+   - **`FIREBASE_PROJECT_ID`** … Firebase コンソールの project ID
 3. シークレット未設定のときはデプロイはスキップされ、ログに警告が出ます。手動で **Run workflow**（`workflow_dispatch`）しても同様です。
 
 ---
