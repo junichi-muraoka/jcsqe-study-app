@@ -64,5 +64,5 @@ Actions タブで **Deploy GitHub Pages (STG / PRD)** を選び **Run workflow**
 | Name | 用途 |
 |------|------|
 | `FIREBASE_TOKEN` | （任意）[firestore-rules.yml](../.github/workflows/firestore-rules.yml) が `firestore.rules` をデプロイするとき。`firebase login:ci` で発行 |
-| `FIREBASE_PROJECT_ID` | （同上）Firebase project ID。Worker デプロイ用 secret と兼用可 |
+| `FIREBASE_PROJECT_ID` | （同上）Firebase project ID |
 | （その他） | Firebase / 外部ホスト連携時は GitHub Environments の `staging` / `production` に分ける |

@@ -242,21 +242,6 @@
           <h2>設定</h2>
         </div>
         
-        <div class="card" id="cf-d1-sync-card">
-          <h3 style="margin-bottom:12px;">☁️ Cloudflare D1 同期（Worker）</h3>
-          <p style="font-size:0.9rem;color:var(--text-secondary);line-height:1.5;margin-bottom:12px;">
-            学習データを D1 にバックアップします（Firebase とは別経路）。<strong>Google でログイン</strong>しているときだけ API が使えます。Worker の URL はリポジトリの <code style="font-size:0.85em;">js/d1-sync-config.js</code> に運用者が 1 度だけ設定します。
-          </p>
-          <label style="display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:0.9rem;cursor:pointer;">
-            <input type="checkbox" id="d1-sync-enabled"> 保存時に自動で Cloudflare に同期する
-          </label>
-          <div class="flex-row" style="gap:8px;flex-wrap:wrap;margin-bottom:12px;">
-            <button type="button" class="btn btn-primary btn-sm" id="d1-sync-save-btn">設定を保存して今すぐ同期</button>
-            <button type="button" class="btn btn-secondary btn-sm" id="d1-sync-pull-btn">クラウドから取得</button>
-          </div>
-          <p id="d1-sync-status" style="font-size:0.8rem;color:var(--text-muted);margin:0;" aria-live="polite"></p>
-        </div>
-
         <div class="card" id="firebase-auth-card">
           <h3 style="margin-bottom:16px;">☁️ クラウド同期（Firebase）</h3>
           <p id="firebase-auth-line" style="font-size:0.9rem;color:var(--text-secondary);line-height:1.5;margin-bottom:12px;">読み込み中…</p>
@@ -322,8 +307,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js" defer></script>
   <script src="js/firebase-config.js" defer></script>
-  <script src="js/d1-sync-config.js" defer></script>
-  <script src="js/d1-sync.js" defer></script>
   <script src="js/firebase-sync.js" defer></script>
   <script src="app.js" defer></script>
 </body>
