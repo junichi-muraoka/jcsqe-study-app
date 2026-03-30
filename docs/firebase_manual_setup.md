@@ -5,6 +5,15 @@
 
 ---
 
+## API キーが GitHub に載った場合（GCP からの警告メール）
+
+1. **すぐに [Google Cloud Console](https://console.cloud.google.com/)** → 対象プロジェクト → **API とサービス** → **認証情報** で、漏洩した **API キーを削除するか回転**する（新キー発行後、Firebase コンソールの Web アプリ設定が新キーに更新されているか確認）。
+2. **GitHub** の **Settings → Secrets and variables → Actions** に **`FIREBASE_WEB_CONFIG_JSON`** を登録する（下記「フェーズ G」）。デプロイ時にのみ `js/firebase-config.js` が生成される。
+3. **（推奨）** 同じ認証情報画面でキーの **アプリケーションの制限**を **HTTP リファラー** にし、`https://*.github.io/*`・`https://*.pages.dev/*`・`http://localhost:*/*` など、実際に配信するオリジンのみに限定する。
+4. **過去のコミット**には旧キーが残る。**キー無効化が最優先**。履歴から消すには `git filter-repo` 等と force push が必要で、フォークやクローンとの調整が要る。
+
+---
+
 ## 事前に決めておくこと
 
 | 項目 | 例 | メモ |
@@ -135,12 +144,18 @@ GitHub Pages の URL から **ログイン用ポップアップ**が動くには
 
 ## フェーズ G — アプリに `firebaseConfig` を書き込む
 
-1. ローカルで `js/firebase-config.example.js` を開き、内容を参考に **`js/firebase-config.js`** を編集する。  
-   または `firebase-config.example.js` をコピーして `firebase-config.js` にリネームし、フェーズ B の値を貼る。
-2. `YOUR_API_KEY` などプレースホルダを **すべて**実値に置き換える。
-3. 保存後、ブラウザで `index.html` を開くか `npx http-server` で起動し、**設定タブ → クラウド同期** から **Google でログイン**を試す。
+**GitHub Pages / Cloudflare にデプロイしてクラウド同期を使う（推奨）**
 
-**公開リポジトリについて**: Web 用 `apiKey` はクライアントに埋め込まれる前提の値ですが、**プロジェクト ID や設定を載せたくない**場合は、`firebase-config.js` を **git に含めない**運用（`.gitignore` + デプロイ時のみ配置）に切り替える必要があります。通常の OSS ではテンプレのみコミットし、本番値は別チャネルで配布する運用もあります。**このリポジトリの方針に合わせて**判断してください。
+1. フェーズ B の **`firebaseConfig` オブジェクト**を、**改行なしの 1 行 JSON** にした文字列として、GitHub の **Repository secrets** に **`FIREBASE_WEB_CONFIG_JSON`** として保存する（例: `{"apiKey":"…","authDomain":"…",…}`）。
+2. `master` / `staging` などをプッシュすると、[deploy-github-pages.yml](../.github/workflows/deploy-github-pages.yml) または [deploy-cloudflare-pages.yml](../.github/workflows/deploy-cloudflare-pages.yml) が `scripts/write-firebase-config.js` で **`js/firebase-config.js` を上書き**してからデプロイする。
+3. Secret を未設定のままにすると、リポジトリ同梱の **プレースホルダ**のまま配信され、クラウド同期はオフのままです。
+
+**ローカルだけでログインを試す**
+
+1. `js/firebase-config.example.js` をコピーして `js/firebase-config.js` を作るか、既存の `firebase-config.js` のプレースホルダをフェーズ B の実値に置き換える。
+2. **公開リポジトリでは実値を `git commit` しない。** 誤って載せた場合はキーを回転し、上記 Secret 方式に切り替える。
+
+保存後、ブラウザで `index.html` を開くか `npx http-server` で起動し、**設定タブ → クラウド同期** から **Google でログイン**を試す。
 
 ---
 

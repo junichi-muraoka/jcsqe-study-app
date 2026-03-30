@@ -95,6 +95,7 @@ Actions タブで **Deploy GitHub Pages (STG / PRD)** を選び **Run workflow**
 |------|------|
 | `FIREBASE_TOKEN` | （任意）[firestore-rules.yml](../.github/workflows/firestore-rules.yml) が `firestore.rules` をデプロイするとき。`firebase login:ci` で発行 |
 | `FIREBASE_PROJECT_ID` | （同上）Firebase project ID |
+| `FIREBASE_WEB_CONFIG_JSON` | （任意）Firebase コンソールの `firebaseConfig` を **1 行の JSON** にした文字列。デプロイ時に `js/firebase-config.js` を生成（[deploy-github-pages.yml](../.github/workflows/deploy-github-pages.yml)、[deploy-cloudflare-pages.yml](../.github/workflows/deploy-cloudflare-pages.yml)） |
 | `CLOUDFLARE_API_TOKEN` | （任意）[deploy-cloudflare-pages.yml](../.github/workflows/deploy-cloudflare-pages.yml) 用。Pages デプロイ権限を含む API トークン |
 | `CLOUDFLARE_ACCOUNT_ID` | （同上）Cloudflare アカウント ID |
 | （その他） | Firebase / 外部ホスト連携時は GitHub Environments の `staging` / `production` に分ける |

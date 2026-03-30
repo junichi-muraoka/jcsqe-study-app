@@ -12,6 +12,8 @@
   };
   J.isFirebaseConfigured = function isFirebaseConfigured() {
     const c = J.firebaseConfig;
-    return !!(c.apiKey && c.authDomain && c.projectId && c.appId);
+    if (!c.apiKey || !c.authDomain || !c.projectId || !c.appId) return false;
+    if (c.apiKey === 'YOUR_API_KEY' || /^your-project/i.test(String(c.projectId || ''))) return false;
+    return true;
   };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -36,6 +36,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Inject Firebase web config from secret (optional)
+        env:
+          FIREBASE_WEB_CONFIG_JSON: ${{ secrets.FIREBASE_WEB_CONFIG_JSON }}
+        run: node scripts/write-firebase-config.js
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:

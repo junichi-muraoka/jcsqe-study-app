@@ -47,6 +47,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Inject Firebase web config from secret (optional)
+        env:
+          FIREBASE_WEB_CONFIG_JSON: ${{ secrets.FIREBASE_WEB_CONFIG_JSON }}
+        run: node scripts/write-firebase-config.js
+
       - name: Page URL (PRD)
         id: page-url
         run: echo "url=https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/" >> $GITHUB_OUTPUT
@@ -85,6 +90,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Inject Firebase web config from secret (optional)
+        env:
+          FIREBASE_WEB_CONFIG_JSON: ${{ secrets.FIREBASE_WEB_CONFIG_JSON }}
+        run: node scripts/write-firebase-config.js
 
       - name: Page URL (STG)
         id: page-url
