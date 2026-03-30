@@ -2,5 +2,5 @@
 (function(global) {
   'use strict';
   const J = global.JCSQE = global.JCSQE || {};
-  J.d1SyncWorkerBaseUrl = '';
+  J.d1SyncWorkerBaseUrl = 'https://jcsqe-study-sync.j-muraoka-secure.workers.dev';
 })(typeof window !== 'undefined' ? window : globalThis);

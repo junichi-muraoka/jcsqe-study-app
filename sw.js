@@ -1,4 +1,4 @@
-const CACHE_NAME = 'jcsqe-v15';
+const CACHE_NAME = 'jcsqe-v16';
 const ASSETS = [
   './', './index.html', './style.css', './app.js',
   './js/storage.js', './js/state.js', './js/sync-firebase-errors.js',
