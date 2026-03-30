@@ -2,6 +2,13 @@
 
 このプロジェクトの注目すべき変更はこのファイルに記録されます。
 
+## [1.2.18] - 2026-03-31
+
+### 修正
+- **`scripts/write-firebase-config.js`**: `FIREBASE_WEB_CONFIG_JSON` に Firebase コンソールの `const firebaseConfig = { ... };` 形式をそのまま貼れるようにした（従来どおり 1 行 JSON も可）。
+
+---
+
 ## [1.2.17] - 2026-03-28
 
 ### セキュリティ
