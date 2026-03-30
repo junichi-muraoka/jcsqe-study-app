@@ -2,6 +2,13 @@
 
 このプロジェクトの注目すべき変更はこのファイルに記録されます。
 
+## [1.2.17] - 2026-03-28
+
+### セキュリティ
+- **`js/firebase-config.js`**: リポジトリから実キーを除去しプレースホルダのみを追跡。GitHub Actions の **`FIREBASE_WEB_CONFIG_JSON`** でデプロイ時に注入（[`scripts/write-firebase-config.js`](scripts/write-firebase-config.js)）。**漏洩したキーは Google Cloud コンソールで無効化・回転すること**（手順は [docs/firebase_manual_setup.md](docs/firebase_manual_setup.md)）。
+
+---
+
 ## [1.2.16] - 2026-03-28
 
 ### 追加

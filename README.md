@@ -76,7 +76,7 @@ npx http-server ./ -p 8080 -o
 ### Firebase を有効にする手順（概要）
 
 1. [Firebase Console](https://console.firebase.google.com/) でプロジェクトを作成し、**Authentication（Google）** と **Cloud Firestore** を有効化する。
-2. プロジェクト設定から Web アプリ用の設定オブジェクトをコピーし、`js/firebase-config.js` の `firebaseConfig` に貼り付ける（テンプレは [`js/firebase-config.example.js`](js/firebase-config.example.js)）。
+2. プロジェクト設定から Web アプリ用の **`firebaseConfig`** をコピーする。ローカルでは [`js/firebase-config.example.js`](js/firebase-config.example.js) を元に `js/firebase-config.js` を作る。**GitHub 上の本番・STG** では Repository secret **`FIREBASE_WEB_CONFIG_JSON`**（1 行 JSON）を設定し、デプロイ時に注入する（リポジトリに実キーをコミットしない）。
 3. `firestore.rules` をデプロイする（`firebase deploy --only firestore:rules`、コンソール貼り付け、または GitHub Actions の **Firestore rules** ワークフローで自動。要 `FIREBASE_TOKEN` 等。詳細は [docs/firebase_manual_setup.md](docs/firebase_manual_setup.md)）。
 4. 認証ドメインに **GitHub Pages**（`user.github.io`）および **Cloudflare Pages**（`*.pages.dev` の各ホスト）を **承認済みドメイン**に追加する。GitHub Pages は本番・STG が同一ホストでパスだけ異なる。**パス** `/staging/` は同一オリジン内のためホスト追加は不要。手順は [docs/firebase_manual_setup.md](docs/firebase_manual_setup.md)。
 
