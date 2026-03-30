@@ -1,0 +1,85 @@
+# Cloudflare Pages（*.pages.dev）へ静的サイトをデプロイする
+# - master / main → 本番用 Pages プロジェクト
+# - staging / develop → 検証用 Pages プロジェクト
+#
+# ut-qms（Qraft）に合わせたブランチの考え方:
+#   本リポジトリは検証を `staging`（および任意で `develop`）に載せる。
+#   ut-qms の `develop` ≒ ここでの `staging` / `develop`（役割は同じ）
+#
+# 初回: Cloudflare で空の Pages プロジェクトを 2 つ作成し、Repository variables または下記デフォルト名に合わせる。
+# Secrets: CLOUDFLARE_API_TOKEN（Pages:Edit）、CLOUDFLARE_ACCOUNT_ID
+name: Deploy Cloudflare Pages
+
+on:
+  push:
+    branches:
+      - master
+      - main
+      - staging
+      - develop
+  workflow_dispatch:
+
+concurrency:
+  group: cf-pages-deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main') && 'production' || 'staging' }}
+      url: ${{ steps.meta.outputs.url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run tests
+        run: npm test
+
+      - name: Prepare site directory
+        run: |
+          mkdir -p _site
+          rsync -a \
+            --exclude='_site/' \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='tests/' \
+            --exclude='node_modules/' \
+            --exclude='package.json' \
+            --exclude='package-lock.json' \
+            --exclude='playwright.config.js' \
+            ./ _site/
+
+      - name: Select Pages project and URL
+        id: meta
+        run: |
+          PROD="${{ vars.CF_PAGES_PROJECT_PRODUCTION }}"
+          STG="${{ vars.CF_PAGES_PROJECT_STAGING }}"
+          if [ -z "$PROD" ]; then PROD="jcsqe-study-app"; fi
+          if [ -z "$STG" ]; then STG="jcsqe-study-app-staging"; fi
+          REF="${{ github.ref }}"
+          if [ "$REF" = "refs/heads/master" ] || [ "$REF" = "refs/heads/main" ]; then
+            echo "project=$PROD" >> $GITHUB_OUTPUT
+            echo "url=https://${PROD}.pages.dev" >> $GITHUB_OUTPUT
+          elif [ "$REF" = "refs/heads/staging" ] || [ "$REF" = "refs/heads/develop" ]; then
+            echo "project=$STG" >> $GITHUB_OUTPUT
+            echo "url=https://${STG}.pages.dev" >> $GITHUB_OUTPUT
+          else
+            echo "Unsupported ref: $REF" >&2
+            exit 1
+          fi
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy _site --project-name=${{ steps.meta.outputs.project }}
