@@ -23,7 +23,7 @@
 
 - GitHub Pages 経由の配信は **HTTPS**（GitHub 側の証明書）。
 - **クラウド同期を使わない**場合でも、**端末紛失・共有 PC** では `localStorage` の内容が他人に見られる可能性がある。学習データの機密性が高い場合は **端末のロック**や **データエクスポート後の取り扱い**に注意する。
-- **Cloudflare D1 同期**を有効にした場合、Worker の URL と API トークンは **`localStorage` に保存**される。共有端末ではトークンが悪用されるリスクがある。概要は [jcsqe_cloudflare_d1_sync.md](./jcsqe_cloudflare_d1_sync.md) を参照。
+- **Cloudflare D1 同期**を有効にした場合、**Worker の URL はリポジトリの `js/d1-sync-config.js` に運用者が記載**する（クライアントに共有シークレットは埋めない）。リクエストごとに **Firebase ID トークン**を送り、Worker が検証する。共有端末では **ログイン状態**に注意する。概要は [jcsqe_cloudflare_d1_sync.md](./jcsqe_cloudflare_d1_sync.md) を参照。
 
 ## 5. 脆弱性の報告
 

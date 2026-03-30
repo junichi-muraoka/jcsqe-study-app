@@ -245,12 +245,8 @@
         <div class="card" id="cf-d1-sync-card">
           <h3 style="margin-bottom:12px;">☁️ Cloudflare D1 同期（Worker）</h3>
           <p style="font-size:0.9rem;color:var(--text-secondary);line-height:1.5;margin-bottom:12px;">
-            デプロイした Worker の URL と API トークンを入れて保存すると、学習データの保存時に自動で D1 にバックアップします（Firebase とは別経路）。
+            学習データを D1 にバックアップします（Firebase とは別経路）。<strong>Google でログイン</strong>しているときだけ API が使えます。Worker の URL はリポジトリの <code style="font-size:0.85em;">js/d1-sync-config.js</code> に運用者が 1 度だけ設定します。
           </p>
-          <label for="d1-sync-base-url" style="display:block;margin-bottom:6px;font-size:0.85rem;">Worker の URL</label>
-          <input type="url" id="d1-sync-base-url" class="d1-sync-input" placeholder="https://jcsqe-study-sync.xxx.workers.dev" autocomplete="off" style="width:100%;padding:10px 12px;margin-bottom:12px;border:1px solid var(--border-glass);border-radius:var(--radius-sm);background:var(--bg-glass);color:var(--text-primary);font-family:inherit;font-size:0.9rem;box-sizing:border-box;">
-          <label for="d1-sync-token" style="display:block;margin-bottom:6px;font-size:0.85rem;">API トークン（Worker の SYNC_API_SECRET）</label>
-          <input type="password" id="d1-sync-token" class="d1-sync-input" placeholder="設定画面に表示しないでください" autocomplete="off" style="width:100%;padding:10px 12px;margin-bottom:12px;border:1px solid var(--border-glass);border-radius:var(--radius-sm);background:var(--bg-glass);color:var(--text-primary);font-family:inherit;font-size:0.9rem;box-sizing:border-box;">
           <label style="display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:0.9rem;cursor:pointer;">
             <input type="checkbox" id="d1-sync-enabled"> 保存時に自動で Cloudflare に同期する
           </label>
@@ -320,13 +316,14 @@
   <script src="glossary.js" defer></script>
   <script src="study-data.js" defer></script>
   <script src="js/storage.js" defer></script>
-  <script src="js/d1-sync.js" defer></script>
   <script src="js/state.js" defer></script>
   <script src="js/sync-firebase-errors.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js" defer></script>
   <script src="js/firebase-config.js" defer></script>
+  <script src="js/d1-sync-config.js" defer></script>
+  <script src="js/d1-sync.js" defer></script>
   <script src="js/firebase-sync.js" defer></script>
   <script src="app.js" defer></script>
 </body>

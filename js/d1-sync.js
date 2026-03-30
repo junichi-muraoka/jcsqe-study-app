@@ -1,8 +1,9 @@
-// Cloudflare Worker + D1 への自動同期（設定時のみ）
+// Cloudflare Worker + D1 への自動同期（Firebase ID トークン認証。URL は js/d1-sync-config.js に運用者のみ記載）
 (function(global) {
   'use strict';
   const J = global.JCSQE = global.JCSQE || {};
-  const CONFIG_KEY = 'jcsqe_cf_sync_config_v1';
+  const CONFIG_KEY = 'jcsqe_cf_sync_config_v2';
+  const LEGACY_KEY = 'jcsqe_cf_sync_config_v1';
   const DEBOUNCE_MS = 3500;
   let timer = null;
   let syncingFromCloud = false;
@@ -11,39 +12,43 @@
   function getConfig() {
     try {
       const raw = localStorage.getItem(CONFIG_KEY);
-      if (!raw) return { enabled: false, baseUrl: '', token: '', userId: '' };
-      const o = JSON.parse(raw);
-      return {
-        enabled: !!o.enabled,
-        baseUrl: typeof o.baseUrl === 'string' ? o.baseUrl.trim() : '',
-        token: typeof o.token === 'string' ? o.token : '',
-        userId: typeof o.userId === 'string' ? o.userId : ''
-      };
+      if (raw) {
+        const o = JSON.parse(raw);
+        return { enabled: !!o.enabled };
+      }
+      const leg = localStorage.getItem(LEGACY_KEY);
+      if (leg) {
+        const o = JSON.parse(leg);
+        return { enabled: !!o.enabled };
+      }
     } catch {
-      return { enabled: false, baseUrl: '', token: '', userId: '' };
+      /* ignore */
     }
+    return { enabled: false };
   }
 
   function saveConfig(c) {
-    localStorage.setItem(CONFIG_KEY, JSON.stringify(c));
+    localStorage.setItem(CONFIG_KEY, JSON.stringify({ enabled: !!c.enabled }));
   }
 
-  function ensureUserId() {
-    const c = getConfig();
-    if (c.userId) return c.userId;
-    var id = '';
-    if (global.crypto && typeof global.crypto.randomUUID === 'function') {
-      id = global.crypto.randomUUID();
-    } else {
-      id = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(ch) {
-        var r = Math.random() * 16 | 0;
-        var v = ch === 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-      });
+  function workerBaseUrl() {
+    const u = J.d1SyncWorkerBaseUrl;
+    return typeof u === 'string' ? u.trim().replace(/\/$/, '') : '';
+  }
+
+  function getFirebaseAuth() {
+    if (!global.firebase || !firebase.apps || firebase.apps.length === 0) return null;
+    try {
+      return firebase.auth();
+    } catch {
+      return null;
     }
-    c.userId = id;
-    saveConfig(c);
-    return id;
+  }
+
+  function getIdToken() {
+    const auth = getFirebaseAuth();
+    if (!auth || !auth.currentUser) return Promise.resolve(null);
+    return auth.currentUser.getIdToken(false);
   }
 
   function catalogOpts() {
@@ -63,54 +68,62 @@
   function scheduleCloudPush() {
     if (syncingFromCloud) return;
     const c = getConfig();
-    if (!c.enabled || !c.baseUrl || !c.token) return;
+    if (!c.enabled || !workerBaseUrl()) return;
     clearTimeout(timer);
     timer = setTimeout(function() { pushCloud(); }, DEBOUNCE_MS);
   }
 
   function pushCloud() {
     const c = getConfig();
-    if (!c.enabled || !c.baseUrl || !c.token) return;
+    if (!c.enabled || !workerBaseUrl()) return;
     if (!J.loadData) return;
-    const uid = ensureUserId();
-    const data = J.loadData();
-    const url = c.baseUrl.replace(/\/$/, '') + '/api/study';
-    fetch(url, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + c.token,
-        'X-User-Id': uid
-      },
-      body: JSON.stringify({ data: data })
+    getIdToken().then(function(token) {
+      if (!token) {
+        setStatus('D1 同期には Firebase（Google）でログインしてください', true);
+        return;
+      }
+      const data = J.loadData();
+      const url = workerBaseUrl() + '/api/study';
+      return fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({ data: data })
+      });
     }).then(function(r) {
+      if (!r) return;
       if (!r.ok) throw new Error(String(r.status));
       setStatus('Cloudflare D1 に同期しました（' + new Date().toLocaleString('ja-JP') + '）');
     }).catch(function() {
-      setStatus('D1 同期に失敗しました（URL・トークン・ネットワークを確認）', true);
+      setStatus('D1 同期に失敗しました（ログイン・ネットワーク・Worker を確認）', true);
     });
   }
 
   function pullCloud() {
-    const c = getConfig();
-    if (!c.baseUrl || !c.token) {
-      setStatus('先に Worker URL と API トークンを保存してください', true);
+    if (!workerBaseUrl()) {
+      setStatus('Worker URL が未設定です（運用者向け: js/d1-sync-config.js）', true);
       return;
     }
-    const uid = ensureUserId();
-    const url = c.baseUrl.replace(/\/$/, '') + '/api/study';
     setStatus('クラウドから取得中…');
-    fetch(url, {
-      method: 'GET',
-      headers: {
-        'Authorization': 'Bearer ' + c.token,
-        'X-User-Id': uid
+    getIdToken().then(function(token) {
+      if (!token) {
+        setStatus('取得には Firebase（Google）でログインしてください', true);
+        return null;
       }
+      const url = workerBaseUrl() + '/api/study';
+      return fetch(url, {
+        method: 'GET',
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
     }).then(function(r) {
+      if (!r) return;
       if (!r.ok) throw new Error(String(r.status));
       return r.json();
     }).then(function(body) {
-      if (!body || body.data == null) {
+      if (!body) return;
+      if (body.data == null) {
         setStatus('クラウドにデータがありません');
         return;
       }
@@ -142,39 +155,26 @@
   }
 
   function readForm() {
-    const baseUrl = (document.getElementById('d1-sync-base-url') || {}).value || '';
-    const token = (document.getElementById('d1-sync-token') || {}).value || '';
     const enabled = !!(document.getElementById('d1-sync-enabled') || {}).checked;
-    return { baseUrl: baseUrl.trim(), token: token, enabled: enabled };
+    return { enabled: enabled };
   }
 
   function applyFormToConfig() {
-    const prev = getConfig();
     const f = readForm();
-    saveConfig({
-      enabled: f.enabled,
-      baseUrl: f.baseUrl,
-      token: f.token,
-      userId: prev.userId || ''
-    });
-    if (!getConfig().userId) ensureUserId();
+    saveConfig({ enabled: f.enabled });
   }
 
   function saveD1SyncSettings() {
     applyFormToConfig();
     setStatus('設定を保存しました');
-    if (getConfig().enabled && getConfig().baseUrl && getConfig().token) {
+    if (getConfig().enabled && workerBaseUrl()) {
       pushCloud();
     }
   }
 
   function initCard() {
     const c = getConfig();
-    const urlEl = document.getElementById('d1-sync-base-url');
-    const tokEl = document.getElementById('d1-sync-token');
     const enEl = document.getElementById('d1-sync-enabled');
-    if (urlEl) urlEl.value = c.baseUrl || '';
-    if (tokEl) tokEl.value = c.token || '';
     if (enEl) enEl.checked = c.enabled;
 
     const saveBtn = document.getElementById('d1-sync-save-btn');
