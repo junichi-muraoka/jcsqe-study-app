@@ -2,6 +2,16 @@
 
 このプロジェクトの注目すべき変更はこのファイルに記録されます。
 
+## [1.2.13] - 2026-03-29
+
+### 追加
+- **GitHub Actions**: `firestore.rules` を `master` / `main` へマージしたときに Firebase へ自動デプロイ（`FIREBASE_TOKEN` + `FIREBASE_PROJECT_ID` が未設定ならスキップして警告）。手動は Actions の **Firestore rules → Run workflow**。
+
+### ドキュメント
+- [docs/firebase_manual_setup.md](docs/firebase_manual_setup.md)、[docs/environments.md](docs/environments.md) に手順を追記。
+
+---
+
 ## [1.2.12] - 2026-03-29
 
 ### 変更
