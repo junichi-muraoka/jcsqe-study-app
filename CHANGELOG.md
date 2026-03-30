@@ -2,6 +2,16 @@
 
 このプロジェクトの注目すべき変更はこのファイルに記録されます。
 
+## [1.2.16] - 2026-03-28
+
+### 追加
+- **GitHub Actions**: [`.github/workflows/deploy-cloudflare-pages.yml`](.github/workflows/deploy-cloudflare-pages.yml) — Cloudflare Pages（`*.pages.dev`）へ `master` / `main`（本番）と `staging` / `develop`（検証）をデプロイ。[ut-qms](https://github.com/junichi-muraoka/ut-qms) に近いブランチ分離と CI デプロイ。
+
+### ドキュメント
+- [docs/environments.md](docs/environments.md)、[README.md](README.md)、[docs/firebase_manual_setup.md](docs/firebase_manual_setup.md) に Cloudflare Pages の URL・Secrets・Variables・Firebase 承認済みドメインを追記。
+
+---
+
 ## [1.2.15] - 2026-03-30
 
 ### 削除

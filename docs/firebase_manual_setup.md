@@ -75,9 +75,11 @@ GitHub Pages の URL から **ログイン用ポップアップ**が動くには
    | 追加するドメイン | 用途 |
    |------------------|------|
    | `junichi-muraoka.github.io` | `user.github.io/repo` 形式の **ユーザ／組織 Pages**（PRD・STG 共通） |
+   | `jcsqe-study-app.pages.dev` | **Cloudflare Pages** 本番（プロジェクト名が異なる場合はその `*.pages.dev`） |
+   | `jcsqe-study-app-staging.pages.dev` | **Cloudflare Pages** 検証（同上） |
    | （カスタムドメインを使う場合） | 例: `www.example.com` |
 
-   **注意**: `https://` は付けない。ホスト名だけ（例: `junichi-muraoka.github.io`）。
+   **注意**: `https://` は付けない。ホスト名だけ（例: `junichi-muraoka.github.io`）。Cloudflare は本番と検証で **オリジンが別**のため、PRD 用・STG 用のホストを **それぞれ** 追加する。
 
 4. 保存を確認。
 
