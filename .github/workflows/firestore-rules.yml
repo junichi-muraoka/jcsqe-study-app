@@ -1,4 +1,9 @@
-name: Firestore rules check
+# firestore.rules の構文チェック（PR / push）と、master へのマージ時の自動デプロイ
+#
+# デプロイに必要な Repository secrets:
+#   FIREBASE_TOKEN        … ローカルで `npx firebase-tools login:ci` を実行して表示されるトークン
+#   FIREBASE_PROJECT_ID   … Firebase の project ID（Worker 用 secret と同じ値でよい）
+name: Firestore rules
 
 on:
   pull_request:
@@ -8,12 +13,14 @@ on:
   push:
     branches:
       - master
+      - main
     paths:
       - 'firestore.rules'
       - 'firebase.json'
+  workflow_dispatch:
 
 jobs:
-  syntax:
+  check:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -25,3 +32,37 @@ jobs:
           test -f firebase.json
           grep -q "rules_version" firestore.rules
           grep -q "firestore" firebase.json
+
+  deploy:
+    needs: check
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check deploy secrets
+        id: gate
+        run: |
+          if [ -z "$FB_TOKEN" ] || [ -z "$FB_PROJECT" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "::warning::FIREBASE_TOKEN または FIREBASE_PROJECT_ID が未設定のため、Firestore ルールのデプロイをスキップしました。自動デプロイするには両方を Repository secrets に追加してください（docs/firebase_manual_setup.md 参照）。"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          FB_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          FB_PROJECT: ${{ secrets.FIREBASE_PROJECT_ID }}
+
+      - name: Set up Node.js
+        if: steps.gate.outputs.skip != 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Deploy Firestore rules
+        if: steps.gate.outputs.skip != 'true'
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+        run: npx --yes firebase-tools@13 deploy --only firestore:rules --project "$FIREBASE_PROJECT_ID" --non-interactive

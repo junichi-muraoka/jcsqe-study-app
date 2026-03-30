@@ -56,10 +56,13 @@ Actions タブで **Deploy GitHub Pages (STG / PRD)** を選び **Run workflow**
 | [test.yml](../.github/workflows/test.yml) | `master` / `staging` の `npm test` |
 | [e2e.yml](../.github/workflows/e2e.yml) | 変更パスに応じた E2E |
 | [deploy-github-pages.yml](../.github/workflows/deploy-github-pages.yml) | **PRD / STG** の GitHub Pages デプロイ |
+| [firestore-rules.yml](../.github/workflows/firestore-rules.yml) | `firestore.rules` の検証と **master へのマージ時の自動デプロイ**（要 `FIREBASE_TOKEN` 等） |
 | [deploy-pages.yml](../.github/workflows/deploy-pages.yml) | レガシー手動デプロイ（任意） |
 
 ## Secrets（運用時）
 
 | Name | 用途 |
 |------|------|
-| （任意） | Firebase / 外部ホスト連携時は GitHub Environments の `staging` / `production` に分ける |
+| `FIREBASE_TOKEN` | （任意）[firestore-rules.yml](../.github/workflows/firestore-rules.yml) が `firestore.rules` をデプロイするとき。`firebase login:ci` で発行 |
+| `FIREBASE_PROJECT_ID` | （同上）Firebase project ID。Worker デプロイ用 secret と兼用可 |
+| （その他） | Firebase / 外部ホスト連携時は GitHub Environments の `staging` / `production` に分ける |

@@ -119,6 +119,16 @@ GitHub Pages の URL から **ログイン用ポップアップ**が動くには
 1. **Firestore Database** → **ルール** タブ。
 2. リポジトリの `firestore.rules` の内容をそのまま貼り付け → **公開**。
 
+### 方法 3: GitHub Actions（自動デプロイ）
+
+`master` / `main` へ `firestore.rules` または `firebase.json` がマージされると、[Firestore rules](../.github/workflows/firestore-rules.yml) ワークフローが **ルールを Firebase に反映**します（PR では構文チェックのみ）。
+
+1. ローカルで [Firebase CLI](https://firebase.google.com/docs/cli) を入れ、`firebase login:ci` を実行して表示される **CI 用トークン**をコピーする（`npx firebase-tools login:ci` でも可）。
+2. GitHub リポジトリの **Settings → Secrets and variables → Actions** に次を追加する。
+   - **`FIREBASE_TOKEN`** … 上記のトークン（**漏洩に注意**。定期的に再発行可）
+   - **`FIREBASE_PROJECT_ID`** … Firebase コンソールの project ID（Cloudflare Worker 用に既に入れている値と同じでよい）
+3. シークレット未設定のときはデプロイはスキップされ、ログに警告が出ます。手動で **Run workflow**（`workflow_dispatch`）しても同様です。
+
 ---
 
 ## フェーズ G — アプリに `firebaseConfig` を書き込む

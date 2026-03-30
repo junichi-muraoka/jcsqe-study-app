@@ -66,7 +66,7 @@ npx http-server ./ -p 8080 -o
 
 1. [Firebase Console](https://console.firebase.google.com/) でプロジェクトを作成し、**Authentication（Google）** と **Cloud Firestore** を有効化する。
 2. プロジェクト設定から Web アプリ用の設定オブジェクトをコピーし、`js/firebase-config.js` の `firebaseConfig` に貼り付ける（テンプレは [`js/firebase-config.example.js`](js/firebase-config.example.js)）。
-3. `firestore.rules` をデプロイする（`firebase deploy --only firestore:rules` またはコンソールでルール設定）。
+3. `firestore.rules` をデプロイする（`firebase deploy --only firestore:rules`、コンソール貼り付け、または GitHub Actions の **Firestore rules** ワークフローで自動。要 `FIREBASE_TOKEN` 等。詳細は [docs/firebase_manual_setup.md](docs/firebase_manual_setup.md)）。
 4. 認証ドメインに GitHub Pages のホストを **承認済みドメイン**に追加する（`user.github.io` は本番・STG 共通。**パス** `/staging/` は同一オリジン内のためホスト追加は不要）。手順は [docs/firebase_manual_setup.md](docs/firebase_manual_setup.md)。
 
 **画面操作を順番に追う手順**は [docs/firebase_manual_setup.md](docs/firebase_manual_setup.md) を参照。仕様・エラー UX は [docs/09_cloud_sync_firebase_spec.md](docs/09_cloud_sync_firebase_spec.md)。
