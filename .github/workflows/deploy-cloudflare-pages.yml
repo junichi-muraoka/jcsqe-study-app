@@ -36,18 +36,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Inject Firebase web config from secret (optional)
-        env:
-          FIREBASE_WEB_CONFIG_JSON: ${{ secrets.FIREBASE_WEB_CONFIG_JSON }}
-        run: node scripts/write-firebase-config.js
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
 
+      # 注入より先にテストする（注入後は firebase-config に本番キーが載り check-no-secrets-in-git が誤検知するため）
       - name: Run tests
         run: npm test
+
+      - name: Inject Firebase web config from secret (optional)
+        env:
+          FIREBASE_WEB_CONFIG_JSON: ${{ secrets.FIREBASE_WEB_CONFIG_JSON }}
+        run: node scripts/write-firebase-config.js
 
       - name: Prepare site directory
         run: |
