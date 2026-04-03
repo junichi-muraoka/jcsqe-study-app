@@ -85,7 +85,8 @@ jobs:
             exit 1
           fi
 
-      # Direct Upload 系の Pages は --branch を付けないとプレビュー URL のみで、ルート *.pages.dev が空のままになることがある
+      # Direct Upload: --branch は Cloudflare プロジェクトの production_branch と一致させること。
+      # 一致しないとプレビュー（hash / branch サブドメイン）のみで、ルート *.pages.dev が空のまま（API で production_branch を更新可。docs/cloudflare_pages_setup.md 参照）
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
