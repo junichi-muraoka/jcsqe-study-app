@@ -13,7 +13,7 @@ assignees: ''
 
 ## 📋 再現手順
 <!-- 番号付きで **3ステップ以上**（GitHub Actions のチェックに必要）。具体的に書いてください。 -->
-1. アプリを開く（例: 本番 `https://junichi-muraoka.github.io/jcsqe-study-app/`、検証 `…/staging/`、またはローカル `index.html`）
+1. アプリを開く（例: 本番 `https://jcsqe-study-app.pages.dev`、検証 `https://jcsqe-study-app-staging.pages.dev`、またはローカル `index.html`）
 2. 操作する（例: 用語集タブをクリック、学習モードを開始）
 3. 結果を確認する（例: 画面が真っ白、コンソールにエラー）
 

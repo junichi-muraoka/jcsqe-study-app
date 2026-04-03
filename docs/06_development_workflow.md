@@ -178,16 +178,15 @@ main の品質を守るため、以下を推奨します。
 
 詳細は [CONTRIBUTING.md](../CONTRIBUTING.md) を参照してください。
 
-## 7. 本番・検証デプロイ（GitHub Pages）
+## 7. 本番・検証デプロイ（Cloudflare Pages）
 
 静的アプリを **本番（PRD）** と **検証（STG）** の URL で公開する。詳細は [environments.md](environments.md) をマスターとする。障害時の確認手順は [runbook.md](runbook.md)。
 
 | 項目 | 内容 |
 |------|------|
-| **ワークフロー** | `.github/workflows/deploy-github-pages.yml` |
-| **本番** | `master` の `push`（または手動実行）→ `gh-pages` ブランチの**ルート** |
-| **検証** | `staging` の `push`（または手動実行）→ `gh-pages` の **`/staging/`** |
-| **Pages 設定** | Settings → Pages → ブランチ **`gh-pages`** / folder **`/(root)`** |
+| **ワークフロー** | `.github/workflows/deploy-cloudflare-pages.yml` |
+| **本番** | `master` / `main` の `push`（または手動実行）→ `https://jcsqe-study-app.pages.dev`（プロジェクト名は Variables で上書き可） |
+| **検証** | `staging` / `develop` の `push` → `https://jcsqe-study-app-staging.pages.dev` |
 | **CI** | `test.yml` / `e2e.yml` は `master` と `staging` の両方の `push` で実行（`e2e.yml` は変更パスに依存） |
 
 リグレッション Issue の自動作成は **`master` の push 失敗時のみ**（`staging` では作成しない）。

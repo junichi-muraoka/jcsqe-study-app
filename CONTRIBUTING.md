@@ -62,16 +62,15 @@ npm run bug:report:web  # ブラウザで New Issue を開く
 
 ## 🌐 デプロイとブランチ（本番・検証）
 
-公開サイトは **GitHub Pages** で、次の 2 環境に分かれています（詳細は [docs/environments.md](docs/environments.md)）。
+公開サイトは **Cloudflare Pages**（`*.pages.dev`）で、次の 2 環境に分かれています（詳細は [docs/environments.md](docs/environments.md)）。
 
-| 環境 | ブランチ | 公開 URL（本リポジトリ） |
-|------|----------|--------------------------|
-| 本番（PRD） | `master` | `https://junichi-muraoka.github.io/jcsqe-study-app/` |
-| 検証（STG） | `staging` | `https://junichi-muraoka.github.io/jcsqe-study-app/staging/` |
+| 環境 | ブランチ | 公開 URL（デフォルトのプロジェクト名） |
+|------|----------|----------------------------------------|
+| 本番（PRD） | `master` / `main` | `https://jcsqe-study-app.pages.dev` |
+| 検証（STG） | `staging` / `develop` | `https://jcsqe-study-app-staging.pages.dev` |
 
 - 通常の機能追加・修正は **PR → `master`** でよい。マージ後、Actions が **本番**を更新する。
-- **検証環境だけ先に触りたい**ときは、`staging` 向けの PR または `staging` への直接プッシュで **STG** が更新される（運用ルールはチームで決める）。
-- Pages のビルド元ブランチは **`gh-pages`**（Settings → Pages）。`master` 直デプロイではない点に注意。
+- **検証環境だけ先に触りたい**ときは、`staging` または `develop` へのプッシュで **STG** が更新される（運用ルールはチームで決める）。
 
 ## 📐 コーディング規約
 

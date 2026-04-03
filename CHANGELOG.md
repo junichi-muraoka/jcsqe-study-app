@@ -2,6 +2,13 @@
 
 このプロジェクトの注目すべき変更はこのファイルに記録されます。
 
+## [1.2.22] - 2026-03-28
+
+### 変更
+- **本番・検証の自動デプロイを Cloudflare Pages のみに統一**: `deploy-github-pages.yml`（`gh-pages` ブランチへの自動デプロイ）を削除。README・[environments.md](docs/environments.md)・Firebase 手順などを `*.pages.dev` 前提に更新。
+
+---
+
 ## [1.2.21] - 2026-04-03
 
 ### 追加

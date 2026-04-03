@@ -54,7 +54,6 @@ let state = {
 - これにより、オフライン状態でもアプリを起動し、問題演習を行うことが可能です。
 
 ## 6. デプロイ（本番・検証）
-- **ホスティング**: GitHub Pages（静的ファイルの配信のみ）。
-- **本番（PRD）**: `master` ブランチへの変更を GitHub Actions（`.github/workflows/deploy-github-pages.yml`）が `gh-pages` ブランチの**ルート**に反映する。
-- **検証（STG）**: `staging` ブランチの変更を同ワークフローが **`/staging/`** サブディレクトリに反映する（`keep_files` により PRD と STG のファイルが互いに消し合わない）。
-- **Pages の設定**: リポジトリ Settings → Pages で **ソースブランチを `gh-pages` / (root)** にする（詳細は [environments.md](./environments.md)）。
+- **ホスティング**: Cloudflare Pages（`*.pages.dev`）。GitHub Actions（`.github/workflows/deploy-cloudflare-pages.yml`）が `wrangler pages deploy` で配信する。
+- **本番（PRD）**: `master` / `main` → `https://jcsqe-study-app.pages.dev`（プロジェクト名は Variables で上書き可）。
+- **検証（STG）**: `staging` / `develop` → `https://jcsqe-study-app-staging.pages.dev`。詳細は [environments.md](./environments.md)。

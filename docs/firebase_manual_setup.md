@@ -1,7 +1,7 @@
-# Firebase 手動セットアップ手順（本番・GitHub Pages 向け）
+# Firebase 手動セットアップ手順（本番・検証 URL 向け）
 
 このアプリのクラウド同期は **任意** です。未設定のままでも `localStorage` のみで動きます。  
-以下は **GitHub Pages 上で Google ログインと Firestore 同期を使う**ときの、画面操作とコマンドを順番に並べたチェックリストです。
+以下は **Cloudflare Pages（`*.pages.dev`）などの公開 URL で** Google ログインと Firestore 同期を使うときの、画面操作とコマンドを順番に並べたチェックリストです。
 
 ---
 
@@ -18,8 +18,8 @@
 
 | 項目 | 例 | メモ |
 |------|-----|------|
-| 本番（PRD）の URL | `https://junichi-muraoka.github.io/jcsqe-study-app/` | `master` → `gh-pages` ルート（[environments.md](./environments.md)） |
-| 検証（STG）の URL | `https://junichi-muraoka.github.io/jcsqe-study-app/staging/` | `staging` ブランチ → `gh-pages` の `/staging/`。オリジンは本番と同じ `junichi-muraoka.github.io` |
+| 本番（PRD）の URL | `https://jcsqe-study-app.pages.dev` | `master` / `main` → [deploy-cloudflare-pages.yml](../.github/workflows/deploy-cloudflare-pages.yml)（[environments.md](./environments.md)） |
+| 検証（STG）の URL | `https://jcsqe-study-app-staging.pages.dev` | `staging` / `develop` → 同上 |
 | Firebase プロジェクト名 | 任意（コンソールで表示名） | 1 プロジェクトで十分な場合も多い |
 | 検証用を分けるか | 別プロジェクト or 同一プロジェクトで別用途 | 小規模なら本番 1 つからで可 |
 
@@ -39,7 +39,7 @@
 
 1. プロジェクト概要画面で **Web**（`</>`）アイコンを選ぶ。  
    なければ **プロジェクトの設定**（歯車）→ **全般** → 下の **マイアプリ** で **アプリを追加** → **Web**。
-2. アプリのニックネームを入力（例: `jcsqe-web`）。**Firebase Hosting は不要**ならチェックを外してもよい（このリポジトリは GitHub Pages 利用）。
+2. アプリのニックネームを入力（例: `jcsqe-web`）。**Firebase Hosting は不要**ならチェックを外してもよい（このリポジトリは Cloudflare Pages / 静的ホストで配信）。
 3. **アプリを登録**。
 4. 表示される **`firebaseConfig` のオブジェクト**をメモする。次のキーが `js/firebase-config.js` に必要です。  
    - `apiKey`  
@@ -71,24 +71,24 @@
 
 ---
 
-## フェーズ E — 承認済みドメイン（Authorized domains）に GitHub Pages を追加する
+## フェーズ E — 承認済みドメイン（Authorized domains）を追加する
 
-GitHub Pages の URL から **ログイン用ポップアップ**が動くには、Firebase がそのオリジンを許可している必要があります。
+公開 URL から **ログイン用ポップアップ**が動くには、Firebase がそのオリジンを許可している必要があります。
 
-**本番（`/`）も検証（`/staging/`）も**、ホストは同じ `junichi-muraoka.github.io` です（パスが違うだけ）。承認済みドメインに **ホスト名 1 つ**入っていれば、STG の URL でもログイン可能です。
+**Cloudflare Pages** では本番と検証で **ホスト名が別**（`*.pages.dev` が 2 つ）のため、**両方**を承認済みドメインに追加する。旧 **GitHub Pages** の URL も使う場合は `user.github.io` も追加する。
 
 1. **Authentication** → **設定**（タブ）→ **承認済みドメイン**。
 2. 既に `localhost` があればそのまま（ローカル検証用）。
-3. **ドメインを追加**をクリックし、次を **それぞれ** 追加する（実際のユーザー名・リポジトリ名に合わせる）。
+3. **ドメインを追加**をクリックし、次を **それぞれ** 追加する（プロジェクト名に合わせる）。
 
    | 追加するドメイン | 用途 |
    |------------------|------|
-   | `junichi-muraoka.github.io` | `user.github.io/repo` 形式の **ユーザ／組織 Pages**（PRD・STG 共通） |
-   | `jcsqe-study-app.pages.dev` | **Cloudflare Pages** 本番（プロジェクト名が異なる場合はその `*.pages.dev`） |
-   | `jcsqe-study-app-staging.pages.dev` | **Cloudflare Pages** 検証（同上） |
+   | `jcsqe-study-app.pages.dev` | **Cloudflare Pages** 本番 |
+   | `jcsqe-study-app-staging.pages.dev` | **Cloudflare Pages** 検証 |
+   | （任意）`junichi-muraoka.github.io` | 旧 **GitHub Pages** をまだ使う場合 |
    | （カスタムドメインを使う場合） | 例: `www.example.com` |
 
-   **注意**: `https://` は付けない。ホスト名だけ（例: `junichi-muraoka.github.io`）。Cloudflare は本番と検証で **オリジンが別**のため、PRD 用・STG 用のホストを **それぞれ** 追加する。
+   **注意**: `https://` は付けない。ホスト名だけ。
 
 4. 保存を確認。
 
@@ -144,12 +144,12 @@ GitHub Pages の URL から **ログイン用ポップアップ**が動くには
 
 ## フェーズ G — アプリに `firebaseConfig` を書き込む
 
-**GitHub Pages / Cloudflare にデプロイしてクラウド同期を使う（推奨）**
+**Cloudflare Pages にデプロイしてクラウド同期を使う（推奨）**
 
 1. フェーズ B の **`firebaseConfig`** を、GitHub の **Repository secrets** の **`FIREBASE_WEB_CONFIG_JSON`** に保存する。次のどちらでも可（[`scripts/write-firebase-config.js`](../scripts/write-firebase-config.js) が解釈する）:  
    - **1 行の JSON** — `{"apiKey":"…","authDomain":"…",…}`  
    - **Firebase コンソールのまま** — `const firebaseConfig = { apiKey: "…", … };` の **ブロック全体**（`{` から `}` まで含む）
-2. `master` / `staging` などをプッシュすると、[deploy-github-pages.yml](../.github/workflows/deploy-github-pages.yml) または [deploy-cloudflare-pages.yml](../.github/workflows/deploy-cloudflare-pages.yml) が `scripts/write-firebase-config.js` で **`js/firebase-config.js` を上書き**してからデプロイする。
+2. `master` / `staging` などをプッシュすると、[deploy-cloudflare-pages.yml](../.github/workflows/deploy-cloudflare-pages.yml) が `scripts/write-firebase-config.js` で **`js/firebase-config.js` を上書き**してからデプロイする。
 3. Secret を未設定のままにすると、リポジトリ同梱の **プレースホルダ**のまま配信され、クラウド同期はオフのままです。
 
 **ローカルだけでログインを試す**
@@ -164,7 +164,7 @@ GitHub Pages の URL から **ログイン用ポップアップ**が動くには
 ## フェーズ H — 動作確認の順序（推奨）
 
 1. **localhost**（`http://127.0.0.1:8080` など）でログイン → Firestore の **データ** タブに `users` コレクションと自分の UID ドキュメントができるか確認。
-2. 同じアカウントで **GitHub Pages の URL** を開き、再度ログインできるか確認（フェーズ E が漏れているとここで失敗しやすい）。
+2. 同じアカウントで **本番の Cloudflare Pages URL** を開き、再度ログインできるか確認（フェーズ E が漏れているとここで失敗しやすい）。
 3. 設定画面のメッセージ・トーストにエラーが出たら、`auth/popup-blocked` なら **ポップアップブロック解除**、`permission-denied` ならルール未デプロイを疑う。
 
 ---
@@ -181,7 +181,7 @@ GitHub Pages の URL から **ログイン用ポップアップ**が動くには
 |------|----------------|
 | ログインボタンで何も起きない / すぐ閉じる | 承認済みドメイン、ポップアップブロック |
 | Firestore 書き込みエラー `permission-denied` | `firestore.rules` がデプロイ済みか、ログイン UID とパス `users/{uid}` が一致しているか |
-| ローカルでは動くが Pages だけ失敗 | `junichi-muraoka.github.io` を承認済みドメインに追加したか |
+| ローカルでは動くが公開 URL だけ失敗 | `jcsqe-study-app.pages.dev` 等を承認済みドメインに追加したか |
 | 別ブランチのプレビュー URL を使う | そのホスト名も承認済みドメインに追加が必要な場合がある |
 
 ---

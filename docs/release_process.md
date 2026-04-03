@@ -20,10 +20,10 @@
 
 | 操作 | 公開への影響 |
 |------|----------------|
-| `master` にマージ・プッシュ | GitHub Actions が **`gh-pages` のルート**（本番 URL）を更新する（[deploy-github-pages.yml](../.github/workflows/deploy-github-pages.yml)） |
-| `staging` にプッシュ | 同ワークフローが **`/staging/`**（検証 URL）を更新する |
+| `master` / `main` にマージ・プッシュ | [deploy-cloudflare-pages.yml](../.github/workflows/deploy-cloudflare-pages.yml) が **本番** `*.pages.dev` を更新する |
+| `staging` / `develop` にプッシュ | 同ワークフローが **検証**用 `*.pages.dev` を更新する |
 
-- **バージョンを上げたコミット**が `master` に入れば、そのタイミングで本番サイトの中身は新しくなる（Pages のソースは `gh-pages` ブランチ）。
+- **バージョンを上げたコミット**が `master` に入れば、そのタイミングで本番サイトの中身は新しくなる。
 - **Git タグ**（例: `v1.2.2`）の付与は任意。付ける場合は `master` の該当コミットに対して行い、リリースノートに CHANGELOG の該当節をコピーしてもよい。
 
 ## 4. リリース前の最低チェック（推奨）

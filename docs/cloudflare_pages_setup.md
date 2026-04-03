@@ -12,7 +12,7 @@
 | （ログインを使うなら）Firebase に「この URL からログインしていい」と書く | Firebase のサイト |
 | デプロイを 1 回走らせる | GitHub の Actions |
 
-**GitHub Pages（`github.io`）とは別の URL**ですが、**中身のアプリは同じ**です。どちらか一方だけでも動きます。
+**公開の正**は Cloudflare Pages（`*.pages.dev`）です（[environments.md](./environments.md)）。（旧 GitHub Pages の URL が残っていても、**自動デプロイは Cloudflare のみ**です。）
 
 ---
 

@@ -3,8 +3,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Cloudflare PRD](https://img.shields.io/badge/Demo-PRD%20%28Cloudflare%20Pages%29-brightgreen)](https://jcsqe-study-app.pages.dev)
 [![Cloudflare STG](https://img.shields.io/badge/Demo-STG%20%28Cloudflare%20Pages%29-blue)](https://jcsqe-study-app-staging.pages.dev)
-[![GitHub Pages PRD](https://img.shields.io/badge/PRD-GitHub%20Pages-lightgrey)](https://junichi-muraoka.github.io/jcsqe-study-app/)
-[![GitHub Pages STG](https://img.shields.io/badge/STG-GitHub%20Pages-lightgrey)](https://junichi-muraoka.github.io/jcsqe-study-app/staging/)
 [![Questions](https://img.shields.io/badge/収録問題数-200問-orange)]()
 
 > **SQuBOK Guide 第3版**に準拠した、JCSQE初級（ソフトウェア品質技術者資格試験）合格を目指す実践型学習Webアプリです。
@@ -42,14 +40,7 @@
 | **本番（PRD）** | [jcsqe-study-app.pages.dev](https://jcsqe-study-app.pages.dev) | `master` / `main` |
 | **検証（STG）** | [jcsqe-study-app-staging.pages.dev](https://jcsqe-study-app-staging.pages.dev) | `staging` / `develop` |
 
-**GitHub Pages**（従来どおり併用可）
-
-| 環境 | URL | ブランチ |
-|------|-----|----------|
-| **本番（PRD）** | [junichi-muraoka.github.io/jcsqe-study-app/](https://junichi-muraoka.github.io/jcsqe-study-app/) | `master` |
-| **検証（STG）** | […/staging/](https://junichi-muraoka.github.io/jcsqe-study-app/staging/) | `staging` |
-
-デプロイの仕組み・Secrets は [docs/environments.md](docs/environments.md)。**Cloudflare Pages を初めて有効にする手順**は [docs/cloudflare_pages_setup.md](docs/cloudflare_pages_setup.md)。
+デプロイの仕組み・Secrets は [docs/environments.md](docs/environments.md)。**Cloudflare Pages の初回セットアップ**は [docs/cloudflare_pages_setup.md](docs/cloudflare_pages_setup.md)。
 
 ブラウザでアクセスするだけですぐに学習を開始できます。
 
@@ -78,7 +69,7 @@ npx http-server ./ -p 8080 -o
 1. [Firebase Console](https://console.firebase.google.com/) でプロジェクトを作成し、**Authentication（Google）** と **Cloud Firestore** を有効化する。
 2. プロジェクト設定から Web アプリ用の **`firebaseConfig`** をコピーする。ローカルでは [`js/firebase-config.example.js`](js/firebase-config.example.js) を元に `js/firebase-config.js` を作る。**GitHub 上の本番・STG** では Repository secret **`FIREBASE_WEB_CONFIG_JSON`**（1 行 JSON）を設定し、デプロイ時に注入する（リポジトリに実キーをコミットしない）。
 3. `firestore.rules` をデプロイする（`firebase deploy --only firestore:rules`、コンソール貼り付け、または GitHub Actions の **Firestore rules** ワークフローで自動。要 `FIREBASE_TOKEN` 等。詳細は [docs/firebase_manual_setup.md](docs/firebase_manual_setup.md)）。
-4. 認証ドメインに **GitHub Pages**（`user.github.io`）および **Cloudflare Pages**（`*.pages.dev` の各ホスト）を **承認済みドメイン**に追加する。GitHub Pages は本番・STG が同一ホストでパスだけ異なる。**パス** `/staging/` は同一オリジン内のためホスト追加は不要。手順は [docs/firebase_manual_setup.md](docs/firebase_manual_setup.md)。
+4. 認証ドメインに **Cloudflare Pages** の各 `*.pages.dev` ホスト（本番・検証でホストが別）を **承認済みドメイン**に追加する。手順は [docs/firebase_manual_setup.md](docs/firebase_manual_setup.md)。旧 **GitHub Pages** の URL も使う場合は `user.github.io` も追加する。
 
 **画面操作を順番に追う手順**は [docs/firebase_manual_setup.md](docs/firebase_manual_setup.md) を参照。仕様・エラー UX は [docs/09_cloud_sync_firebase_spec.md](docs/09_cloud_sync_firebase_spec.md)。
 
