@@ -1,74 +1,190 @@
-# Cloudflare Pages 初回セットアップ（`*.pages.dev` を有効にする）
+# Cloudflare Pages 初回セットアップ（丁寧版）
 
-GitHub Actions の [Deploy Cloudflare Pages](../.github/workflows/deploy-cloudflare-pages.yml) で、`master` / `staging` などの push から **静的サイトを Cloudflare にデプロイ**するための手順です。GitHub Pages と**中身は同じアプリ**で、**公開 URL が `*.pages.dev` になる**だけです。
+このドキュメントは、**JCSQE アプリを `https://○○.pages.dev` で公開する**ための、**初めての人向けの手順**です。
 
-## 前提
+## 全体のイメージ（先に読む）
 
-- Cloudflare の無料アカウントでよい。
-- リポジトリに **`FIREBASE_WEB_CONFIG_JSON`** が入っていれば、Cloudflare 側のデプロイでも同じく Firebase 設定が注入される（[firebase_manual_setup.md](./firebase_manual_setup.md)）。
+| やること | どこで |
+|----------|--------|
+| Cloudflare に「この名前の Pages プロジェクトを 2 つ用意する」 | Cloudflare のサイト |
+| 「GitHub から自動デプロイしていいよ」と証明するトークンを作る | Cloudflare のサイト |
+| トークンとアカウント ID を GitHub に秘密で渡す | GitHub のリポジトリ設定 |
+| （ログインを使うなら）Firebase に「この URL からログインしていい」と書く | Firebase のサイト |
+| デプロイを 1 回走らせる | GitHub の Actions |
 
-## 手順チェックリスト
+**GitHub Pages（`github.io`）とは別の URL**ですが、**中身のアプリは同じ**です。どちらか一方だけでも動きます。
 
-### 1. Cloudflare で Pages プロジェクトを 2 つ用意する
+---
 
-1. [Cloudflare ダッシュボード](https://dash.cloudflare.com/) → **Workers & Pages** → **作成** → **Pages**。
-2. **Git 連携は使わない**（「GitHub と接続」は選ばない）。**ダイレクトアップロード**で作るか、空のプロジェクト名だけ決めて作成できる UI ならそれでよい。
-3. プロジェクト名を次のどちらかに揃える。
-   - **デフォルトのまま**使う: `jcsqe-study-app`（本番）、`jcsqe-study-app-staging`（検証）
-   - **別名にする**: GitHub の **Settings → Secrets and variables → Actions → Variables** で  
-     `CF_PAGES_PROJECT_PRODUCTION` / `CF_PAGES_PROJECT_STAGING` にその名前を登録する。
+## 0. 用意するもの
 
-初回の `wrangler pages deploy` は、**同名の Pages プロジェクトがダッシュボード上に存在する**必要があります（空でよい）。
+- **Cloudflare のアカウント**（無料でよい）[サインアップ](https://dash.cloudflare.com/sign-up)
+- **このリポジトリの管理者権限**（GitHub の Settings で Secrets を追加できること）
 
-### 2. Account ID を控える
+---
 
-1. Cloudflare ダッシュボード右サイドバー、または **Workers & Pages** 概要の **アカウント ID**（32 文字の hex）をコピー。
+## 1. Cloudflare にログインする
 
-### 3. API トークンを作る
+1. ブラウザで **[https://dash.cloudflare.com/](https://dash.cloudflare.com/)** を開く。  
+2. アカウントにログインする（初めてならメール認証などを済ませる）。
 
-1. **マイプロフィール**（右上）→ **API トークン** → **トークンを作成** → **カスタムトークン**。
-2. 権限の例（必要に応じて調整）:
-   - **Account** → **Cloudflare Pages** → **編集**
-   - （無い場合）**Account** → **Workers Scripts** → **編集** など、Pages デプロイ用ドキュメントに沿う
-3. **アカウントリソース**で、このアカウントに限定する。
-4. 作成後、**トークン文字列を一度だけコピー**（あとからは表示されない）。
+---
 
-### 4. GitHub に Secrets を登録する
+## 2. アカウント ID をメモする（あとで GitHub に貼る）
 
-リポジトリ **Settings → Secrets and variables → Actions → New repository secret**
+1. ダッシュボードの **右サイドバー**を見る。  
+2. **「アカウント ID」** と書かれた **英数字 32 文字くらい**の文字列がある（例: `a1b2c3d4e5f6...`）。  
+3. それを **コピー**して、メモ帳などに **仮で貼っておく**。  
+   - 見つからないとき: 左メニュー **「Workers と Pages」**（または **Workers & Pages**）を開いても、概要に **アカウント ID** が出ることが多い。
 
-| Name | 値 |
-|------|-----|
-| `CLOUDFLARE_API_TOKEN` | 上でコピーした API トークン |
-| `CLOUDFLARE_ACCOUNT_ID` | 手順 2 のアカウント ID |
+これが **`CLOUDFLARE_ACCOUNT_ID`** になります。
 
-`FIREBASE_WEB_CONFIG_JSON` は、GitHub Pages 用と**同じ Secret**でよい（未設定なら Cloudflare 側もプレースホルダのまま配信される）。
+---
 
-### 5. Firebase の承認済みドメイン（ログインする場合）
+## 3. Pages 用のプロジェクトを「2 つ」作る
 
-**Authentication → 設定 → 承認済みドメイン** に、**ホスト名だけ**で追加する（`https://` なし）。
+GitHub Actions は、次の **名前のプロジェクト**にファイルを流し込みます（デフォルト）。
 
-- `jcsqe-study-app.pages.dev`
-- `jcsqe-study-app-staging.pages.dev`（検証を使う場合）
+| 役割 | プロジェクト名（デフォルト） |
+|------|------------------------------|
+| 本番（`master` / `main`） | `jcsqe-study-app` |
+| 検証（`staging` / `develop`） | `jcsqe-study-app-staging` |
 
-詳細は [firebase_manual_setup.md](./firebase_manual_setup.md) のフェーズ E。
+**重要:**  
+- **GitHub と Cloudflare を「リポジトリ連携」でつなぐ必要はありません。** このリポジトリは **GitHub Actions が `wrangler` でアップロード**する方式です。  
+- 先に Cloudflare 側に **同じ名前の空のプロジェクト**があれば、その後の `pages deploy` が成功しやすいです。
 
-### 6. デプロイを走らせる
+### 3-A. ダッシュボードから作る（一般的）
 
-- **`master` に push** するか、**Actions → Deploy Cloudflare Pages → Run workflow** で **`master`** を選ぶ → 本番プロジェクトへデプロイ。
-- **`staging` ブランチに push** → 検証プロジェクトへデプロイ。
+画面の表記はアップデートで変わることがあります。次の **考え方**で探してください。
 
-成功後、**Workers & Pages** の該当プロジェクトに **デプロイ履歴**と **`*.pages.dev` の URL** が出る。
+1. 左メニューから **「Workers と Pages」** または **「Workers & Pages」** を開く。  
+2. **「作成」** や **「Create」**、**「アプリケーションを作成」** のようなボタンがあるので押す。  
+3. **「Pages」** を選ぶ（Workers ではなく **Pages**）。  
+4. **「Git プロバイダに接続」** のような選択肢が出たら、**それは選ばない**（このプロジェクトは GitHub Actions から送るため）。  
+5. **「アップロード」** / **「ダイレクトアップロード」** / **「Create a project」** など、**ZIP やフォルダをアップロードする系**の流れの中で、**プロジェクト名**を聞かれたら  
+   - 1 つ目: **`jcsqe-study-app`**  
+   - もう一度同様の手順で 2 つ目: **`jcsqe-study-app-staging`**  
+6. **中身は空でも最小でもよい**（あとで GitHub Actions が上書きする）。もし **ZIP が必須**なら、中身が `index.html` だけの ZIP を 1 個作ってアップロードしてもよい。
+
+**プロジェクト一覧に、上の 2 つの名前が並べば OK** です。
+
+### 3-B. 名前を変えたい場合
+
+Cloudflare 側の名前を **`my-app-prd`** のように別名にしたいときは、GitHub リポジトリで:
+
+1. **Settings → Secrets and variables → Actions** を開く。  
+2. **「Variables」** タブ（Secrets ではなく **Variables**）を開く。  
+3. **New repository variable** で次を追加する。
+
+| Name | Value（例） |
+|------|----------------|
+| `CF_PAGES_PROJECT_PRODUCTION` | 本番用に付けた Cloudflare のプロジェクト名 |
+| `CF_PAGES_PROJECT_STAGING` | 検証用に付けた Cloudflare のプロジェクト名 |
+
+未設定のときだけ、ワークフローは **`jcsqe-study-app` / `jcsqe-study-app-staging`** を使います。
+
+---
+
+## 4. API トークンを作る（GitHub に渡す「パスワード」）
+
+1. Cloudflare 右上の **プロフィールアイコン** → **「マイプロフィール」** などから **「API トークン」** を開く。  
+   - 直接 URL: ダッシュボードの **「マイプロフィール」→「API トークン」**  
+2. **「トークンを作成」** → **「カスタムトークンを作成」**（または **Create Custom Token**）。  
+3. **名前**は分かりやすく（例: `github-actions-pages-jcsqe`）。  
+4. **権限（Permissions）** で、少なくとも次を含める（表示名は英語のことが多いです）。
+
+   - **Account**（アカウント）  
+     - **Cloudflare Pages** → **Edit**（編集）  
+   - 足りないと言われたら、次も足すことがある:  
+     - **Account** → **Workers Scripts** → **Edit**  
+     - または **Account** → **Account Settings** → **Read**
+
+   **「テンプレート」** に **「Edit Cloudflare Workers」** のようなものがあれば、それを選んでから **Pages の Edit** を追加する、というやり方でもよいです。
+
+5. **アカウントのリソース**は **「このアカウントを含む」** のように、**自分のアカウントだけ**に絞る。  
+6. **「続行」→「トークンを作成」** まで進む。  
+7. 表示された **長い文字列をコピー**し、**この画面を閉じると二度と見られない**ので、メモ帳に貼る（あとで GitHub に入れる）。
+
+これが **`CLOUDFLARE_API_TOKEN`** です。
+
+---
+
+## 5. GitHub に Secrets を登録する
+
+1. ブラウザで **GitHub のこのリポジトリ**を開く（例: `junichi-muraoka/jcsqe-study-app`）。  
+2. 上メニュー **「Settings」**（リポジトリの設定）。  
+3. 左メニュー **「Secrets and variables」** → **「Actions」**。  
+4. **「New repository secret」** を押す。
+
+次の **2 つ**を、**名前と値が一字違いもなく**追加する。
+
+| Name（名前） | Secret（値） |
+|--------------|--------------|
+| `CLOUDFLARE_API_TOKEN` | 手順 4 でコピーした **長いトークン** |
+| `CLOUDFLARE_ACCOUNT_ID` | 手順 2 でコピーした **32 文字くらいの ID** |
+
+**すでに GitHub Pages 用に入れている `FIREBASE_WEB_CONFIG_JSON`** は、**そのままでよい**です（Cloudflare のデプロイでも同じ Secret が使われます）。未設定なら Firebase はオフのまま配信されます。
+
+---
+
+## 6. Firebase の「承認済みドメイン」（Google ログインを使う場合だけ）
+
+Cloudflare の URL は **`https://jcsqe-study-app.pages.dev`** のような **ホスト**になります。Firebase は **「このホストからのログインは許可」** の一覧が必要です。
+
+1. **[Firebase Console](https://console.firebase.google.com/)** → プロジェクト **`jcsqe-study-app`**。  
+2. 左 **「Authentication」**（認証）→ **「設定」** タブ → **「承認済みドメイン」**。  
+3. **「ドメインを追加」** で、次を **1 行ずつ**（**`https://` は付けない**）。
+
+   - `jcsqe-study-app.pages.dev`  
+   - `jcsqe-study-app-staging.pages.dev`（検証 URL も使う場合）
+
+詳しい表記は [firebase_manual_setup.md](./firebase_manual_setup.md) のフェーズ E も参照。
+
+---
+
+## 7. デプロイを実行して確認する
+
+1. GitHub の **「Actions」** タブを開く。  
+2. 左の一覧から **「Deploy Cloudflare Pages」** を選ぶ。  
+3. **「Run workflow」** → ブランチで **`master`** を選んで **実行**。  
+4. 緑のチェックになれば成功。失敗ならログを開き、**英語のエラー**を [トラブルシュート](#トラブルシュート) と照らす。
+
+成功後:
+
+- Cloudflare の **Workers & Pages** で、該当プロジェクトを開くと **デプロイ履歴** と **`*.pages.dev` の URL** が表示される。  
+- ブラウザでその URL を開き、アプリが表示されれば OK。
+
+**検証環境**を試すには、**`staging` ブランチ**に変更を push するか、ワークフローを **`staging` ブランチ**で実行する。
+
+---
 
 ## トラブルシュート
 
-| 症状 | 確認すること |
-|------|----------------|
-| `Authentication error` / 401 | `CLOUDFLARE_API_TOKEN` の権限と有効期限 |
-| プロジェクトが見つからない | ダッシュボードの**プロジェクト名**と `CF_PAGES_PROJECT_*` / デフォルト名が一致しているか |
-| ログインだけ失敗 | 承認済みドメインに **その `*.pages.dev` ホスト**があるか |
+| 症状・ログの例 | まず確認すること |
+|----------------|------------------|
+| `Invalid API Token` / 401 | トークンをコピペミスしていないか。権限に **Pages の Edit** があるか。 |
+| プロジェクトが無い / 名前不一致 | Cloudflare の **プロジェクト名**が `jcsqe-study-app` 等と一致しているか。変えたなら **Variables** の `CF_PAGES_PROJECT_*` |
+| サイトは出るがログインできない | Firebase の **承認済みドメイン**に、その **`○○.pages.dev`** を入れたか。 |
+| API キー制限で弾かれる | Google Cloud の **API キー**の **HTTP リファラー**に `https://jcsqe-study-app.pages.dev/*` などを入れたか。 |
 
-## 関連
+---
 
-- [environments.md](./environments.md) — ブランチと URL の対応
-- [deploy-cloudflare-pages.yml](../.github/workflows/deploy-cloudflare-pages.yml) — ワークフロー本体
+## 関連リンク
+
+- [environments.md](./environments.md) — ブランチと URL の対応一覧  
+- [deploy-cloudflare-pages.yml](../.github/workflows/deploy-cloudflare-pages.yml) — 自動化の中身  
+
+---
+
+## 補足: コマンドでプロジェクトだけ作りたい場合（上級者向け）
+
+PC に Node.js があり、Cloudflare にログインできるなら、例:
+
+```bash
+npx wrangler@latest login
+npx wrangler@latest pages project create jcsqe-study-app
+npx wrangler@latest pages project create jcsqe-study-app-staging
+```
+
+ダッシュボードで名前が揃っていれば、**3 章の手順はスキップ**しても構いません。
