@@ -117,25 +117,74 @@ Cloudflare 側の名前を **`my-app-prd`** のように別名にしたいとき
 
 ## 4. API トークンを作る（GitHub に渡す「パスワード」）
 
-1. Cloudflare 右上の **プロフィールアイコン** → **「マイプロフィール」** などから **「API トークン」** を開く。  
-   - 直接 URL: ダッシュボードの **「マイプロフィール」→「API トークン」**  
-2. **「トークンを作成」** → **「カスタムトークンを作成」**（または **Create Custom Token**）。  
-3. **名前**は分かりやすく（例: `github-actions-pages-jcsqe`）。  
-4. **権限（Permissions）** で、少なくとも次を含める（表示名は英語のことが多いです）。
+GitHub Actions の **`wrangler pages deploy`** は、このトークンで Cloudflare に「ファイルを載せていい」と証明します。**権限が足りない**と `Authentication error [code: 10000]` などで失敗します。
 
-   - **Account**（アカウント）  
-     - **Cloudflare Pages** → **Edit**（編集）  
-   - 足りないと言われたら、次も足すことがある:  
-     - **Account** → **Workers Scripts** → **Edit**  
-     - または **Account** → **Account Settings** → **Read**
+### 4-1. API トークンの画面を開く
 
-   **「テンプレート」** に **「Edit Cloudflare Workers」** のようなものがあれば、それを選んでから **Pages の Edit** を追加する、というやり方でもよいです。
+1. [Cloudflare ダッシュボード](https://dash.cloudflare.com/) にログインする。  
+2. 画面 **右上** の **人型アイコン（プロフィール）** をクリックする。  
+3. メニューから **「マイプロフィール」** または **「My Profile」** を選ぶ。  
+4. 上のタブまたは左メニューから **「API トークン」** / **「API Tokens」** を開く。  
+   - 直接 URL の例: `https://dash.cloudflare.com/profile/api-tokens`（ログイン済みなら開ける）
 
-5. **アカウントのリソース**は **「このアカウントを含む」** のように、**自分のアカウントだけ**に絞る。  
-6. **「続行」→「トークンを作成」** まで進む。  
-7. 表示された **長い文字列をコピー**し、**この画面を閉じると二度と見られない**ので、メモ帳に貼る（あとで GitHub に入れる）。
+### 4-2. カスタムトークンを新規作成する
 
-これが **`CLOUDFLARE_API_TOKEN`** です。
+1. **「トークンを作成」** / **「Create Token」** をクリック。  
+2. **「カスタムトークンを作成」** / **「Create Custom Token」** を選ぶ（**「テンプレートから作成」だけ**だと Pages 用が足りないことがある）。
+
+### 4-3. トークン名
+
+- **トークン名**（任意）: 例 `github-actions-jcsqe-pages`  
+  あとから「何用か」分かる名前にしておく。
+
+### 4-4. 権限（Permissions）を足す（ここが最重要）
+
+**「権限を追加」** / **「Add」** のようなボタンで、行を **1 行ずつ** 追加します。UI は英語のことが多いです。
+
+**必須（これが無いと `pages deploy` が通らないことが多い）**
+
+| 列「権限の種類」で選ぶグループ | 列「リソース」で選ぶ項目 | 列「アクション」で選ぶ |
+|--------------------------------|--------------------------|-------------------------|
+| **Account** | **Cloudflare Pages** | **Edit** |
+
+- 1 行目を追加するとき: **「Account」** → ドロップダウンで **「Cloudflare Pages」** → さらに **「Edit」**（編集）。
+
+**GitHub Actions のログに「アカウントを読めない」「membership」などと出る場合に追加する**
+
+| Account | Account Settings | **Read** |
+
+**それでも足りないときに試す（環境により表記が違う）**
+
+| Account | Workers Scripts | **Edit** |
+
+**注意:** **「Edit Cloudflare Workers」テンプレート**だけでは **Pages の Edit が含まれていない**ことがあります。**必ず「Cloudflare Pages → Edit」が一覧に出ているか**確認してください。
+
+### 4-5. アカウントの範囲（Account Resources）
+
+- **「アカウントのリソース」** / **「Account Resources」** で、**すべてのアカウント**ではなく、**このトークンを使う Cloudflare アカウント**が選ばれているか確認する。  
+- 通常は **「次のアカウントを含む」** / **Include** → ドロップダウンで **自分のメールに紐づくアカウント** を選べばよい。
+
+### 4-6. 作成とコピー
+
+1. 画面下の **「続行」** / **「Continue to summary」** → 内容を確認。  
+2. **「トークンを作成」** / **「Create Token」** を押す。  
+3. 表示された **長い文字列（シークレット）をコピー**する。  
+   - **この画面を閉じると二度と表示されません。** メモ帳に必ず貼る。
+
+### 4-7. GitHub の Secret を更新する（既に名前がある場合）
+
+1. GitHub リポジトリ → **Settings** → **Secrets and variables** → **Actions**。  
+2. 一覧の **`CLOUDFLARE_API_TOKEN`** の右の **鉛筆（編集）** をクリック。  
+3. **値**を、**4-6 でコピーした新しい文字列**に **貼り替える**。  
+4. **Update secret** を保存する。
+
+**新規で作る場合**は **「New repository secret」** で Name を **`CLOUDFLARE_API_TOKEN`** にする（大文字小文字そのまま）。
+
+### 4-8. 動作確認
+
+- **Actions** → **Deploy Cloudflare Pages** → **Run workflow**（`master`）で、**Deploy to Cloudflare Pages** ステップが **緑**になれば OK です。
+
+これが **`CLOUDFLARE_API_TOKEN`** の入れ替え手順です。
 
 ---
 
