@@ -185,7 +185,7 @@ main の品質を守るため、以下を推奨します。
 | 項目 | 内容 |
 |------|------|
 | **ワークフロー** | `.github/workflows/deploy-cloudflare-pages.yml` |
-| **本番** | `master` / `main` の `push`（または手動実行）→ `https://jcsqe-study-app.pages.dev`（プロジェクト名は Variables で上書き可） |
+| **本番** | **GitHub Release を Publish**（タグ `v…`）→ `https://jcsqe-study-app.pages.dev`。`master` の **push だけでは本番は更新されない**。緊急時は Actions で `master` から **Run workflow** |
 | **検証** | `staging` / `develop` の `push` → `https://jcsqe-study-app-staging.pages.dev` |
 | **CI** | `test.yml` / `e2e.yml` は `master` と `staging` の両方の `push` で実行（`e2e.yml` は変更パスに依存） |
 

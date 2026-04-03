@@ -18,14 +18,26 @@
 
 ## 3. 本番（PRD）・検証（STG）との関係
 
+本番の Cloudflare デプロイは [ut-qms（Qraft）](https://github.com/junichi-muraoka/ut-qms) と同様、**GitHub で Release を公開したとき**がトリガー（`release: published`、**プレリリースは本番に載せない**）。検証は **`staging` / `develop` への push** で更新。
+
 | 操作 | 公開への影響 |
 |------|----------------|
-| `master` / `main` にマージ・プッシュ | [deploy-cloudflare-pages.yml](../.github/workflows/deploy-cloudflare-pages.yml) が **本番** `*.pages.dev` を更新する |
-| `staging` / `develop` にプッシュ | 同ワークフローが **検証**用 `*.pages.dev` を更新する |
+| **`master` / `main` にマージ・プッシュ** | **本番 URL は自動では更新されない**（コードはリポジトリに入るだけ） |
+| **GitHub Release を作成し Publish**（タグ例: `v1.2.12`） | [deploy-cloudflare-pages.yml](../.github/workflows/deploy-cloudflare-pages.yml) が **本番** `*.pages.dev` を、**そのタグのコミット**で更新する |
+| **`staging` / `develop` にプッシュ** | 同ワークフローが **検証**用 `*.pages.dev` を更新する |
+| **緊急時** | Actions で **Deploy Cloudflare Pages** を **`master` または `main` ブランチ**から **Run workflow**（本番プロジェクトへデプロイ） |
 
-- **`master` だけ更新しても検証 URL は自動では追従しない**。本番と検証を同じコミットに揃えたいときは、`staging`（や `develop`）に **`master` を取り込んで push** するなど、運用で明示的に更新する（[environments.md](./environments.md) の「PRD と STG の中身を揃えたいとき」）。
-- **バージョンを上げたコミット**が `master` に入れば、そのタイミングで本番サイトの中身は新しくなる。
-- **Git タグ**（例: `v1.2.2`）の付与は任意。付ける場合は `master` の該当コミットに対して行い、リリースノートに CHANGELOG の該当節をコピーしてもよい。
+### 本番リリースの手順（推奨）
+
+1. `master` にマージし、テストが通ることを確認する。  
+2. **Releases → Create a new release** → **Choose a tag** で `vX.Y.Z` を新規作成（対象は `master` の先端コミットでよい）。  
+3. **Generate release notes** で PR 一覧を埋め、**Publish release**。  
+4. Actions の **Deploy Cloudflare Pages** が成功したら本番 URL を確認する。
+
+- **`package.json` の `version`** とタグ・CHANGELOG を揃える運用にすると追いやすい（必須ではない）。
+- **バージョンを上げたコミット**が `master` に入っただけでは本番サイトは変わらない。**Release を公開したタイミング**で本番が更新される。
+
+参考（別リポジトリの同種ガイド）: [ut-qms / `release_management_guide.md`](https://github.com/junichi-muraoka/ut-qms/blob/main/docs/release_management_guide.md)（Qraft のリリース・バージョン管理の考え方）。
 
 ## 4. リリース前の最低チェック（推奨）
 

@@ -12,8 +12,8 @@
 
 | 区分 | ブランチ | 公開 URL（デフォルトのプロジェクト名の場合） | デプロイ |
 |------|----------|---------------------------------------------|----------|
-| **Production（PRD）** | `master` / `main` | `https://jcsqe-study-app.pages.dev` | `push` または `workflow_dispatch` → [Deploy Cloudflare Pages](../.github/workflows/deploy-cloudflare-pages.yml) |
-| **Staging（STG）** | `staging` / `develop` | `https://jcsqe-study-app-staging.pages.dev` | 同上 |
+| **Production（PRD）** | `master` / `main` | `https://jcsqe-study-app.pages.dev` | **GitHub Release を公開したとき**（`release: published`、**プレリリースは除く**）。または **Actions → Deploy Cloudflare Pages → `master` / `main` で Run workflow**。[ut-qms（Qraft）](https://github.com/junichi-muraoka/ut-qms) と同様、**`master` への push だけでは本番 URL は更新されない**。 |
+| **Staging（STG）** | `staging` / `develop` | `https://jcsqe-study-app-staging.pages.dev` | 上記ブランチへの **push**（または同ブランチで `workflow_dispatch`）→ [Deploy Cloudflare Pages](../.github/workflows/deploy-cloudflare-pages.yml) |
 
 - **プロジェクト名**は Cloudflare ダッシュボードの **Workers & Pages → プロジェクト名**と一致させる。リポジトリの **Settings → Secrets and variables → Actions → Variables** で上書きできる（未設定時は上表のデフォルト）。
   - `CF_PAGES_PROJECT_PRODUCTION`（本番）
@@ -30,8 +30,9 @@
 
 #### PRD と STG の中身を揃えたいとき
 
-- **検証 URL**（`jcsqe-study-app-staging.pages.dev`）は、**`staging` または `develop` への push** があったときだけ [deploy-cloudflare-pages.yml](../.github/workflows/deploy-cloudflare-pages.yml) が走る。**`master` だけ更新しても STG は自動では追従しない**。
-- 本番と同じコミットまで持っていきたいときは、例として **`staging` に `master` をマージ（または fast-forward）して `git push origin staging`** する（チームのブランチ運用に合わせる）。
+- **本番 URL**は **Release 公開**で更新する。**`master` にマージしただけでは本番は変わらない**（意図しない本番更新を防ぐ）。反映したいコミットに **タグを付けて Release を Publish** する（手順は [release_process.md](./release_process.md)）。
+- **検証 URL**は **`staging` / `develop` への push** で更新。**`master` だけ更新しても STG は自動では追従しない**。
+- 本番と検証のコミットを揃えたいときは、例として **`staging` に `master` を取り込んで push** し、本番を出すときはそのコミット（または `master` の先端）から **Release** する。
 
 #### 初回セットアップ（Cloudflare Pages）
 
