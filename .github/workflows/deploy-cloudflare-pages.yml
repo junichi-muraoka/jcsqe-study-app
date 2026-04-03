@@ -72,6 +72,8 @@ jobs:
           if [ -z "$PROD" ]; then PROD="jcsqe-study-app"; fi
           if [ -z "$STG" ]; then STG="jcsqe-study-app-staging"; fi
           REF="${{ github.ref }}"
+          BRANCH="${REF#refs/heads/}"
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
           if [ "$REF" = "refs/heads/master" ] || [ "$REF" = "refs/heads/main" ]; then
             echo "project=$PROD" >> $GITHUB_OUTPUT
             echo "url=https://${PROD}.pages.dev" >> $GITHUB_OUTPUT
@@ -83,9 +85,10 @@ jobs:
             exit 1
           fi
 
+      # Direct Upload 系の Pages は --branch を付けないとプレビュー URL のみで、ルート *.pages.dev が空のままになることがある
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy _site --project-name=${{ steps.meta.outputs.project }}
+          command: pages deploy _site --project-name=${{ steps.meta.outputs.project }} --branch=${{ steps.meta.outputs.branch }}
