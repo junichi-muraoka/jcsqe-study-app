@@ -22,6 +22,8 @@
 
 #### 初回セットアップ（Cloudflare Pages）
 
+**手順の全文（チェックリスト）**は [cloudflare_pages_setup.md](./cloudflare_pages_setup.md)。概要だけ:
+
 1. Cloudflare で **空の Pages プロジェクトを 2 つ**作成し、名前をデフォルト（`jcsqe-study-app` / `jcsqe-study-app-staging`）または Variables に合わせる。**Git 連携は使わず**、GitHub Actions からのみデプロイする想定。
 2. GitHub **Repository secrets**: `CLOUDFLARE_API_TOKEN`（**Account** → **API トークン**で **Pages:Edit** など Pages デプロイに必要な権限）、`CLOUDFLARE_ACCOUNT_ID`。
 3. Firebase の **承認済みドメイン**に、各環境の `*.pages.dev` ホスト（例: `jcsqe-study-app.pages.dev`）を追加する。手順は [firebase_manual_setup.md](./firebase_manual_setup.md) のフェーズ E。

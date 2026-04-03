@@ -49,7 +49,7 @@
 | **本番（PRD）** | [junichi-muraoka.github.io/jcsqe-study-app/](https://junichi-muraoka.github.io/jcsqe-study-app/) | `master` |
 | **検証（STG）** | […/staging/](https://junichi-muraoka.github.io/jcsqe-study-app/staging/) | `staging` |
 
-デプロイの仕組み・Secrets・初回セットアップは [docs/environments.md](docs/environments.md) を参照。
+デプロイの仕組み・Secrets は [docs/environments.md](docs/environments.md)。**Cloudflare Pages を初めて有効にする手順**は [docs/cloudflare_pages_setup.md](docs/cloudflare_pages_setup.md)。
 
 ブラウザでアクセスするだけですぐに学習を開始できます。
 
