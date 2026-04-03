@@ -2,6 +2,13 @@
 
 このプロジェクトの注目すべき変更はこのファイルに記録されます。
 
+## [1.2.20] - 2026-04-02
+
+### ドキュメント
+- [docs/cloudflare_pages_setup.md](docs/cloudflare_pages_setup.md): Cloudflare Pages（`*.pages.dev`）の初回セットアップ手順をチェックリスト化。[README.md](README.md) / [environments.md](docs/environments.md) からリンク。
+
+---
+
 ## [1.2.19] - 2026-03-31
 
 ### 追加
