@@ -5,7 +5,7 @@
 ## [1.2.20] - 2026-04-02
 
 ### ドキュメント
-- [docs/cloudflare_pages_setup.md](docs/cloudflare_pages_setup.md): Cloudflare Pages（`*.pages.dev`）の初回セットアップ手順をチェックリスト化。[README.md](README.md) / [environments.md](docs/environments.md) からリンク。
+- [docs/cloudflare_pages_setup.md](docs/cloudflare_pages_setup.md): Cloudflare Pages（`*.pages.dev`）の初回セットアップを丁寧版に拡充（アカウント ID・API トークン・GitHub Secrets・Firebase 承認済みドメイン・デプロイ確認まで）。[README.md](README.md) / [environments.md](docs/environments.md) からリンク。
 
 ---
 
