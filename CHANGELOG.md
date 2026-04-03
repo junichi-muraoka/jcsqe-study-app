@@ -2,6 +2,13 @@
 
 このプロジェクトの注目すべき変更はこのファイルに記録されます。
 
+## [1.2.21] - 2026-04-03
+
+### 追加
+- **`npm run cf:login`** / **`npm run cf:pages:create`**: Cloudflare Pages の空プロジェクト（`jcsqe-study-app` / `jcsqe-study-app-staging`）を Wrangler で作成。ZIP アップロード不要。[docs/cloudflare_pages_setup.md](docs/cloudflare_pages_setup.md) の「3-0」を参照。
+
+---
+
 ## [1.2.20] - 2026-04-02
 
 ### ドキュメント
