@@ -16,6 +16,20 @@
 
 ---
 
+## CI が自動で行うこと（毎回のデプロイ）
+
+GitHub Actions の **[deploy-cloudflare-pages.yml](../.github/workflows/deploy-cloudflare-pages.yml)** は、**手元で Wrangler を打たなくてよい**前提で、おおむね次の順です。
+
+| 順 | 内容 | 目的 |
+|----|------|------|
+| 1 | `npm test`、（Secret があれば）`write-firebase-config.js`、`_site` へ静的ファイル集約 | 配信物の用意 |
+| 2 | **Align Cloudflare Pages production branch** — Cloudflare API `PATCH .../pages/projects/{name}` で **`production_branch`** を **今の Git ブランチ**（`master` / `main` / `staging` / `develop`）に合わせる | ルート **`https://<プロジェクト>.pages.dev`** に本番デプロイが載るようにする（Direct Upload ではダッシュボードから `production_branch` を変えにくいため） |
+| 3 | **`wrangler pages deploy _site --project-name=... --branch=...`** | 上と同じブランチ名でアップロード（プレビュー専用 URL だけに留めない） |
+
+トークン **`CLOUDFLARE_API_TOKEN`** には **Pages の編集**が含まれる必要がある（PATCH と deploy の両方）。失敗時は Actions ログの該当ステップを見る。[runbook.md](./runbook.md) も参照。
+
+---
+
 ## 0. 用意するもの
 
 - **Cloudflare のアカウント**（無料でよい）[サインアップ](https://dash.cloudflare.com/sign-up)

@@ -20,6 +20,19 @@
   - `CF_PAGES_PROJECT_STAGING`（検証）
 - **実際の URL**はダッシュボードの **ドメイン**（`*.pages.dev` またはカスタムドメイン）を正とする。プレビュー用のプレビュー URL はワークフローの表示 URL と異なる場合がある。
 
+#### デプロイ時に CI がすること（[deploy-cloudflare-pages.yml](../.github/workflows/deploy-cloudflare-pages.yml)）
+
+**Direct Upload** 用の Pages では、次を **毎回**実行する（詳細は [cloudflare_pages_setup.md](./cloudflare_pages_setup.md) の「CI が自動で行うこと」）。
+
+1. **`npm test`** →（任意）**Firebase 設定の注入** → **`_site` 作成**
+2. **Cloudflare API（PATCH）**で対象プロジェクトの **`production_branch`** を、実行中の **Git ブランチ名**に合わせる（ルート `*.pages.dev` を本番として載せるため）。
+3. **`wrangler pages deploy`** に **`--project-name`** と **`--branch`**（上と同じブランチ名）を付けてアップロード。
+
+#### PRD と STG の中身を揃えたいとき
+
+- **検証 URL**（`jcsqe-study-app-staging.pages.dev`）は、**`staging` または `develop` への push** があったときだけ [deploy-cloudflare-pages.yml](../.github/workflows/deploy-cloudflare-pages.yml) が走る。**`master` だけ更新しても STG は自動では追従しない**。
+- 本番と同じコミットまで持っていきたいときは、例として **`staging` に `master` をマージ（または fast-forward）して `git push origin staging`** する（チームのブランチ運用に合わせる）。
+
 #### 初回セットアップ（Cloudflare Pages）
 
 **手順の全文（チェックリスト）**は [cloudflare_pages_setup.md](./cloudflare_pages_setup.md)。概要だけ:

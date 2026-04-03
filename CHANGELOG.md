@@ -7,6 +7,10 @@
 ### 変更
 - **本番・検証の自動デプロイを Cloudflare Pages のみに統一**: `deploy-github-pages.yml`（`gh-pages` ブランチへの自動デプロイ）を削除。README・[environments.md](docs/environments.md)・Firebase 手順などを `*.pages.dev` 前提に更新。
 
+### 修正（CI / Cloudflare Pages）
+- **Direct Upload** では `wrangler pages deploy` に **`--branch=<Git のブランチ名>`** を付けないと本番扱いにならず、ルート **`https://<プロジェクト>.pages.dev`** が「Nothing is here yet」のままになることがある → ワークフローで付与。
+- 併せて、デプロイ直前に Cloudflare **[Pages Update Project](https://developers.cloudflare.com/api/resources/pages/subresources/projects/methods/edit/) API** で **`production_branch`** を **そのときの Git ブランチ**（`master` / `main` / `staging` / `develop`）に合わせる（ダッシュボードでは Direct Upload プロジェクトは変更しづらいため）。手動 `curl` は不要。
+
 ---
 
 ## [1.2.21] - 2026-04-03

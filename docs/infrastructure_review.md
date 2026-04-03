@@ -49,7 +49,7 @@
 
 **四半期ごと、または大きな機能追加のたび**に目を通す。
 
-- [ ] **Cloudflare Pages**: 本番・STG の `*.pages.dev` が期待どおり開く
+- [ ] **Cloudflare Pages**: 本番・STG の `*.pages.dev` が期待どおり開く（**STG は `staging` / `develop` の push でしか更新されない** — 本番と揃えるなら [environments.md](./environments.md) の「PRD と STG の中身を揃えたいとき」）
 - [ ] **Actions**: 直近の `Deploy Cloudflare Pages` / `test` / `e2e` が緑（失敗があれば [runbook.md](./runbook.md)）
 - [ ] **Dependabot**: 未マージの PR の有無、重大なセキュリティアラート
 - [ ] **Firebase**（利用中の場合）: クォータ、承認済みドメイン、ルールが意図どおりか

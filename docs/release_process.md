@@ -23,6 +23,7 @@
 | `master` / `main` にマージ・プッシュ | [deploy-cloudflare-pages.yml](../.github/workflows/deploy-cloudflare-pages.yml) が **本番** `*.pages.dev` を更新する |
 | `staging` / `develop` にプッシュ | 同ワークフローが **検証**用 `*.pages.dev` を更新する |
 
+- **`master` だけ更新しても検証 URL は自動では追従しない**。本番と検証を同じコミットに揃えたいときは、`staging`（や `develop`）に **`master` を取り込んで push** するなど、運用で明示的に更新する（[environments.md](./environments.md) の「PRD と STG の中身を揃えたいとき」）。
 - **バージョンを上げたコミット**が `master` に入れば、そのタイミングで本番サイトの中身は新しくなる。
 - **Git タグ**（例: `v1.2.2`）の付与は任意。付ける場合は `master` の該当コミットに対して行い、リリースノートに CHANGELOG の該当節をコピーしてもよい。
 
