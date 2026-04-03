@@ -14,7 +14,7 @@
     "bug:report:web": "gh issue create --web",
     "bug:sync": "node scripts/sync-bug-issues.js",
     "cf:login": "npx wrangler@3 login",
-    "cf:pages:create": "npx wrangler@3 pages project create jcsqe-study-app && npx wrangler@3 pages project create jcsqe-study-app-staging"
+    "cf:pages:create": "npx wrangler@3 pages project create jcsqe-study-app --production-branch=master && npx wrangler@3 pages project create jcsqe-study-app-staging --production-branch=staging"
   },
   "devDependencies": {
     "@playwright/test": "^1.40.0",
