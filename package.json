@@ -12,7 +12,9 @@
     "test:e2e:ui": "playwright test --ui",
     "bug:report": "gh issue create --body-file scripts/bug-report-body.md --label bug",
     "bug:report:web": "gh issue create --web",
-    "bug:sync": "node scripts/sync-bug-issues.js"
+    "bug:sync": "node scripts/sync-bug-issues.js",
+    "cf:login": "npx wrangler@3 login",
+    "cf:pages:create": "npx wrangler@3 pages project create jcsqe-study-app && npx wrangler@3 pages project create jcsqe-study-app-staging"
   },
   "devDependencies": {
     "@playwright/test": "^1.40.0",
