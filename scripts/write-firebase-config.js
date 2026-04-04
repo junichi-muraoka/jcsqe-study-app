@@ -25,17 +25,26 @@ function lenientJsonRepair(s) {
   /** `"k":"v"\n  "k2"` または同一行で `"k":"v" "k2"`（先頭の " はキー用・値用を区別） */
   t = t.replace(/("\s*:\s*"(?:[^"\\]|\\.)*")\s*\r?\n(\s*")/g, '$1,\n$2');
   t = t.replace(/("\s*:\s*"(?:[^"\\]|\\.)*")\s+(")/g, '$1, $2');
+  /** `"messagingSenderId": 123\n  "appId"` のような数値値のあと */
+  t = t.replace(/("\s*:\s*\d+)\s*\r?\n(\s*")/g, '$1,\n$2');
+  t = t.replace(/("\s*:\s*\d+)\s+(")/g, '$1, $2');
+  /** `"appId":"…"\n  googleOAuthClientId:` のように JSON キーと JS 風キーが混在 */
+  t = t.replace(/("\s*:\s*"(?:[^"\\]|\\.)*")\s*\r?\n(\s*[a-zA-Z_$][\w$]*\s*:)/g, '$1,\n$2');
+  t = t.replace(/("\s*:\s*"(?:[^"\\]|\\.)*")\s+([a-zA-Z_$][\w$]*\s*:)/g, '$1, $2');
+  t = t.replace(/("\s*:\s*\d+)\s*\r?\n(\s*[a-zA-Z_$][\w$]*\s*:)/g, '$1,\n$2');
+  t = t.replace(/("\s*:\s*\d+)\s+([a-zA-Z_$][\w$]*\s*:)/g, '$1, $2');
   return t;
 }
 
-/** `apiKey: "x" authDomain:` のように JS オブジェクトでカンマが抜けている場合（1 回の replace では足りない並びがある） */
+/** `apiKey: "x" authDomain:` や `messagingSenderId: 123\n  googleOAuthClientId:` など JS オブジェクトでカンマが抜けている場合 */
 function lenientJsCommaBetweenProps(s) {
-  const r = /([\w$]+\s*:\s*"(?:[^"\\]|\\.)*")\s+([\w$]+\s*:)/g;
   let t = String(s);
   let prev;
   do {
     prev = t;
-    t = t.replace(r, '$1, $2');
+    t = t.replace(/([\w$]+\s*:\s*"(?:[^"\\]|\\.)*")\s+([\w$]+\s*:)/g, '$1, $2');
+    t = t.replace(/([\w$]+\s*:\s*\d+)\s+([\w$]+\s*:)/g, '$1, $2');
+    t = t.replace(/([\w$]+\s*:\s*\d+)\s*\r?\n(\s*[\w$]+\s*:)/g, '$1,\n$2');
   } while (t !== prev);
   return t;
 }
@@ -87,12 +96,14 @@ function parseFirebaseWebConfig(input) {
   s = extractJsFirebaseConfigObject(s);
   s = stripLineLeadingComments(s);
 
-  const candidates = [s, lenientJsonRepair(s)];
+  const jsComma = lenientJsCommaBetweenProps(s);
+  const candidates = [s, lenientJsonRepair(s), jsComma, lenientJsonRepair(jsComma)];
   const start = s.indexOf('{');
   const end = s.lastIndexOf('}');
   if (start !== -1 && end > start) {
     const slice = s.slice(start, end + 1);
-    candidates.push(slice, lenientJsonRepair(slice));
+    const sliceJs = lenientJsCommaBetweenProps(slice);
+    candidates.push(slice, lenientJsonRepair(slice), sliceJs, lenientJsonRepair(sliceJs));
   }
   let lastErr = null;
   for (const c of candidates) {
