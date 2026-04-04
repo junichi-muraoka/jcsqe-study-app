@@ -68,6 +68,37 @@ function stripLineLeadingComments(s) {
   return String(s).replace(/^\s*\/\/[^\r\n]*/gm, '');
 }
 
+/** 先頭の説明文や `variable=` を除き、最初の { … } オブジェクトだけ残す（文字列内の {} は無視） */
+function extractFirstBalancedObject(s) {
+  const start = s.indexOf('{');
+  if (start === -1) return null;
+  let depth = 0;
+  let inStr = false;
+  let esc = false;
+  for (let j = start; j < s.length; j++) {
+    const c = s[j];
+    if (esc) {
+      esc = false;
+      continue;
+    }
+    if (inStr) {
+      if (c === '\\') esc = true;
+      else if (c === '"') inStr = false;
+      continue;
+    }
+    if (c === '"') {
+      inStr = true;
+      continue;
+    }
+    if (c === '{') depth++;
+    else if (c === '}') {
+      depth--;
+      if (depth === 0) return s.slice(start, j + 1);
+    }
+  }
+  return null;
+}
+
 /** `const firebaseConfig = { ... };` ごとコピーした場合に { ... } だけ抜く */
 function extractJsFirebaseConfigObject(s) {
   const re = /(?:const|var|let)\s+firebaseConfig\s*=\s*\{/;
@@ -95,6 +126,8 @@ function parseFirebaseWebConfig(input) {
   s = normalizeSmartQuotes(s);
   s = extractJsFirebaseConfigObject(s);
   s = stripLineLeadingComments(s);
+  const balanced = extractFirstBalancedObject(s);
+  if (balanced) s = balanced.trim();
 
   const jsComma = lenientJsCommaBetweenProps(s);
   const candidates = [s, lenientJsonRepair(s), jsComma, lenientJsonRepair(jsComma)];
