@@ -1,0 +1,4 @@
+# OAuth（Google Identity Services）のポップアップが opener と postMessage できるようにする。
+# 未設定だとブラウザによっては COOP 既定により GIS → Firebase 連携が失敗することがある。
+/*
+  Cross-Origin-Opener-Policy: same-origin-allow-popups

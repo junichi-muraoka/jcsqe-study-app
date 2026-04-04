@@ -1,5 +1,5 @@
 // 運用者が変える可能性がある firebase-config.js はプリキャッシュしない（常にネットワーク取得）
-const CACHE_NAME = 'jcsqe-v23';
+const CACHE_NAME = 'jcsqe-v24';
 const ASSETS = [
   './', './index.html', './style.css', './app.js',
   './js/storage.js', './js/state.js', './js/sync-firebase-errors.js',

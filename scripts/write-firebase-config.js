@@ -2,6 +2,10 @@
  * CI 用: 環境変数 FIREBASE_WEB_CONFIG_JSON に Firebase コンソールの
  * Web アプリ設定 JSON（1 行のオブジェクト）を渡すと js/firebase-config.js を上書きする。
  * 未設定または空のときは何もしない（リポジトリ同梱のプレースホルダのまま）。
+ *
+ * 任意: GOOGLE_OAUTH_CLIENT_ID が非空のとき、JSON 内の googleOAuthClientId / googleClientId より
+ * 優先する。GitHub では Repository secret 名も同じ。クライアント ID だけ差し替えたいときに
+ * FIREBASE_WEB_CONFIG_JSON を触らずに済む。
  */
 'use strict';
 
@@ -187,18 +191,32 @@ if (!cfg || typeof cfg !== 'object' || !cfg.apiKey) {
   process.exit(1);
 }
 
-const googleOAuthClientId =
+const envOAuth =
+  typeof process.env.GOOGLE_OAUTH_CLIENT_ID === 'string'
+    ? process.env.GOOGLE_OAUTH_CLIENT_ID.trim()
+    : '';
+const googleOAuthClientIdFromCfg =
   typeof cfg.googleOAuthClientId === 'string'
     ? cfg.googleOAuthClientId.trim()
     : typeof cfg.googleClientId === 'string'
       ? cfg.googleClientId.trim()
       : '';
+const googleOAuthClientId = envOAuth || googleOAuthClientIdFromCfg;
 const firebaseOnly = { ...cfg };
 delete firebaseOnly.googleOAuthClientId;
 delete firebaseOnly.googleClientId;
 
+/** Secret 貼り付けで apiKey 等に改行・余分な空白が混入すると Identity Toolkit が 400 を返すことがある */
+for (const k of Object.keys(firebaseOnly)) {
+  const v = firebaseOnly[k];
+  if (typeof v !== 'string') continue;
+  let t = v.trim();
+  if (k === 'apiKey') t = t.replace(/\s+/g, '');
+  firebaseOnly[k] = t;
+}
+
 const out = path.join(__dirname, '..', 'js', 'firebase-config.js');
-const content = `// Generated in CI from secret FIREBASE_WEB_CONFIG_JSON — do not commit real keys to git.
+const content = `// Generated in CI from FIREBASE_WEB_CONFIG_JSON (+ optional GOOGLE_OAUTH_CLIENT_ID) — do not commit real keys to git.
 (function(global) {
   'use strict';
   const J = global.JCSQE = global.JCSQE || {};
@@ -214,4 +232,7 @@ const content = `// Generated in CI from secret FIREBASE_WEB_CONFIG_JSON — do 
 `;
 
 fs.writeFileSync(out, content, 'utf8');
-console.log('Wrote js/firebase-config.js from FIREBASE_WEB_CONFIG_JSON');
+console.log(
+  'Wrote js/firebase-config.js from FIREBASE_WEB_CONFIG_JSON' +
+    (envOAuth ? ' (google OAuth client id from GOOGLE_OAUTH_CLIENT_ID)' : '')
+);
