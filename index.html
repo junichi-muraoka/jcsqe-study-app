@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#0a0e1a">
   <link rel="manifest" href="manifest.json">
   <title>JCSQE初級 合格対策アプリ</title>
-  <link rel="stylesheet" href="style.css?v=18">
+  <link rel="stylesheet" href="style.css?v=20">
 </head>
 <body>
   <div id="sync-toast" class="sync-toast hidden" role="status" aria-live="polite"></div>
@@ -19,6 +19,7 @@
         <p class="login-gate-badge" aria-hidden="true">☁️</p>
         <h1 id="login-gate-title" class="login-gate-title">JCSQE初級 合格対策</h1>
         <p class="login-gate-lead">Google でログインすると、学習データをクラウドに保存し、別の端末からも続きから学習できます。</p>
+        <p id="login-gate-auth-error" class="login-gate-auth-error hidden" role="alert"></p>
         <div id="gsi-login-gate-host" class="gsi-host hidden" aria-hidden="true"></div>
         <button type="button" class="btn btn-google btn-block" id="login-google-btn" style="justify-content:center;">
           <span class="login-gate-google-g" aria-hidden="true">G</span>
@@ -327,7 +328,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js" defer></script>
-  <script src="js/firebase-config.js" defer></script>
+  <script src="js/firebase-config.js?v=1" defer></script>
   <script src="js/firebase-sync.js" defer></script>
   <script src="app.js" defer></script>
 </body>
