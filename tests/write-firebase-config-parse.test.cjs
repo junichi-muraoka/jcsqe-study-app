@@ -7,6 +7,22 @@ const path = require('path');
 
 const script = path.join(__dirname, '..', 'scripts', 'write-firebase-config.js');
 
+test('fullwidth comma U+FF0C between properties is normalized', () => {
+  const comma = '\uFF0C';
+  const raw = `{"apiKey":"k"${comma}"authDomain":"x.firebaseapp.com"${comma}"projectId":"x"${comma}"appId":"1:1:web:1"${comma}"googleOAuthClientId":"z.apps.googleusercontent.com"}`;
+  const out = path.join(__dirname, '..', 'js', 'firebase-config.js');
+  const backup = fs.readFileSync(out, 'utf8');
+  try {
+    execFileSync(process.execPath, [script], {
+      env: { ...process.env, FIREBASE_WEB_CONFIG_JSON: raw },
+      encoding: 'utf8'
+    });
+    assert.match(fs.readFileSync(out, 'utf8'), /J\.googleOAuthClientId = "z\.apps\.googleusercontent\.com"/);
+  } finally {
+    fs.writeFileSync(out, backup, 'utf8');
+  }
+});
+
 test('prefix text before first { still parses', () => {
   const raw = `paste below:
 {"apiKey":"k","authDomain":"x.firebaseapp.com","projectId":"x","appId":"1:1:web:1","googleOAuthClientId":"z.apps.googleusercontent.com"}`;

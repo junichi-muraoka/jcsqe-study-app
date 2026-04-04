@@ -63,6 +63,14 @@ function normalizeSmartQuotes(s) {
     .replace(/\u2018|\u2019/g, "'");
 }
 
+/** 日本語 IME の全角カンマ・コロン（JSON では無効）→ ASCII */
+function normalizeJsonPunctuation(s) {
+  return String(s)
+    .replace(/\uFF0C/g, ',')
+    .replace(/\uFF1A/g, ':')
+    .replace(/\u3001/g, ',');
+}
+
 /** 行頭の // コメントのみ除去（文字列内の https:// を壊さない） */
 function stripLineLeadingComments(s) {
   return String(s).replace(/^\s*\/\/[^\r\n]*/gm, '');
@@ -124,6 +132,7 @@ function parseFirebaseWebConfig(input) {
   }
   s = stripMarkdownFence(s);
   s = normalizeSmartQuotes(s);
+  s = normalizeJsonPunctuation(s);
   s = extractJsFirebaseConfigObject(s);
   s = stripLineLeadingComments(s);
   const balanced = extractFirstBalancedObject(s);
@@ -158,7 +167,7 @@ function parseFirebaseWebConfig(input) {
     return new Function('return ' + slice)();
   } catch (e2) {
     throw new Error(
-      'パースできませんでした。ダブルクォート " で囲んだ標準 JSON を推奨します（キーも必ず " で囲む）。例: {"apiKey":"…","googleOAuthClientId":"….apps.googleusercontent.com"}。JSON: ' +
+      'パースできませんでした。区切りは半角カンマ , のみ（全角 ， は不可）。ダブルクォート " で囲んだ標準 JSON を推奨。例: {"apiKey":"…","googleOAuthClientId":"….apps.googleusercontent.com"}。JSON: ' +
         (lastErr && lastErr.message ? lastErr.message : '') +
         (e2 && e2.message ? ' / JS式: ' + e2.message : '')
     );
