@@ -51,10 +51,18 @@ jobs:
       - name: Run tests
         run: npm test
 
+      # Secret が不正な JSON のときはプレースホルダのままデプロイを続行（ジョブ全体は成功にする）
       - name: Inject Firebase web config from secret (optional)
+        continue-on-error: true
+        id: firebase_config_inject
         env:
           FIREBASE_WEB_CONFIG_JSON: ${{ secrets.FIREBASE_WEB_CONFIG_JSON }}
         run: node scripts/write-firebase-config.js
+
+      - name: Note when Firebase config inject failed
+        if: steps.firebase_config_inject.outcome == 'failure'
+        run: |
+          echo "::warning::FIREBASE_WEB_CONFIG_JSON のパースに失敗しました。リポジトリ同梱の firebase-config プレースホルダのまま配信されます。GitHub Actions の Repository secrets を、キーをすべてダブルクォートで囲んだ1つの JSON オブジェクトに直して再デプロイしてください。"
 
       - name: Prepare site directory
         run: |
