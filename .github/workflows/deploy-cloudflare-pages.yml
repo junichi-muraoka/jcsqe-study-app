@@ -40,7 +40,7 @@ jobs:
       url: ${{ steps.meta.outputs.url }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         # release イベントでは github.ref がタグ（refs/tags/v…）を指す
 
       - name: Set up Node.js
