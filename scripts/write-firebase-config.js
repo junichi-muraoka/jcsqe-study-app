@@ -27,6 +27,18 @@ function lenientJsonRepair(s) {
   return t;
 }
 
+/** `apiKey: "x" authDomain:` のように JS オブジェクトでカンマが抜けている場合（1 回の replace では足りない並びがある） */
+function lenientJsCommaBetweenProps(s) {
+  const r = /([\w$]+\s*:\s*"(?:[^"\\]|\\.)*")\s+([\w$]+\s*:)/g;
+  let t = String(s);
+  let prev;
+  do {
+    prev = t;
+    t = t.replace(r, '$1, $2');
+  } while (t !== prev);
+  return t;
+}
+
 /** GitHub Secret に ```json で囲んで貼った場合 */
 function stripMarkdownFence(s) {
   const t = String(s).trim();
@@ -94,7 +106,9 @@ function parseFirebaseWebConfig(input) {
       'JSON でも { で始まるオブジェクトでもありません。Firebase の「firebaseConfig」の { から } まで（apiKey / authDomain などが入ったブロック）を貼ってください。'
     );
   }
-  const slice = s.slice(start, end + 1);
+  let slice = s.slice(start, end + 1);
+  slice = lenientJsCommaBetweenProps(slice);
+  slice = lenientJsonRepair(slice);
   try {
     return new Function('return ' + slice)();
   } catch (e2) {
