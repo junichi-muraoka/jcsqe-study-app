@@ -91,6 +91,25 @@
           canRetry: true,
           continueLocal: true
         };
+      case 'auth/unauthorized-domain':
+        return {
+          ...base,
+          severity: 'error',
+          title: 'このサイトではログインが許可されていません',
+          detail: 'Firebase の承認済みドメインにこの URL のホストを追加してください。',
+          canRetry: false,
+          continueLocal: true
+        };
+      case 'auth/invalid-credential':
+      case 'auth/account-exists-with-different-credential':
+        return {
+          ...base,
+          severity: 'error',
+          title: 'Google ログインを完了できませんでした',
+          detail: 'GCP の OAuth クライアントに「承認済みの JavaScript 生成元」としてこのサイトの https://… を追加し、googleOAuthClientId がそのクライアント ID と一致するか確認してください。',
+          canRetry: true,
+          continueLocal: true
+        };
       default:
         if (/quota|resource-exhausted/i.test(rawMsg)) {
           return interpretSyncError({ code: 'resource-exhausted', message: rawMsg });

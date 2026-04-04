@@ -1,5 +1,5 @@
 // 運用者が変える可能性がある firebase-config.js はプリキャッシュしない（常にネットワーク取得）
-const CACHE_NAME = 'jcsqe-v19';
+const CACHE_NAME = 'jcsqe-v21';
 const ASSETS = [
   './', './index.html', './style.css', './app.js',
   './js/storage.js', './js/state.js', './js/sync-firebase-errors.js',
@@ -10,6 +10,14 @@ const ASSETS = [
 
 function isFirebaseConfigScript(url) {
   return /\/firebase-config\.js$/.test(url.pathname);
+}
+
+/** 認証リダイレクト等でクエリ付きナビゲーションがキャッシュ命中すると不整合になるのを防ぐ */
+function shouldBypassCacheForNavigation(url) {
+  if (url.pathname.includes('/__/')) return true;
+  const q = url.search;
+  if (!q) return false;
+  return /apiKey=|authType=|state=|code=|oauth|oobCode/i.test(q);
 }
 
 self.addEventListener('install', e => {
@@ -27,6 +35,10 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
   if (isFirebaseConfigScript(url)) {
+    e.respondWith(fetch(e.request));
+    return;
+  }
+  if (e.request.mode === 'navigate' && shouldBypassCacheForNavigation(url)) {
     e.respondWith(fetch(e.request));
     return;
   }

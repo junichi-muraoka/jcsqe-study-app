@@ -10,6 +10,8 @@
     messagingSenderId: '000000000000',
     appId: '1:000000000000:web:xxxxxxxx'
   };
+  /** 任意。Cloudflare Pages 等では GIS ログイン推奨。GCP 認証情報の「OAuth 2.0 クライアント ID」（ウェブ）のクライアント ID */
+  J.googleOAuthClientId = '';
   J.isFirebaseConfigured = function isFirebaseConfigured() {
     const c = J.firebaseConfig;
     if (!c.apiKey || !c.authDomain || !c.projectId || !c.appId) return false;

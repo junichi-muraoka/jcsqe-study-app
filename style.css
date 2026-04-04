@@ -978,6 +978,101 @@ body[data-theme="light"] .header h1 {
   box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.4);
 }
 
+/* ログインゲート（Firebase Google SSO） */
+body.login-gate-open {
+  overflow: hidden;
+}
+.login-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 200000;
+  background: rgba(10, 14, 26, 0.92);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  animation: fadeIn 0.35s ease;
+}
+.login-gate.hidden {
+  display: none !important;
+}
+.login-gate-inner {
+  width: 100%;
+  max-width: 420px;
+}
+.login-gate-panel {
+  margin-bottom: 0;
+  text-align: center;
+}
+.login-gate-panel:hover {
+  transform: none;
+}
+.login-gate-badge {
+  font-size: 2.5rem;
+  line-height: 1;
+  margin-bottom: 12px;
+}
+.login-gate-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, var(--accent-light), #a78bfa, #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.login-gate-lead {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  margin-bottom: 24px;
+  text-align: left;
+}
+.login-gate-note {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin-top: 20px;
+  text-align: left;
+}
+.btn-google {
+  background: #fff;
+  color: #1f1f1f;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  margin-bottom: 12px;
+}
+.btn-google:hover {
+  background: #f8f9fa;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+/* Google Identity Services のボタン置き場 */
+.gsi-host {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 48px;
+  margin-bottom: 12px;
+}
+.gsi-host.hidden {
+  display: none !important;
+}
+
+.login-gate-google-g {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #4285f4 0%, #34a853 33%, #fbbc04 66%, #ea4335 100%);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  font-family: 'Inter', sans-serif;
+}
+
 /* Firebase 同期トースト (#14) */
 .sync-toast {
   position: fixed;

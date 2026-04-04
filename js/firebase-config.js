@@ -13,6 +13,9 @@
     appId: '1:000000000000:web:xxxxxxxx'
   };
 
+  /** Cloudflare Pages 等で GIS + signInWithCredential 用（GCP の OAuth 2.0 クライアント ID）。Secret JSON に googleOAuthClientId で追加。 */
+  J.googleOAuthClientId = '';
+
   J.isFirebaseConfigured = function isFirebaseConfigured() {
     const c = J.firebaseConfig;
     if (!c.apiKey || !c.authDomain || !c.projectId || !c.appId) return false;
