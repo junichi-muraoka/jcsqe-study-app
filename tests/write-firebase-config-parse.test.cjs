@@ -7,6 +7,28 @@ const path = require('path');
 
 const script = path.join(__dirname, '..', 'scripts', 'write-firebase-config.js');
 
+test('lenient: JSON multiline missing comma before next key', () => {
+  const raw = `{
+  "apiKey": "k",
+  "authDomain": "x.firebaseapp.com",
+  "projectId": "x",
+  "appId": "1:1:web:1"
+  "googleOAuthClientId": "z.apps.googleusercontent.com"
+}`;
+  const out = path.join(__dirname, '..', 'js', 'firebase-config.js');
+  const backup = fs.readFileSync(out, 'utf8');
+  try {
+    execFileSync(process.execPath, [script], {
+      env: { ...process.env, FIREBASE_WEB_CONFIG_JSON: raw },
+      encoding: 'utf8'
+    });
+    const gen = fs.readFileSync(out, 'utf8');
+    assert.match(gen, /J\.googleOAuthClientId = "z\.apps\.googleusercontent\.com"/);
+  } finally {
+    fs.writeFileSync(out, backup, 'utf8');
+  }
+});
+
 test('lenient: JS object missing commas between string props', () => {
   const raw =
     '{ apiKey: "k" authDomain: "x.firebaseapp.com" projectId: "x" appId: "1:1:web:1" googleOAuthClientId: "z.apps.googleusercontent.com" }';

@@ -22,8 +22,9 @@ if (!raw || !String(raw).trim()) {
 function lenientJsonRepair(s) {
   let t = String(s).trim();
   t = t.replace(/,\s*([}\]])/g, '$1');
-  t = t.replace(/("(?:[^"\\]|\\.)*")\s*\r?\n(\s*")/g, '$1,\n$2');
-  t = t.replace(/("(?:[^"\\]|\\.)*")\s+(")/g, '$1, $2');
+  /** `"k":"v"\n  "k2"` または同一行で `"k":"v" "k2"`（先頭の " はキー用・値用を区別） */
+  t = t.replace(/("\s*:\s*"(?:[^"\\]|\\.)*")\s*\r?\n(\s*")/g, '$1,\n$2');
+  t = t.replace(/("\s*:\s*"(?:[^"\\]|\\.)*")\s+(")/g, '$1, $2');
   return t;
 }
 
