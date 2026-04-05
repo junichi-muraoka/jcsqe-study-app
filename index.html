@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#0a0e1a">
   <link rel="manifest" href="manifest.json">
   <title>JCSQE初級 合格対策アプリ</title>
-  <link rel="stylesheet" href="style.css?v=20">
+  <link rel="stylesheet" href="style.css?v=21">
 </head>
 <body>
   <div id="sync-toast" class="sync-toast hidden" role="status" aria-live="polite"></div>
@@ -21,6 +21,11 @@
         <p class="login-gate-lead">Google でログインすると、学習データをクラウドに保存し、別の端末からも続きから学習できます。</p>
         <p id="login-gate-auth-error" class="login-gate-auth-error hidden" role="alert"></p>
         <div id="gsi-login-gate-host" class="gsi-host hidden" aria-hidden="true"></div>
+        <p id="login-google-popup-fallback-wrap" class="login-gate-popup-fallback hidden">
+          <button type="button" class="btn btn-secondary btn-block" id="login-google-popup-fallback" style="justify-content:center;font-size:0.85rem;">
+            別ウィンドウでログイン（ボタンで失敗するとき）
+          </button>
+        </p>
         <button type="button" class="btn btn-google btn-block" id="login-google-btn" style="justify-content:center;">
           <span class="login-gate-google-g" aria-hidden="true">G</span>
           Google でログイン
@@ -267,6 +272,11 @@
           <p id="firebase-auth-line" style="font-size:0.9rem;color:var(--text-secondary);line-height:1.5;margin-bottom:12px;">読み込み中…</p>
           <p id="firebase-sync-status" style="font-size:0.8rem;color:var(--text-muted);margin-bottom:12px;"></p>
           <div id="gsi-settings-host" class="gsi-host hidden" aria-hidden="true"></div>
+          <p id="settings-google-popup-fallback-wrap" class="settings-popup-fallback hidden">
+            <button type="button" class="btn btn-secondary btn-block" id="settings-google-popup-fallback" style="justify-content:center;font-size:0.85rem;">
+              別ウィンドウでログイン（ボタンで失敗するとき）
+            </button>
+          </p>
           <button type="button" class="btn btn-primary btn-block" id="firebase-signin-btn" style="justify-content:center;">Googleでログイン</button>
           <button type="button" class="btn btn-secondary btn-block hidden" id="firebase-signout-btn" style="justify-content:center;">ログアウト</button>
         </div>

@@ -149,6 +149,8 @@
     const signIn = document.getElementById('firebase-signin-btn');
     const setHost = document.getElementById('gsi-settings-host');
     const showSignInControls = !signedIn;
+    const gatePopupWrap = document.getElementById('login-google-popup-fallback-wrap');
+    const setPopupWrap = document.getElementById('settings-google-popup-fallback-wrap');
     if (useGsiLogin) {
       if (gateBtn) gateBtn.classList.add('hidden');
       if (signIn) signIn.classList.add('hidden');
@@ -160,6 +162,9 @@
         setHost.classList.toggle('hidden', !showSignInControls);
         setHost.setAttribute('aria-hidden', showSignInControls ? 'false' : 'true');
       }
+      const showPopupFb = !!showSignInControls;
+      if (gatePopupWrap) gatePopupWrap.classList.toggle('hidden', !showPopupFb);
+      if (setPopupWrap) setPopupWrap.classList.toggle('hidden', !showPopupFb);
     } else {
       if (gateHost) {
         gateHost.classList.add('hidden');
@@ -171,6 +176,8 @@
       }
       if (gateBtn) gateBtn.classList.toggle('hidden', !showSignInControls);
       if (signIn) signIn.classList.toggle('hidden', !showSignInControls);
+      if (gatePopupWrap) gatePopupWrap.classList.add('hidden');
+      if (setPopupWrap) setPopupWrap.classList.add('hidden');
     }
   }
 
@@ -186,12 +193,31 @@
     }
   }
 
+  function showLoginGateAuthError(msg) {
+    const el = document.getElementById('login-gate-auth-error');
+    if (!el) return;
+    if (!msg) {
+      el.textContent = '';
+      el.classList.add('hidden');
+      return;
+    }
+    el.textContent = msg;
+    el.classList.remove('hidden');
+  }
+
   function onGsiCredential(response) {
-    if (!auth || !response || !response.credential) return;
+    showLoginGateAuthError('');
+    if (!auth) return;
+    if (!response || !response.credential) {
+      showLoginGateAuthError('Google からログイン情報が返りませんでした。ポップアップをブロックしていないか確認し、もう一度お試しください。');
+      return;
+    }
     const credential = firebase.auth.GoogleAuthProvider.credential(response.credential);
     auth.signInWithCredential(credential).catch(function(err) {
+      console.error('[JCSQE Firebase Auth]', err && err.code, err && err.message, err);
       const info = interpret(err);
       showSyncMessage(info);
+      showLoginGateAuthError((info.title ? info.title + ' ' : '') + (info.detail || String(err.message || '')));
     });
   }
 
@@ -262,6 +288,7 @@
     db = firebase.firestore();
     patchSaveData();
     auth.onAuthStateChanged(function(user) {
+      if (user) showLoginGateAuthError('');
       updateAuthUI(user);
       syncLoginGate(user);
       if (user) {
@@ -271,6 +298,18 @@
       }
     });
     return true;
+  }
+
+  /** GIS が 400 等で失敗するとき用（Firebase 標準の OAuth ポップアップ） */
+  function signInWithGooglePopupFallback() {
+    if (!auth) return;
+    const provider = buildGoogleProvider();
+    auth.signInWithPopup(provider).catch(function(err) {
+      console.error('[JCSQE Firebase Auth popup]', err && err.code, err && err.message, err);
+      const info = interpret(err);
+      showSyncMessage(info);
+      showLoginGateAuthError((info.title ? info.title + ' ' : '') + (info.detail || String(err.message || '')));
+    });
   }
 
   /** googleOAuthClientId 未設定時のフォールバック（同一オリジンでないと不安定な場合あり） */
@@ -312,6 +351,10 @@
         setLoginGateOpen(false);
       });
     }
+    const gatePopupFb = document.getElementById('login-google-popup-fallback');
+    const setPopupFb = document.getElementById('settings-google-popup-fallback');
+    if (gatePopupFb) gatePopupFb.addEventListener('click', signInWithGooglePopupFallback);
+    if (setPopupFb) setPopupFb.addEventListener('click', signInWithGooglePopupFallback);
     if (signOut) {
       signOut.addEventListener('click', function() {
         if (!auth) return;
