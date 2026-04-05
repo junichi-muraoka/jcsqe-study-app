@@ -202,9 +202,13 @@ const googleOAuthClientIdFromCfg =
       ? cfg.googleClientId.trim()
       : '';
 const googleOAuthClientId = envOAuth || googleOAuthClientIdFromCfg;
+const useGoogleIdentityServices =
+  cfg.useGoogleIdentityServices === true ||
+  String(cfg.useGoogleIdentityServices || '').toLowerCase() === 'true';
 const firebaseOnly = { ...cfg };
 delete firebaseOnly.googleOAuthClientId;
 delete firebaseOnly.googleClientId;
+delete firebaseOnly.useGoogleIdentityServices;
 
 /** Secret 貼り付けで apiKey 等に改行・余分な空白が混入すると Identity Toolkit が 400 を返すことがある */
 for (const k of Object.keys(firebaseOnly)) {
@@ -222,6 +226,7 @@ const content = `// Generated in CI from FIREBASE_WEB_CONFIG_JSON (+ optional GO
   const J = global.JCSQE = global.JCSQE || {};
   J.firebaseConfig = ${JSON.stringify(firebaseOnly, null, 2)};
   J.googleOAuthClientId = ${JSON.stringify(googleOAuthClientId)};
+  J.useGoogleIdentityServices = ${JSON.stringify(useGoogleIdentityServices)};
   J.isFirebaseConfigured = function isFirebaseConfigured() {
     const c = J.firebaseConfig;
     if (!c.apiKey || !c.authDomain || !c.projectId || !c.appId) return false;

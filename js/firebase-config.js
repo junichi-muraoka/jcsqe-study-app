@@ -13,8 +13,10 @@
     appId: '1:000000000000:web:xxxxxxxx'
   };
 
-  /** Cloudflare Pages 等で GIS + signInWithCredential 用（GCP の OAuth 2.0 クライアント ID）。Secret JSON に googleOAuthClientId で追加。 */
+  /** GIS 利用時のみ必要（OAuth 2.0 クライアント ID）。既定のログインは signInWithPopup で不要。 */
   J.googleOAuthClientId = '';
+  /** true のときだけ GIS。false＝「Google でログイン」は Firebase のポップアップ（推奨）。 */
+  J.useGoogleIdentityServices = false;
 
   J.isFirebaseConfigured = function isFirebaseConfigured() {
     const c = J.firebaseConfig;

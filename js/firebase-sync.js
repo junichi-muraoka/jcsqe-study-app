@@ -1,7 +1,7 @@
 // Issue #14: Firebase Auth + Firestore 同期（compat SDK）。未設定時は no-op。
-// Cloudflare Pages 等（Firebase Hosting 以外）では signInWithRedirect / firebaseapp.com ハンドラが
-// ブラウザのサードパーティストレージ制限や OAuth 設定で失敗しやすいため、
-// googleOAuthClientId があるときは GIS + signInWithCredential を優先する。
+// Cloudflare Pages 等では既定は signInWithPopup（Firebase 標準の Google プロバイダ）。
+// GIS + signInWithCredential は Identity Toolkit 400 になりやすいため、
+// J.useGoogleIdentityServices === true かつ googleOAuthClientId があるときだけ有効。
 (function(global) {
   'use strict';
   const J = global.JCSQE = global.JCSQE || {};
@@ -143,6 +143,10 @@
     return id && String(id).trim() ? String(id).trim() : '';
   }
 
+  function shouldUseGoogleIdentityServices() {
+    return J.useGoogleIdentityServices === true;
+  }
+
   function syncSignInWidgetsVisible(signedIn) {
     const gateBtn = document.getElementById('login-google-btn');
     const gateHost = document.getElementById('gsi-login-gate-host');
@@ -249,7 +253,7 @@
   }
 
   function scheduleGsiMount() {
-    if (!getGoogleOAuthClientId()) return;
+    if (!shouldUseGoogleIdentityServices() || !getGoogleOAuthClientId()) return;
     let attempts = 0;
     const t = setInterval(function() {
       attempts++;
@@ -312,7 +316,7 @@
     });
   }
 
-  /** googleOAuthClientId 未設定時のフォールバック（同一オリジンでないと不安定な場合あり） */
+  /** 既定: signInWithPopup。GIS 有効時は埋め込みボタンを案内 */
   function signInWithGoogle() {
     if (!auth) return;
     if (useGsiLogin) {
@@ -327,8 +331,10 @@
     }
     const provider = buildGoogleProvider();
     auth.signInWithPopup(provider).catch(function(err) {
+      console.error('[JCSQE Firebase Auth popup]', err && err.code, err && err.message, err);
       const info = interpret(err);
       showSyncMessage(info);
+      showLoginGateAuthError((info.title ? info.title + ' ' : '') + (info.detail || String(err.message || '')));
     });
   }
 
