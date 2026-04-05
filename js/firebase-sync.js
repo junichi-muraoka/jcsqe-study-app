@@ -17,6 +17,7 @@
   let savePatched = false;
   let useGsiLogin = false;
   let gsiInitialized = false;
+  let googlePopupInProgress = false;
 
   function isLoginSkipped() {
     try {
@@ -304,16 +305,27 @@
     return true;
   }
 
-  /** GIS が 400 等で失敗するとき用（Firebase 標準の OAuth ポップアップ） */
-  function signInWithGooglePopupFallback() {
+  /** Firebase 標準の Google ポップアップ（二重起動で auth/cancelled-popup-request になるのを防ぐ） */
+  function runGooglePopupSignIn() {
     if (!auth) return;
+    if (googlePopupInProgress) return;
+    googlePopupInProgress = true;
     const provider = buildGoogleProvider();
-    auth.signInWithPopup(provider).catch(function(err) {
-      console.error('[JCSQE Firebase Auth popup]', err && err.code, err && err.message, err);
-      const info = interpret(err);
-      showSyncMessage(info);
-      showLoginGateAuthError((info.title ? info.title + ' ' : '') + (info.detail || String(err.message || '')));
-    });
+    auth
+      .signInWithPopup(provider)
+      .catch(function(err) {
+        console.error('[JCSQE Firebase Auth popup]', err && err.code, err && err.message, err);
+        const info = interpret(err);
+        showSyncMessage(info);
+        showLoginGateAuthError((info.title ? info.title + ' ' : '') + (info.detail || String(err.message || '')));
+      })
+      .finally(function() {
+        googlePopupInProgress = false;
+      });
+  }
+
+  function signInWithGooglePopupFallback() {
+    runGooglePopupSignIn();
   }
 
   /** 既定: signInWithPopup。GIS 有効時は埋め込みボタンを案内 */
@@ -329,13 +341,7 @@
       });
       return;
     }
-    const provider = buildGoogleProvider();
-    auth.signInWithPopup(provider).catch(function(err) {
-      console.error('[JCSQE Firebase Auth popup]', err && err.code, err && err.message, err);
-      const info = interpret(err);
-      showSyncMessage(info);
-      showLoginGateAuthError((info.title ? info.title + ' ' : '') + (info.detail || String(err.message || '')));
-    });
+    runGooglePopupSignIn();
   }
 
   function bindButtons() {

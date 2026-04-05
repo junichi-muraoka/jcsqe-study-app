@@ -83,6 +83,14 @@
           canRetry: true,
           continueLocal: true
         };
+      case 'auth/cancelled-popup-request':
+        return {
+          ...base,
+          title: 'ログインウィンドウが競合しました',
+          detail: '「Google でログイン」は一度だけ押し、開いたウィンドウが残っていれば閉じてから再度お試しください。',
+          canRetry: true,
+          continueLocal: true
+        };
       case 'auth/network-request-failed':
         return {
           ...base,
