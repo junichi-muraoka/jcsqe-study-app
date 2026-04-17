@@ -69,8 +69,8 @@ npm run bug:report:web  # ブラウザで New Issue を開く
 | 本番（PRD） | `master` / `main` | `https://jcsqe-study-app.pages.dev` |
 | 検証（STG） | `staging` / `develop` | `https://jcsqe-study-app-staging.pages.dev` |
 
-- 通常の機能追加・修正は **PR → `master`** でよい。マージ後、Actions が **本番**を更新する。
-- **検証環境だけ先に触りたい**ときは、`staging` または `develop` へのプッシュで **STG** が更新される（運用ルールはチームで決める）。
+- 通常の機能追加・修正は **PR → `master`** でよい。**本番サイト**（`jcsqe-study-app.pages.dev`）を更新するには、**GitHub Release を Publish** する（[release_process.md](docs/release_process.md)）。`master` にマージしただけでは本番は変わらない。
+- **検証環境**は `staging` または `develop` への **push** で **STG** が更新される（運用ルールはチームで決める）。
 
 ## 📐 コーディング規約
 

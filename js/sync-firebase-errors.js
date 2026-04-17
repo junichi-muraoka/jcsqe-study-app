@@ -83,6 +83,14 @@
           canRetry: true,
           continueLocal: true
         };
+      case 'auth/cancelled-popup-request':
+        return {
+          ...base,
+          title: 'ログインウィンドウが競合しました',
+          detail: '「Google でログイン」は一度だけ押し、開いたウィンドウが残っていれば閉じてから再度お試しください。',
+          canRetry: true,
+          continueLocal: true
+        };
       case 'auth/network-request-failed':
         return {
           ...base,
@@ -91,6 +99,35 @@
           canRetry: true,
           continueLocal: true
         };
+      case 'auth/unauthorized-domain':
+        return {
+          ...base,
+          severity: 'error',
+          title: 'このサイトではログインが許可されていません',
+          detail: 'Firebase の承認済みドメインにこの URL のホストを追加してください。',
+          canRetry: false,
+          continueLocal: true
+        };
+      case 'auth/invalid-credential':
+      case 'auth/account-exists-with-different-credential': {
+        const loc = typeof global.location !== 'undefined' && global.location ? global.location : null;
+        const originLine =
+          loc && loc.origin
+            ? ' GCP の「OAuth 2.0 クライアント ID（ウェブ）」で Firebase のウェブ クライアント ID と同じ行を開き、「承認済みの JavaScript 生成元」に次を追加: ' +
+              loc.origin +
+              ' （末尾スラッシュなし）'
+            : ' GCP の OAuth クライアント（ウェブ）の「承認済みの JavaScript 生成元」に、このサイトの https://…（ホストまで・末尾 / なし）を追加してください。';
+        return {
+          ...base,
+          severity: 'error',
+          title: 'Google ログインを完了できませんでした',
+          detail:
+            'GitHub Secret の GOOGLE_OAUTH_CLIENT_ID が Firebase → Authentication → Google → ウェブ SDK 構成 の「ウェブ クライアント ID」と完全一致しているか確認してください。' +
+            originLine,
+          canRetry: true,
+          continueLocal: true
+        };
+      }
       default:
         if (/quota|resource-exhausted/i.test(rawMsg)) {
           return interpretSyncError({ code: 'resource-exhausted', message: rawMsg });

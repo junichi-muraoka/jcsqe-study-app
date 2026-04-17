@@ -1,26 +1,23 @@
 # Cloudflare Pages（*.pages.dev）へ静的サイトをデプロイする
-# - master / main → 本番用 Pages プロジェクト
-# - staging / develop → 検証用 Pages プロジェクト
 #
-# ut-qms（Qraft）に合わせたブランチの考え方:
-#   本リポジトリは検証を `staging`（および任意で `develop`）に載せる。
-#   ut-qms の `develop` ≒ ここでの `staging` / `develop`（役割は同じ）
+# 本番（PRD）: GitHub Release 公開時のみ（ut-qms / Qraft と同様。push だけでは本番は更新しない）
+# 検証（STG）: staging / develop への push
+# 手動: workflow_dispatch（実行するブランチで本番 or 検証を切り替え）
 #
-# 初回: Cloudflare で空の Pages プロジェクトを 2 つ作成し、Repository variables または下記デフォルト名に合わせる。
 # Secrets: CLOUDFLARE_API_TOKEN（Pages:Edit）、CLOUDFLARE_ACCOUNT_ID
 name: Deploy Cloudflare Pages
 
 on:
+  release:
+    types: [published]
   push:
     branches:
-      - master
-      - main
       - staging
       - develop
   workflow_dispatch:
 
 concurrency:
-  group: cf-pages-deploy
+  group: cf-pages-deploy-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: false
 
 permissions:
@@ -29,26 +26,43 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # 本番: 通常リリースのみ（プレリリースは本番 URL を更新しない）
+    if: |
+      (github.event_name == 'release' && !github.event.release.prerelease) ||
+      (github.event_name == 'push' && (github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/develop')) ||
+      (github.event_name == 'workflow_dispatch' && (
+        github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' ||
+        github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/develop'
+      ))
     environment:
-      name: ${{ (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main') && 'production' || 'staging' }}
+      # release / master / main → production。それ以外のトリガーは staging。
+      name: ${{ (github.event_name == 'release' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main') && 'production' || 'staging' }}
       url: ${{ steps.meta.outputs.url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        # release イベントでは github.ref がタグ（refs/tags/v…）を指す
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22
 
-      # 注入より先にテストする（注入後は firebase-config に本番キーが載り check-no-secrets-in-git が誤検知するため）
       - name: Run tests
         run: npm test
 
+      # Secret が不正な JSON のときはプレースホルダのままデプロイを続行（ジョブ全体は成功にする）
       - name: Inject Firebase web config from secret (optional)
+        continue-on-error: true
+        id: firebase_config_inject
         env:
           FIREBASE_WEB_CONFIG_JSON: ${{ secrets.FIREBASE_WEB_CONFIG_JSON }}
         run: node scripts/write-firebase-config.js
+
+      - name: Note when Firebase config inject failed
+        if: steps.firebase_config_inject.outcome == 'failure'
+        run: |
+          echo "::warning::FIREBASE_WEB_CONFIG_JSON のパースに失敗しました。リポジトリ同梱の firebase-config プレースホルダのまま配信されます。GitHub Actions の Repository secrets を、キーをすべてダブルクォートで囲んだ1つの JSON オブジェクトに直して再デプロイしてください。"
 
       - name: Prepare site directory
         run: |
@@ -64,29 +78,45 @@ jobs:
             --exclude='playwright.config.js' \
             ./ _site/
 
-      - name: Select Pages project and URL
+      - name: Select Pages project, URL, and Cloudflare branch name
         id: meta
         run: |
           PROD="${{ vars.CF_PAGES_PROJECT_PRODUCTION }}"
           STG="${{ vars.CF_PAGES_PROJECT_STAGING }}"
           if [ -z "$PROD" ]; then PROD="jcsqe-study-app"; fi
           if [ -z "$STG" ]; then STG="jcsqe-study-app-staging"; fi
+          EVENT="${{ github.event_name }}"
           REF="${{ github.ref }}"
-          BRANCH="${REF#refs/heads/}"
-          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
-          if [ "$REF" = "refs/heads/master" ] || [ "$REF" = "refs/heads/main" ]; then
+
+          # Cloudflare Direct Upload の --branch / production_branch は「プロジェクトの本番ブランチ名」。
+          # タグから本番デプロイするときも、本番プロジェクトは master（または main）のままに合わせる。
+          if [ "$EVENT" = "release" ]; then
+            TARGET="${{ github.event.release.target_commitish }}"
+            case "$TARGET" in
+              main) CF_BRANCH="main" ;;
+              *) CF_BRANCH="master" ;;
+            esac
             echo "project=$PROD" >> $GITHUB_OUTPUT
             echo "url=https://${PROD}.pages.dev" >> $GITHUB_OUTPUT
+            echo "branch=$CF_BRANCH" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          if [ "$REF" = "refs/heads/master" ] || [ "$REF" = "refs/heads/main" ]; then
+            if [ "$REF" = "refs/heads/main" ]; then CF_BRANCH="main"; else CF_BRANCH="master"; fi
+            echo "project=$PROD" >> $GITHUB_OUTPUT
+            echo "url=https://${PROD}.pages.dev" >> $GITHUB_OUTPUT
+            echo "branch=$CF_BRANCH" >> $GITHUB_OUTPUT
           elif [ "$REF" = "refs/heads/staging" ] || [ "$REF" = "refs/heads/develop" ]; then
+            BRANCH="${REF#refs/heads/}"
             echo "project=$STG" >> $GITHUB_OUTPUT
             echo "url=https://${STG}.pages.dev" >> $GITHUB_OUTPUT
+            echo "branch=$BRANCH" >> $GITHUB_OUTPUT
           else
             echo "Unsupported ref: $REF" >&2
             exit 1
           fi
 
-      # Direct Upload では production_branch が CI のブランチ名と一致しないとルート *.pages.dev が空のまま。
-      # 毎回 API で現在の ref に合わせる（手動 curl は不要）。
       - name: Align Cloudflare Pages production branch
         env:
           CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

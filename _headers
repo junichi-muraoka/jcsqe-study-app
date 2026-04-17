@@ -1,0 +1,3 @@
+# GIS / Firebase Auth のポップアップ連携を阻害しない（same-origin-allow-popups でも警告が残る環境向けに緩める）
+/*
+  Cross-Origin-Opener-Policy: unsafe-none

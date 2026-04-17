@@ -15,10 +15,9 @@
 
 ### 2.1 確認順（PRD / STG 共通）
 
-1. **該当ブランチにコミットが乗っているか**  
-   - 本番: `master` / `main`  
-   - 検証: `staging` / `develop`
-2. **Actions** → **Deploy Cloudflare Pages** が **成功**しているか（最新の実行）。ログに **Align Cloudflare Pages production branch** と **wrangler pages deploy** が通っているか。
+1. **本番** … **`master` にマージしただけでは本番 URL は更新されない**。**GitHub Release を Publish** したあと、[deploy-cloudflare-pages.yml](../.github/workflows/deploy-cloudflare-pages.yml) が動いたか。または **Run workflow** を `master` で実行したか。  
+2. **検証** … **`staging` / `develop` に push** があったか。  
+3. **Actions** → **Deploy Cloudflare Pages** が **成功**しているか。ログに **Align Cloudflare Pages production branch** と **wrangler pages deploy** が通っているか。
 
 ### 2.2 本番だけ古い／STG だけ古い
 

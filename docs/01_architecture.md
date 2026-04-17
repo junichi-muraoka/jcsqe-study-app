@@ -55,5 +55,5 @@ let state = {
 
 ## 6. デプロイ（本番・検証）
 - **ホスティング**: Cloudflare Pages（`*.pages.dev`）。GitHub Actions（`.github/workflows/deploy-cloudflare-pages.yml`）が `wrangler pages deploy` で配信する。
-- **本番（PRD）**: `master` / `main` → `https://jcsqe-study-app.pages.dev`（プロジェクト名は Variables で上書き可）。
-- **検証（STG）**: `staging` / `develop` → `https://jcsqe-study-app-staging.pages.dev`。詳細は [environments.md](./environments.md)。
+- **本番（PRD）**: **GitHub Release を公開したとき**（タグのコミットをビルド）。`master` の push だけでは本番は更新しない。URL は `https://jcsqe-study-app.pages.dev`（プロジェクト名は Variables で上書き可）。詳細は [environments.md](./environments.md)。
+- **検証（STG）**: `staging` / `develop` への **push** → `https://jcsqe-study-app-staging.pages.dev`。

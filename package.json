@@ -17,7 +17,7 @@
     "cf:pages:create": "npx wrangler@3 pages project create jcsqe-study-app --production-branch=master && npx wrangler@3 pages project create jcsqe-study-app-staging --production-branch=staging"
   },
   "devDependencies": {
-    "@playwright/test": "^1.40.0",
+    "@playwright/test": "^1.59.1",
     "http-server": "^14.1.1"
   }
 }

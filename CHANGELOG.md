@@ -2,10 +2,23 @@
 
 このプロジェクトの注目すべき変更はこのファイルに記録されます。
 
+## [1.2.23] - 2026-03-28
+
+### 変更（CI / 本番デプロイ）
+- **本番（Cloudflare PRD）の自動デプロイ**を **`master` / `main` の push から外し、[GitHub Release の公開](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository)時のみ実行**するように変更（[ut-qms / Qraft](https://github.com/junichi-muraoka/ut-qms) と同様の考え方）。検証（`staging` / `develop`）は従来どおり **push でデプロイ**。
+- **緊急時**は Actions の **Deploy Cloudflare Pages** を **`master` または `main`** から **Run workflow** すれば本番プロジェクトへデプロイ可能。
+- **プレリリース**（Pre-release）は本番 URL を更新しない。
+
+---
+
 ## [1.2.22] - 2026-03-28
 
 ### 変更
 - **本番・検証の自動デプロイを Cloudflare Pages のみに統一**: `deploy-github-pages.yml`（`gh-pages` ブランチへの自動デプロイ）を削除。README・[environments.md](docs/environments.md)・Firebase 手順などを `*.pages.dev` 前提に更新。
+
+### 修正（CI / Cloudflare Pages）
+- **Direct Upload** では `wrangler pages deploy` に **`--branch=<Git のブランチ名>`** を付けないと本番扱いにならず、ルート **`https://<プロジェクト>.pages.dev`** が「Nothing is here yet」のままになることがある → ワークフローで付与。
+- 併せて、デプロイ直前に Cloudflare **[Pages Update Project](https://developers.cloudflare.com/api/resources/pages/subresources/projects/methods/edit/) API** で **`production_branch`** を **そのときの Git ブランチ**（`master` / `main` / `staging` / `develop`）に合わせる（ダッシュボードでは Direct Upload プロジェクトは変更しづらいため）。手動 `curl` は不要。
 
 ---
 

@@ -33,12 +33,12 @@
 
 ### オンライン
 
-**Cloudflare Pages（`*.pages.dev`）** — [ut-qms](https://github.com/junichi-muraoka/ut-qms) と同様に本番・検証でプロジェクトを分け、GitHub Actions からデプロイする。
+**Cloudflare Pages（`*.pages.dev`）** — [ut-qms](https://github.com/junichi-muraoka/ut-qms) と同様に本番・検証でプロジェクトを分け、GitHub Actions からデプロイする。**本番は GitHub Release を公開したとき**（`master` の push だけでは本番は更新されない）。検証は **`staging` / `develop` への push**。
 
-| 環境 | URL（デフォルトのプロジェクト名） | ブランチ |
-|------|-----------------------------------|----------|
-| **本番（PRD）** | [jcsqe-study-app.pages.dev](https://jcsqe-study-app.pages.dev) | `master` / `main` |
-| **検証（STG）** | [jcsqe-study-app-staging.pages.dev](https://jcsqe-study-app-staging.pages.dev) | `staging` / `develop` |
+| 環境 | URL（デフォルトのプロジェクト名） | 更新のしかた（概要） |
+|------|-----------------------------------|----------------------|
+| **本番（PRD）** | [jcsqe-study-app.pages.dev](https://jcsqe-study-app.pages.dev) | **Release を Publish**（タグ `v…`）。緊急時は Actions から `master` で手動実行も可 |
+| **検証（STG）** | [jcsqe-study-app-staging.pages.dev](https://jcsqe-study-app-staging.pages.dev) | **`staging` / `develop` に push** |
 
 デプロイの仕組み・Secrets は [docs/environments.md](docs/environments.md)。**Cloudflare Pages の初回セットアップ**は [docs/cloudflare_pages_setup.md](docs/cloudflare_pages_setup.md)。
 

@@ -9,7 +9,11 @@
 
 1. **すぐに [Google Cloud Console](https://console.cloud.google.com/)** → 対象プロジェクト → **API とサービス** → **認証情報** で、漏洩した **API キーを削除するか回転**する（新キー発行後、Firebase コンソールの Web アプリ設定が新キーに更新されているか確認）。
 2. **GitHub** の **Settings → Secrets and variables → Actions** に **`FIREBASE_WEB_CONFIG_JSON`** を登録する（下記「フェーズ G」）。デプロイ時にのみ `js/firebase-config.js` が生成される。
-3. **（推奨）** 同じ認証情報画面でキーの **アプリケーションの制限**を **HTTP リファラー** にし、`https://*.github.io/*`・`https://*.pages.dev/*`・`http://localhost:*/*` など、実際に配信するオリジンのみに限定する。
+3. **（推奨）** 同じ認証情報画面でキーの **アプリケーションの制限**を **HTTP リファラー** にし、次を **すべて** 含める（`signInWithPopup` は **`https://<projectId>.firebaseapp.com/__/auth/handler`** 経由で Identity Toolkit を呼ぶため、`pages.dev` だけだと **403 / getProjectConfig** になる）:  
+   - `https://*.pages.dev/*`（Cloudflare Pages）  
+   - **`https://<projectId>.firebaseapp.com/*`**（例: `https://jcsqe-study-app.firebaseapp.com/*`）  
+   - （任意）`https://<projectId>.web.app/*`  
+   - `https://*.github.io/*`・`http://localhost:*/*` などローカル・旧ホスト
 4. **過去のコミット**には旧キーが残る。**キー無効化が最優先**。履歴から消すには `git filter-repo` 等と force push が必要で、フォークやクローンとの調整が要る。
 
 ---
@@ -183,6 +187,7 @@
 | Firestore 書き込みエラー `permission-denied` | `firestore.rules` がデプロイ済みか、ログイン UID とパス `users/{uid}` が一致しているか |
 | ローカルでは動くが公開 URL だけ失敗 | `jcsqe-study-app.pages.dev` 等を承認済みドメインに追加したか |
 | 別ブランチのプレビュー URL を使う | そのホスト名も承認済みドメインに追加が必要な場合がある |
+| ポップアップが `firebaseapp.com/__/auth/handler` で **The requested action is invalid**、Console に **`getProjectConfig` 403** | ① ブラウザ用 **API キー**の **HTTP リファラー**に **`https://<projectId>.firebaseapp.com/*`** を追加。② 同じキーの **API の制限**で **Identity Toolkit API**（および必要なら **Token Service API**）が許可されているか確認。「キーを制限しない」にすると切り分けしやすい。③ **別の API キー**を編集していないか（Firebase の `apiKey` と一致するキーか） |
 
 ---
 

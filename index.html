@@ -7,10 +7,35 @@
   <meta name="theme-color" content="#0a0e1a">
   <link rel="manifest" href="manifest.json">
   <title>JCSQE初級 合格対策アプリ</title>
-  <link rel="stylesheet" href="style.css?v=16">
+  <link rel="stylesheet" href="style.css?v=21">
 </head>
 <body>
   <div id="sync-toast" class="sync-toast hidden" role="status" aria-live="polite"></div>
+
+  <!-- Firebase 有効時のみ表示: Google SSO ログイン画面（無料 Firebase Auth） -->
+  <div id="login-gate" class="login-gate hidden" role="dialog" aria-modal="true" aria-labelledby="login-gate-title">
+    <div class="login-gate-inner">
+      <div class="login-gate-panel card">
+        <p class="login-gate-badge" aria-hidden="true">☁️</p>
+        <h1 id="login-gate-title" class="login-gate-title">JCSQE初級 合格対策</h1>
+        <p class="login-gate-lead">Google でログインすると、学習データをクラウドに保存し、別の端末からも続きから学習できます。</p>
+        <p id="login-gate-auth-error" class="login-gate-auth-error hidden" role="alert"></p>
+        <div id="gsi-login-gate-host" class="gsi-host hidden" aria-hidden="true"></div>
+        <p id="login-google-popup-fallback-wrap" class="login-gate-popup-fallback hidden">
+          <button type="button" class="btn btn-secondary btn-block" id="login-google-popup-fallback" style="justify-content:center;font-size:0.85rem;">
+            別ウィンドウでログイン（ボタンで失敗するとき）
+          </button>
+        </p>
+        <button type="button" class="btn btn-google btn-block" id="login-google-btn" style="justify-content:center;">
+          <span class="login-gate-google-g" aria-hidden="true">G</span>
+          Google でログイン
+        </button>
+        <button type="button" class="btn btn-secondary btn-block" id="login-skip-btn" style="justify-content:center;">ログインせずに使う</button>
+        <p class="login-gate-note">ログインしない場合、データはこのブラウザにのみ保存されます。同期は Firebase の無料枠を利用しています。</p>
+      </div>
+    </div>
+  </div>
+
   <!-- ================= ナビゲーション (Sidebar / Bottom Nav) ================= -->
   <nav class="app-nav">
     <button type="button" class="header-item active" onclick="switchTab('tab-home')" id="nav-btn-home" aria-controls="tab-home" aria-current="page">
@@ -246,6 +271,12 @@
           <h3 style="margin-bottom:16px;">☁️ クラウド同期（Firebase）</h3>
           <p id="firebase-auth-line" style="font-size:0.9rem;color:var(--text-secondary);line-height:1.5;margin-bottom:12px;">読み込み中…</p>
           <p id="firebase-sync-status" style="font-size:0.8rem;color:var(--text-muted);margin-bottom:12px;"></p>
+          <div id="gsi-settings-host" class="gsi-host hidden" aria-hidden="true"></div>
+          <p id="settings-google-popup-fallback-wrap" class="settings-popup-fallback hidden">
+            <button type="button" class="btn btn-secondary btn-block" id="settings-google-popup-fallback" style="justify-content:center;font-size:0.85rem;">
+              別ウィンドウでログイン（ボタンで失敗するとき）
+            </button>
+          </p>
           <button type="button" class="btn btn-primary btn-block" id="firebase-signin-btn" style="justify-content:center;">Googleでログイン</button>
           <button type="button" class="btn btn-secondary btn-block hidden" id="firebase-signout-btn" style="justify-content:center;">ログアウト</button>
         </div>
@@ -303,10 +334,11 @@
   <script src="js/storage.js" defer></script>
   <script src="js/state.js" defer></script>
   <script src="js/sync-firebase-errors.js" defer></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js" defer></script>
-  <script src="js/firebase-config.js" defer></script>
+  <script src="js/firebase-config.js?v=1" defer></script>
   <script src="js/firebase-sync.js" defer></script>
   <script src="app.js" defer></script>
 </body>
