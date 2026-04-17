@@ -61,8 +61,8 @@
 
 | 区分 | プロジェクト ID | 備考 |
 |------|-----------------|------|
-| **Production** | （未作成） | Firebase コンソールで作成後、ここに記載 |
-| **Staging** | （未作成） | 検証用は別プロジェクト推奨 |
+| **Production** | `jcsqe-study-app` | Cloudflare PRD（`jcsqe-study-app.pages.dev`）向け |
+| **Staging** | `jcsqe-study-app` | Cloudflare STG（`jcsqe-study-app-staging.pages.dev`）向け。**現状は PRD と同一 Firebase プロジェクト**（承認済みドメインに STG のホストも含める）。検証専用に別プロジェクトへ分離する場合は [#64](https://github.com/junichi-muraoka/jcsqe-study-app/issues/64) で方針を更新する |
 
 手動セットアップの具体手順: [firebase_manual_setup.md](./firebase_manual_setup.md)
 
@@ -82,7 +82,8 @@
 |------|------|
 | `FIREBASE_TOKEN` | （任意）[firestore-rules.yml](../.github/workflows/firestore-rules.yml) が `firestore.rules` をデプロイするとき。`firebase login:ci` で発行 |
 | `FIREBASE_PROJECT_ID` | （同上）Firebase project ID |
-| `FIREBASE_WEB_CONFIG_JSON` | （任意）Firebase コンソールの `firebaseConfig` を **1 行の JSON** にした文字列。デプロイ時に `js/firebase-config.js` を生成（[deploy-cloudflare-pages.yml](../.github/workflows/deploy-cloudflare-pages.yml)） |
+| `FIREBASE_WEB_CONFIG_JSON` | （任意）Firebase コンソールの `firebaseConfig` を **1 行の JSON** にした文字列（必要なら `googleOAuthClientId` 等を同梱）。デプロイ時に `js/firebase-config.js` を生成（[deploy-cloudflare-pages.yml](../.github/workflows/deploy-cloudflare-pages.yml)） |
+| `GOOGLE_OAUTH_CLIENT_ID` | （任意）ウェブ OAuth クライアント ID だけ差し替えたいとき。設定時は `FIREBASE_WEB_CONFIG_JSON` 内の値より優先される |
 | `CLOUDFLARE_API_TOKEN` | （任意）[deploy-cloudflare-pages.yml](../.github/workflows/deploy-cloudflare-pages.yml) 用。Pages デプロイ権限を含む API トークン |
 | `CLOUDFLARE_ACCOUNT_ID` | （同上）Cloudflare アカウント ID |
 | （その他） | Firebase / 外部ホスト連携時は GitHub Environments の `staging` / `production` に分ける |
