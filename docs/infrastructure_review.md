@@ -87,7 +87,7 @@
 
 | Issue | 内容 |
 |-------|------|
-| [#64](https://github.com/junichi-muraoka/jcsqe-study-app/issues/64) | `environments.md` の Firebase プロジェクト ID・STG/PRD 方針 |
+| ~~[#64](https://github.com/junichi-muraoka/jcsqe-study-app/issues/64)~~ **完了** | `environments.md` の Firebase 表に `jcsqe-study-app` を記載。PRD/STG は同一 Firebase で運用（別プロジェクト化は将来の新タスク） |
 | [#65](https://github.com/junichi-muraoka/jcsqe-study-app/issues/65) | リポジトリ設定の確認（Pages・ブランチ保護・Dependabot 等） |
 | [#66](https://github.com/junichi-muraoka/jcsqe-study-app/issues/66) | レガシー `deploy-pages.yml` の整理 |
 | [#67](https://github.com/junichi-muraoka/jcsqe-study-app/issues/67) | Actions の Node / Playwright と `package.json` の整合 |

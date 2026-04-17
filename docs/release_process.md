@@ -37,6 +37,11 @@
 - **`package.json` の `version`** とタグ・CHANGELOG を揃える運用にすると追いやすい（必須ではない）。
 - **バージョンを上げたコミット**が `master` に入っただけでは本番サイトは変わらない。**Release を公開したタイミング**で本番が更新される。
 
+### リリースのリズム（運用の目安）
+
+- **`master` の push だけでは本番 URL は更新されない**ため、変更を本番に載せたいタイミングでは **必ず Release を公開**する（緊急時は Actions の **Run workflow** でも可）。
+- 頻度の目安: **月に 1 回でも**「タグを切って Publish」する習慣があると、デプロイ手順と本番の鮮度が保ちやすい（小さなドキュメント修正だけでも可）。
+
 参考（別リポジトリの同種ガイド）: [ut-qms / `release_management_guide.md`](https://github.com/junichi-muraoka/ut-qms/blob/main/docs/release_management_guide.md)（Qraft のリリース・バージョン管理の考え方）。
 
 ## 4. リリース前の最低チェック（推奨）
