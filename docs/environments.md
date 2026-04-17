@@ -62,7 +62,7 @@
 | 区分 | プロジェクト ID | 備考 |
 |------|-----------------|------|
 | **Production** | `jcsqe-study-app` | Cloudflare PRD（`jcsqe-study-app.pages.dev`）向け |
-| **Staging** | `jcsqe-study-app` | Cloudflare STG（`jcsqe-study-app-staging.pages.dev`）向け。**現状は PRD と同一 Firebase プロジェクト**（承認済みドメインに STG のホストも含める）。検証専用に別プロジェクトへ分離する場合は [#64](https://github.com/junichi-muraoka/jcsqe-study-app/issues/64) で方針を更新する |
+| **Staging** | `jcsqe-study-app` | Cloudflare STG（`jcsqe-study-app-staging.pages.dev`）向け。**現状は PRD と同一 Firebase プロジェクト**（承認済みドメインに STG のホストも含める）。検証専用に別プロジェクトへ分離するときは `environments.md` 本表と [firebase_manual_setup.md](./firebase_manual_setup.md) を更新し、必要なら Issue を起票する |
 
 手動セットアップの具体手順: [firebase_manual_setup.md](./firebase_manual_setup.md)
 

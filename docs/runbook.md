@@ -44,6 +44,7 @@
 | **STG だけログインできない** | **承認済みドメイン**に検証用の `*.pages.dev`（例: `jcsqe-study-app-staging.pages.dev`）を入れたか。本番とホストが別。 |
 | **同期エラー表示** | トースト文言と `js/sync-firebase-errors.js` のコード。クォータ・オフラインは [09](./09_cloud_sync_firebase_spec.md) の表を参照。 |
 | **ローカルでは動くが Pages だけ失敗** | 承認済みドメイン、`js/firebase-config.js` の設定値、ブラウザ拡張（広告ブロック等）。 |
+| **`getProjectConfig` 403 / ポップアップ「The requested action is invalid.」** | ① Firebase **承認済みドメイン**に開いている `*.pages.dev` と `*.firebaseapp.com` 相当があるか ② **GCP の Browser キー**で、アプリが使っている **`apiKey` と同じキー**に HTTP リファラー制限（本番・STG・`*.firebaseapp.com` 等）と API 制限（Identity Toolkit / Token Service）があるか ③ **Secret 変更後**は PRD/STG それぞれ **再デプロイ**したか（STG は自動では追従しない）。詳細は [firebase_manual_setup.md](./firebase_manual_setup.md)。 |
 
 ## 5. 連絡・起票
 
