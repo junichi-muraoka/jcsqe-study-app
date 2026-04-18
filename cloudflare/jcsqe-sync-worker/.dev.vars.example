@@ -1,0 +1,5 @@
+# wrangler dev 用。コピーして .dev.vars にし、値を入れる（.dev.vars は Git 対象外）
+# Firebase コンソールの project ID（js/firebase-config.js の projectId と一致）
+FIREBASE_PROJECT_ID=your-firebase-project-id
+# 任意: 旧クライアント（Bearer 共有シークレット）用。通常は空でよい
+SYNC_API_SECRET=

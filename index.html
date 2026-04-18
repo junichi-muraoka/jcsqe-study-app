@@ -281,6 +281,20 @@
           <button type="button" class="btn btn-secondary btn-block hidden" id="firebase-signout-btn" style="justify-content:center;">ログアウト</button>
         </div>
 
+        <div class="card" id="d1-sync-card">
+          <h3 style="margin-bottom:8px;">☁️ Cloudflare D1 同期（任意）</h3>
+          <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.6;margin-bottom:12px;">
+            Firebase に加えて、学習データを <strong>JCSQE 専用の Cloudflare D1</strong> にもバックアップします。Google ログイン中のみ有効です（運用者が Worker の URL を設定している場合に動作）。
+          </p>
+          <p id="d1-sync-status" style="font-size:0.8rem;color:var(--text-muted);margin-bottom:12px;"></p>
+          <label style="display:flex;align-items:center;gap:8px;font-size:0.9rem;margin-bottom:12px;">
+            <input type="checkbox" id="d1-sync-enabled">
+            保存時に自動で Cloudflare に同期する
+          </label>
+          <button type="button" class="btn btn-primary btn-block" id="d1-sync-save-btn" style="justify-content:center;margin-bottom:8px;">設定を保存して今すぐ同期</button>
+          <button type="button" class="btn btn-secondary btn-block" id="d1-sync-pull-btn" style="justify-content:center;">クラウドから取得してローカルに反映</button>
+        </div>
+
         <div class="card">
           <h3 style="margin-bottom:16px;">🎨 テーマ設定</h3>
           <button class="btn btn-secondary btn-block" id="theme-toggle-btn" onclick="toggleTheme()" style="justify-content:center;">
@@ -340,6 +354,8 @@
   <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js" defer></script>
   <script src="js/firebase-config.js?v=1" defer></script>
   <script src="js/firebase-sync.js" defer></script>
+  <script src="js/d1-sync-config.js" defer></script>
+  <script src="js/d1-sync.js" defer></script>
   <script src="app.js" defer></script>
 </body>
 </html>
