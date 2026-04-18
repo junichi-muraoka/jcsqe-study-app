@@ -2,6 +2,18 @@
 
 このプロジェクトの注目すべき変更はこのファイルに記録されます。
 
+## [1.2.24] - 2026-04-19
+
+### 追加
+- **JCSQE 専用 Cloudflare D1 Sync Worker**（[#73](https://github.com/junichi-muraoka/jcsqe-study-app/issues/73)）: 学習データを Firebase Firestore に加えて **JCSQE 専用 D1**（[ut-qms / Qraft](https://github.com/junichi-muraoka/ut-qms) の D1 とは別インスタンス）にも保存できる任意経路を追加。Google ログイン中のみ **Firebase ID トークン**を `Authorization: Bearer` で送り、Worker は Google JWKS で検証、`sub`（Firebase UID）を D1 の行キーにする。設定タブに ☁️ Cloudflare D1 同期カードを追加し、`saveData` ごとにデバウンス PUT／手動 Pull が可能。運用者は `js/d1-sync-config.js` に Worker URL を 1 行書くだけで有効化でき、**エンドユーザーは URL もトークンも入力しない**。
+- **`.github/workflows/deploy-jcsqe-sync-worker.yml`**: `cloudflare/jcsqe-sync-worker/` 変更時に自動デプロイ。必要 Secrets（`D1_DATABASE_ID` / `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` / `FIREBASE_PROJECT_ID`）が未設定のときは明示的に fail する。
+- **`scripts/verify-oauth-client.js`** + テスト: GitHub Secret `GOOGLE_OAUTH_CLIENT_ID` と `firebase-config.js` 内の `J.googleOAuthClientId` の突合。`--remote` で Pages にデプロイされた JS を検証可能。
+
+### ドキュメント
+- [docs/jcsqe_cloudflare_d1_sync.md](docs/jcsqe_cloudflare_d1_sync.md) / [cloudflare/jcsqe-sync-worker/README.md](cloudflare/jcsqe-sync-worker/README.md) を新設。
+
+---
+
 ## [1.2.23] - 2026-03-28
 
 ### 変更（CI / 本番デプロイ）
