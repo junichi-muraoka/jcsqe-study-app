@@ -91,7 +91,7 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
       // 合格予測
       const chapCount = Object.keys(d.chapterStats || {}).length;
       const coverage = Math.min(chapCount / 5, 1);
-      const volume = Math.min(d.totalAnswered / 200, 1);
+      const volume = Math.min(d.totalAnswered / 300, 1);
       const predict = Math.round(rate * 0.5 + coverage * 25 + volume * 25);
       const clamped = Math.min(Math.max(predict, 0), 100);
       const pEl = document.getElementById('home-predict');
