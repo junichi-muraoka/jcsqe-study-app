@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Cloudflare PRD](https://img.shields.io/badge/Demo-PRD%20%28Cloudflare%20Pages%29-brightgreen)](https://jcsqe-study-app.pages.dev)
 [![Cloudflare STG](https://img.shields.io/badge/Demo-STG%20%28Cloudflare%20Pages%29-blue)](https://jcsqe-study-app-staging.pages.dev)
-[![Questions](https://img.shields.io/badge/収録問題数-200問-orange)]()
+[![Questions](https://img.shields.io/badge/収録問題数-300問-orange)]()
 
 > **SQuBOK Guide 第3版**に準拠した、JCSQE初級（ソフトウェア品質技術者資格試験）合格を目指す実践型学習Webアプリです。
 
@@ -23,11 +23,11 @@
 
 | 章 | テーマ | 問題数 |
 |----|--------|--------|
-| 第1章 | ソフトウェア品質の基本概念 | 40問 |
-| 第2章 | ソフトウェア品質マネジメント | 40問 |
-| 第3章 | ソフトウェア品質技術 | 40問 |
-| 第4章 | 専門的なソフトウェア品質の概念と技術 | 40問 |
-| 第5章 | ソフトウェア品質の応用領域 | 40問 |
+| 第1章 | ソフトウェア品質の基本概念 | 60問 |
+| 第2章 | ソフトウェア品質マネジメント | 60問 |
+| 第3章 | ソフトウェア品質技術 | 60問 |
+| 第4章 | 専門的なソフトウェア品質の概念と技術 | 60問 |
+| 第5章 | ソフトウェア品質の応用領域 | 60問 |
 
 ## 🚀 使い方
 

@@ -1,10 +1,10 @@
 // 運用者が変える可能性がある firebase-config.js はプリキャッシュしない（常にネットワーク取得）
-const CACHE_NAME = 'jcsqe-v27';
+const CACHE_NAME = 'jcsqe-v28';
 const ASSETS = [
   './', './index.html', './style.css', './app.js',
   './js/storage.js', './js/state.js', './js/sync-firebase-errors.js',
   './js/firebase-sync.js',
-  './questions.js', './questions_extra1.js', './questions_extra2.js', './questions_extra3.js', './questions_extra4.js',
+  './questions.js', './questions_extra1.js', './questions_extra2.js', './questions_extra3.js', './questions_extra4.js', './questions_extra5.js',
   './explanations_extra.js', './explanations_exp3.js', './explanations.js', './glossary.js', './study-data.js', './manifest.json'
 ];
 

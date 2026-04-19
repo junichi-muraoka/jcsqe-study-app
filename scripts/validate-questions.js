@@ -29,10 +29,11 @@ try {
   const q3 = fs.readFileSync(path.join(baseDir, 'questions_extra2.js'), 'utf8');
   const q4 = fs.readFileSync(path.join(baseDir, 'questions_extra3.js'), 'utf8');
   const q5 = fs.readFileSync(path.join(baseDir, 'questions_extra4.js'), 'utf8');
+  const q6 = fs.readFileSync(path.join(baseDir, 'questions_extra5.js'), 'utf8');
 
   const code = q1
     .replace(/const (CHAPTERS|QUESTIONS) = /g, '$1 = ')
-    + '\n' + q2 + '\n' + q3 + '\n' + q4 + '\n' + q5;
+    + '\n' + q2 + '\n' + q3 + '\n' + q4 + '\n' + q5 + '\n' + q6;
 
   new vm.Script(code).runInContext(context);
 } catch (e) {
@@ -107,6 +108,10 @@ for (const q of questions) {
   // answer が 0-3
   if (typeof q.answer !== 'number' || q.answer < 0 || q.answer > 3) {
     err(`問題ID ${q.id}: answer は 0〜3 である必要があります（現在: ${q.answer}）`);
+  }
+
+  if (!expData[q.id]) {
+    err(`問題ID ${q.id}: 選択肢別解説（EXP/EXP2/EXP3）がありません`);
   }
 }
 
