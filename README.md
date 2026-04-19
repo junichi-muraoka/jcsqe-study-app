@@ -5,7 +5,20 @@
 [![Cloudflare STG](https://img.shields.io/badge/Demo-STG%20%28Cloudflare%20Pages%29-blue)](https://jcsqe-study-app-staging.pages.dev)
 [![Questions](https://img.shields.io/badge/収録問題数-300問-orange)]()
 
-> **SQuBOK Guide 第3版**に準拠した、JCSQE初級（ソフトウェア品質技術者資格試験）合格を目指す実践型学習Webアプリです。
+<p align="center">
+  <img src="docs/images/readme/banner.svg" width="780" alt="JCSQE 初級合格対策 — SQuBOK Guide 第3版準拠・全300問・選択肢別解説" />
+</p>
+
+> **SQuBOK Guide 第3版**に準拠した、JCSQE初級（ソフトウェア品質技術者資格試験）合格を目指す実践型学習Webアプリです。  
+> **デモ:** [本番](https://jcsqe-study-app.pages.dev) · [検証](https://jcsqe-study-app-staging.pages.dev)
+
+### 学習の流れ（概要）
+
+<p align="center">
+  <img src="docs/images/readme/study-flow.svg" width="720" alt="5章から出題し、4択解答のあと選択肢別解説で振り返る流れ" />
+</p>
+
+（実画面のキャプチャを足す場合は [docs/images/readme/](docs/images/readme/README.md) を参照。）
 
 ---
 

@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 300" role="img" aria-labelledby="bannerTitle bannerDesc">
+  <title id="bannerTitle">JCSQE  <þV¢×ê</title>
+  <desc id="bannerDesc">SQuBOK Guide ,3H–àh300OnfÒWeb¢×ê’hYÐÊü</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f172a"/>
+      <stop offset="55%" style="stop-color:#0a0e1a"/>
+      <stop offset="100%" style="stop-color:#1e1b4b"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#6366f1;stop-opacity:0.45"/>
+      <stop offset="50%" style="stop-color:#8b5cf6;stop-opacity:0.25"/>
+      <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:0.2"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#818cf8"/>
+      <stop offset="100%" style="stop-color:#6366f1"/>
+    </linearGradient>
+    <filter id="blur" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="24"/>
+    </filter>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M 32 0 L 0 0 0 32" fill="none" stroke="rgba(148,163,184,0.06)" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#bg)"/>
+  <rect width="100%" height="100%" fill="url(#grid)"/>
+  <ellipse cx="780" cy="40" rx="200" ry="120" fill="#6366f1" filter="url(#blur)" opacity="0.35"/>
+  <ellipse cx="120" cy="260" rx="180" ry="100" fill="#06b6d4" filter="url(#blur)" opacity="0.2"/>
+  <rect x="0" y="200" width="920" height="100" fill="url(#glow)" opacity="0.6"/>
+  <text x="48" y="88" fill="#f1f5f9" font-family="system-ui, 'Segoe UI', 'Hiragino Sans', sans-serif" font-size="32" font-weight="700" letter-spacing="-0.02em">JCSQE </text>
+  <text x="48" y="128" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="15" font-weight="500"><þV · Öé¦¶gfv½ÕÈ¦§¢Áê</text>
+  <rect x="48" y="152" width="72" height="3" rx="1.5" fill="url(#accent)"/>
+  <text x="48" y="198" fill="#cbd5e1" font-family="system-ui, sans-serif" font-size="14">SQuBOK Guide ,3H–à</text>
+  <text x="48" y="226" fill="#64748b" font-family="system-ui, sans-serif" font-size="13">Î2 300 O · 5 à · xž¢%ã¬ · PWA þÜ</text>
+  <g transform="translate(620, 58)">
+    <rect x="0" y="0" width="252" height="168" rx="16" fill="rgba(30,41,59,0.85)" stroke="rgba(148,163,184,0.15)" stroke-width="1"/>
+    <rect x="20" y="24" width="140" height="10" rx="3" fill="rgba(148,163,184,0.35)"/>
+    <rect x="20" y="46" width="212" height="8" rx="2" fill="rgba(148,163,184,0.2)"/>
+    <rect x="20" y="62" width="180" height="8" rx="2" fill="rgba(148,163,184,0.15)"/>
+    <rect x="20" y="92" width="200" height="36" rx="8" fill="rgba(99,102,241,0.25)" stroke="rgba(129,140,248,0.4)" stroke-width="1"/>
+    <rect x="20" y="138" width="96" height="10" rx="2" fill="rgba(148,163,184,0.12)"/>
+    <rect x="124" y="138" width="96" height="10" rx="2" fill="rgba(148,163,184,0.12)"/>
+    <circle cx="228" cy="110" r="18" fill="rgba(16,185,129,0.35)" stroke="rgba(52,211,153,0.6)" stroke-width="1.5"/>
+    <path d="M220 110 L226 116 L238 102" fill="none" stroke="#34d399" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>
