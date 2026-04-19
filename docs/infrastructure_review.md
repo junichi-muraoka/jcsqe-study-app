@@ -22,7 +22,7 @@
 | [test.yml](../.github/workflows/test.yml) | `master` / `staging` の push、PR→master | Node バージョン（22）と `npm test` の整合 |
 | [e2e.yml](../.github/workflows/e2e.yml) | 同上（パスフィルタあり） | Playwright / Chromium、失敗時のリグレッション Issue（`master` のみ） |
 | [deploy-cloudflare-pages.yml](../.github/workflows/deploy-cloudflare-pages.yml) | `master` / `main` / `staging` / `develop` の push、`workflow_dispatch` | Wrangler・Cloudflare API（`production_branch` 同期） |
-| [deploy-pages.yml](../.github/workflows/deploy-pages.yml) | 手動のみ（レガシー） | **未使用なら**ワークフロー削除 or README に「使わない」と明記で混乱防止 |
+| [deploy-jcsqe-sync-worker.yml](../.github/workflows/deploy-jcsqe-sync-worker.yml) | `cloudflare/jcsqe-sync-worker/` 変更時 | Cloudflare D1 マイグレーション + Worker デプロイ（Secrets 未設定時は明示 fail） |
 | [docs_check.yml](../.github/workflows/docs_check.yml) | PR→master | アプリ変更時の docs 同時更新 |
 | [validate_questions.yml](../.github/workflows/validate_questions.yml) | 問題・解説変更 PR | `validate-questions.js` |
 | [validate_issue.yml](../.github/workflows/validate_issue.yml) | Issue | テンプレ必須項目 |
@@ -55,17 +55,16 @@
 - [ ] **Firebase**（利用中の場合）: クォータ、承認済みドメイン、ルールが意図どおりか
 - [ ] **ブランチ保護**: `master` の必須チェックがチーム運用と一致しているか
 - [ ] **Secrets / Environments**: GitHub Environments にシークレットを置く運用にした場合、権限とローテーション
-- [ ] **レガシー** `deploy-pages.yml`: 削除またはドキュメント上で「非推奨」と固定
 
 ---
 
 ## 3. 「未見直し」になりやすいポイント（優先度高め）
 
-1. **`deploy-pages.yml`（レガシー手動）** … 使わないなら削除またはドキュメントで「非推奨」と固定。  
-2. **Firebase プロジェクト ID が environments に空** … 利用開始時に表を更新。  
-3. **Actions の Node / Playwright のバージョン** … `package.json` / ワークフロー内の `node-version` のずれ。  
-4. **STG で Firebase を試す** … 本番と検証で `*.pages.dev` のホストが別。承認済みドメインを両方入れる。  
-5. **Cloudflare API トークン** … `CLOUDFLARE_API_TOKEN` の権限・有効期限。
+1. **Firebase プロジェクト ID が environments に空** … 利用開始時に表を更新。  
+2. **Actions の Node / Playwright のバージョン** … `package.json` の `engines.node`（`>=22 <25`）と各ワークフローの `node-version: '22'` を整合維持。  
+3. **STG で Firebase を試す** … 本番と検証で `*.pages.dev` のホストが別。承認済みドメインを両方入れる。  
+4. **Cloudflare API トークン** … `CLOUDFLARE_API_TOKEN` の権限・有効期限。  
+5. **Cloudflare D1 Sync Worker**（[#73](https://github.com/junichi-muraoka/jcsqe-study-app/issues/73) で追加）… 専用 D1（ut-qms / Qraft とは別インスタンス）。`D1_DATABASE_ID` / `FIREBASE_PROJECT_ID` などの Secrets 有無でジョブが明示 fail する。
 
 ---
 
@@ -88,6 +87,7 @@
 | Issue | 内容 |
 |-------|------|
 | ~~[#64](https://github.com/junichi-muraoka/jcsqe-study-app/issues/64)~~ **完了** | `environments.md` の Firebase 表に `jcsqe-study-app` を記載。PRD/STG は同一 Firebase で運用（別プロジェクト化は将来の新タスク） |
+| ~~[#66](https://github.com/junichi-muraoka/jcsqe-study-app/issues/66)~~ **完了** | レガシー `deploy-pages.yml` を削除（正は `deploy-cloudflare-pages.yml`） |
+| ~~[#67](https://github.com/junichi-muraoka/jcsqe-study-app/issues/67)~~ **完了** | Actions の `node-version` を全ワークフローで `'22'` に統一、`package.json` に `engines.node` を追加 |
 | [#65](https://github.com/junichi-muraoka/jcsqe-study-app/issues/65) | リポジトリ設定の確認（Pages・ブランチ保護・Dependabot 等） |
-| [#66](https://github.com/junichi-muraoka/jcsqe-study-app/issues/66) | レガシー `deploy-pages.yml` の整理 |
-| [#67](https://github.com/junichi-muraoka/jcsqe-study-app/issues/67) | Actions の Node / Playwright と `package.json` の整合 |
+| [#73](https://github.com/junichi-muraoka/jcsqe-study-app/issues/73) | JCSQE 専用 Cloudflare D1 Sync Worker（Firebase ID トークン認証） |

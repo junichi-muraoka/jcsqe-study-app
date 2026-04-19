@@ -55,7 +55,7 @@
 
 ### レガシー手動ワークフロー
 
-- [`.github/workflows/deploy-pages.yml`](../.github/workflows/deploy-pages.yml): 公式 `actions/deploy-pages` による**手動のみ**のデプロイ。通常は使わず [deploy-cloudflare-pages.yml](../.github/workflows/deploy-cloudflare-pages.yml) を正とする。
+**なし**（旧 `deploy-pages.yml`・`deploy-github-pages.yml` は削除済み）。本番・検証とも [deploy-cloudflare-pages.yml](../.github/workflows/deploy-cloudflare-pages.yml) を正とする。
 
 ## Firebase（Issue #14）
 
@@ -73,8 +73,8 @@
 | [test.yml](../.github/workflows/test.yml) | `master` / `staging` の `npm test` |
 | [e2e.yml](../.github/workflows/e2e.yml) | 変更パスに応じた E2E |
 | [deploy-cloudflare-pages.yml](../.github/workflows/deploy-cloudflare-pages.yml) | **PRD / STG** の Cloudflare Pages（`*.pages.dev`）デプロイ |
+| [deploy-jcsqe-sync-worker.yml](../.github/workflows/deploy-jcsqe-sync-worker.yml) | Cloudflare D1 マイグレーション + JCSQE Sync Worker デプロイ |
 | [firestore-rules.yml](../.github/workflows/firestore-rules.yml) | `firestore.rules` の検証と **master へのマージ時の自動デプロイ**（要 `FIREBASE_TOKEN` 等） |
-| [deploy-pages.yml](../.github/workflows/deploy-pages.yml) | レガシー手動デプロイ（任意） |
 
 ## Secrets（運用時）
 
