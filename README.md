@@ -18,7 +18,29 @@
   <img src="docs/images/readme/study-flow.svg" width="720" alt="5章から出題し、4択解答のあと選択肢別解説で振り返る流れ" />
 </p>
 
-（実画面のキャプチャを足す場合は [docs/images/readme/](docs/images/readme/README.md) を参照。）
+### スクリーンショット（実画面）
+
+<p align="center">
+  <img src="docs/images/readme/screenshot-home.png" width="720" alt="ホーム：学習メニュー・分野別学習・学習計画" /><br />
+  <sub>ホーム — 300問収録・デイリーや模試への導線</sub>
+</p>
+
+<p align="center">
+  <img src="docs/images/readme/screenshot-quiz-explanation.png" width="720" alt="クイズ画面：解答後の選択肢別解説" /><br />
+  <sub>出題と解答後の選択肢別解説（SQuBOK 参照付き）</sub>
+</p>
+
+<p align="center">
+  <img src="docs/images/readme/screenshot-stats.png" width="720" alt="成績タブ：章別リング・ヒートマップ・弱点" /><br />
+  <sub>成績 — 章別正答率・ヒートマップ・弱点・バッジ</sub>
+</p>
+
+<p align="center">
+  <img src="docs/images/readme/screenshot-mock-exam.png" width="720" alt="模擬試験：40問・60分タイマー" /><br />
+  <sub>模擬試験 — 本番形式（40問 / 60分）</sub>
+</p>
+
+キャプチャの差し替え手順は [docs/images/readme/README.md](docs/images/readme/README.md)（`npm run screenshots:readme`）。
 
 ---
 
