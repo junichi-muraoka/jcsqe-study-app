@@ -2,6 +2,13 @@
 
 このプロジェクトの注目すべき変更はこのファイルに記録されます。
 
+## [1.2.27] - 2026-04-21
+
+### ドキュメント
+- **画面仕様書** [docs/10_screen_specification.md](docs/10_screen_specification.md): 画面マップ（Mermaid）、学習モード表、主要画面の構成表とキャプチャ。
+- **`docs/images/screen-spec/`**: 上記用 PNG（`npm run screenshots:screen-spec` で再生成）。
+- **`scripts/lib/demo-study-seed.mjs`**: README / 画面仕様のキャプチャで共通のダミー学習データ。
+
 ## [1.2.26] - 2026-04-21
 
 ### ドキュメント

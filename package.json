@@ -1,6 +1,6 @@
 {
   "name": "jcsqe-study-app",
-  "version": "1.2.26",
+  "version": "1.2.27",
   "description": "JCSQE初級 合格対策学習アプリ",
   "private": true,
   "scripts": {
@@ -11,6 +11,7 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "screenshots:readme": "node scripts/capture-readme-screenshots.mjs",
+    "screenshots:screen-spec": "node scripts/capture-screen-spec.mjs",
     "bug:report": "gh issue create --body-file scripts/bug-report-body.md --label bug",
     "bug:report:web": "gh issue create --web",
     "bug:sync": "node scripts/sync-bug-issues.js",

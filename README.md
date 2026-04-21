@@ -136,6 +136,7 @@ npx http-server ./ -p 8080 -o
 - [データモデル・保存仕様 (02_data_model.md)](docs/02_data_model.md)
 - [機能仕様書 (03_features.md)](docs/03_features.md)
 - [UI設計・デザイン仕様 (04_ui_design.md)](docs/04_ui_design.md)
+- [画面仕様書（キャプチャ付き）(10_screen_specification.md)](docs/10_screen_specification.md)
 - [将来の拡張ロードマップ (05_future_roadmap.md)](docs/05_future_roadmap.md)
 - [開発・ドキュメント管理ワークフロー (06_development_workflow.md)](docs/06_development_workflow.md)（CI・**本番/検証デプロイ**）
 - [クラウド同期・Firebase 制限とエラー UX (09_cloud_sync_firebase_spec.md)](docs/09_cloud_sync_firebase_spec.md)
