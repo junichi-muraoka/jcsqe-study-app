@@ -12,7 +12,7 @@
 
 | 内容 | リンク（例） |
 |------|----------------|
-| JCSQE（試験・申込などの案内） | [juse.jp / JCSQE 試験情報](https://www.juse.jp/jcsqe/exam/) |
+| JCSQE（試験・申込などの案内） | [juse.jp / JCSQE 開催情報・申込み](https://www.juse.jp/jcsqe/schedule/) |
 | JCSQE 資格制度のトップ | [juse.jp / JCSQE](https://www.juse.jp/jcsqe/) |
 
 ※ URL や試験要項は変更されることがあります。**受験前に必ず公式サイトで再確認**してください。

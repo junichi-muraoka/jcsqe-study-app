@@ -23,6 +23,15 @@ test.describe('JCSQE学習アプリ E2E', () => {
     await expect(plan).toContainText('1日の目安');
   });
 
+  test('試験情報パネルに公式日程と開催情報リンクが表示される', async ({ page }) => {
+    await page.clock.setFixedTime(new Date('2026-04-26T00:00:00+09:00'));
+    await page.goto('/', { waitUntil: 'load' });
+    const examInfo = page.locator('#exam-info');
+    await expect(examInfo.locator('#exam-date')).toContainText('2026/06/13 10:30 (第36回)');
+    await expect(examInfo.locator('#exam-deadline')).toContainText('2026/04/10 15:00 (締切済)');
+    await expect(examInfo.getByRole('link', { name: /公式情報を見る/ })).toHaveAttribute('href', 'https://www.juse.jp/jcsqe/schedule/');
+  });
+
   test('今日の5問をクリックしてクイズが開始される', async ({ page }) => {
     await page.goto('/', { waitUntil: 'load' });
     await clickNavCard(page, 'nav-daily');

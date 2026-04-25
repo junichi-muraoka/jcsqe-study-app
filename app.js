@@ -672,10 +672,19 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
 
   // ── 試験情報パネル (#15) ──
   const EXAM_SCHEDULE = [
-    { date: '2026-06-21', deadline: '2026-05-15', label: '第28回' },
-    { date: '2026-11-15', deadline: '2026-10-10', label: '第29回' },
-    { date: '2027-06-20', deadline: '2027-05-15', label: '第30回' },
+    { date: '2026-06-13T10:30:00+09:00', deadline: '2026-04-10T15:00:00+09:00', label: '第36回' },
+    { date: '2026-11-14T10:30:00+09:00', deadline: '2026-09-04T15:00:00+09:00', label: '第37回', tentative: true },
   ];
+  function formatScheduleDate(value, includeTime = false) {
+    const date = new Date(value);
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    if (!includeTime) return `${yyyy}/${mm}/${dd}`;
+    const hh = String(date.getHours()).padStart(2, '0');
+    const min = String(date.getMinutes()).padStart(2, '0');
+    return `${yyyy}/${mm}/${dd} ${hh}:${min}`;
+  }
   function updateExamInfo() {
     const now = new Date();
     const next = EXAM_SCHEDULE.find(e => new Date(e.date) > now);
@@ -684,8 +693,8 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
     const deadlineDate = new Date(next.deadline);
     const daysLeft = Math.ceil((examDate - now) / 86400000);
     const dlLeft = Math.ceil((deadlineDate - now) / 86400000);
-    document.getElementById('exam-date').textContent = next.date.replace(/-/g, '/') + ' (' + next.label + ')';
-    document.getElementById('exam-deadline').textContent = next.deadline.replace(/-/g, '/') + (dlLeft > 0 ? '' : ' (締切済)');
+    document.getElementById('exam-date').textContent = formatScheduleDate(next.date, true) + ' (' + next.label + ')';
+    document.getElementById('exam-deadline').textContent = formatScheduleDate(next.deadline, true) + (next.tentative ? '（予定）' : '') + (dlLeft > 0 ? '' : ' (締切済)');
     const cd = document.getElementById('exam-countdown');
     cd.textContent = '🔥 あと' + daysLeft + '日';
     if (dlLeft <= 7 && dlLeft > 0) document.getElementById('exam-deadline').textContent += ' ⚠️あと' + dlLeft + '日';
@@ -964,7 +973,7 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
     // 試験日直前などで daysLeft が 0 になると 0 除算になり perDay が Infinity になるのを防ぐ
     const perDay = Math.max(Math.ceil(totalQs * 2 / Math.max(1, daysLeft)), 3); // 2周を目標
     let html = `<div style="margin-bottom:16px;">
-      <p><strong>📅 試験日:</strong> ${next.date} (${next.label})</p>
+      <p><strong>📅 試験日:</strong> ${formatScheduleDate(next.date, true)} (${next.label})</p>
       <p><strong>⏱️ 残り:</strong> ${daysLeft}日</p>
       <p><strong>🎯 目標:</strong> 全${totalQs}問を2周</p>
       <p><strong>📝 1日の目安:</strong> <span style="font-size:1.2rem;font-weight:900;color:var(--accent-light);">${perDay}問</span>/日</p>
