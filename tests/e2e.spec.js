@@ -60,6 +60,42 @@ test.describe('JCSQE学習アプリ E2E', () => {
     await expect(page.locator('.exp-summary').first()).toBeVisible();
   });
 
+  test('「回答するで確定」ON のときは肢タップのみでは解説が出ず、確定後に解説へ進める (#81)', async ({ page }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem('jcsqe_quiz_confirm_answer', '1');
+    });
+    await page.goto('/', { waitUntil: 'load' });
+    await clickNavCard(page, 'nav-daily');
+    await expect(page.locator('#quiz')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('#quiz-submit-row')).toBeVisible();
+    await expect(page.locator('#quiz-submit-btn')).toBeDisabled();
+    await page.locator('.choice-btn').first().click();
+    await expect(page.locator('#quiz-explanation')).toBeHidden();
+    await expect(page.locator('#quiz-submit-btn')).toBeEnabled();
+    await page.locator('#quiz-submit-btn').click();
+    await expect(page.locator('#quiz-explanation')).toBeVisible({ timeout: 4000 });
+
+    await page.locator('#quiz-next-btn').click();
+    await expect(page.locator('.choice-btn:not(.disabled)')).toHaveCount(4, { timeout: 8000 });
+    await page.locator('.choice-btn').nth(2).click();
+    await page.locator('#quiz-submit-btn').click();
+    await expect(page.locator('#quiz-explanation:not(.hidden)')).toBeVisible({ timeout: 4000 });
+  });
+
+  test('模擬試験では確定モードでも「回答する」は出ず1タップで進む (#81)', async ({ page }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem('jcsqe_quiz_confirm_answer', '1');
+    });
+    await page.goto('/', { waitUntil: 'load' });
+    page.once('dialog', (dialog) => dialog.accept());
+    await clickNavCard(page, 'nav-mock');
+    await expect(page.locator('#quiz')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('#quiz-submit-row')).toBeHidden();
+    await page.locator('.choice-btn').first().click();
+    await expect(page.locator('#quiz-explanation')).toBeHidden();
+    await expect(page.locator('#quiz-progress')).toContainText('2', { timeout: 5000 });
+  });
+
   test('模擬試験モードでタイマーが表示される', async ({ page }) => {
     await page.goto('/', { waitUntil: 'load' });
     page.once('dialog', dialog => dialog.accept());

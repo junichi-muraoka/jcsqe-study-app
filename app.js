@@ -12,6 +12,43 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
   let glossaryFlashcardItems = [];
   let glossaryFlashcardIdx = 0;
 
+  const QUIZ_CONFIRM_ANSWER_KEY = 'jcsqe_quiz_confirm_answer';
+
+  function isQuizConfirmAnswerEnabled() {
+    return localStorage.getItem(QUIZ_CONFIRM_ANSWER_KEY) === '1';
+  }
+
+  function usesQuizConfirmAnswerFlow() {
+    return state.mode !== 'mock' && isQuizConfirmAnswerEnabled();
+  }
+
+  function syncQuizConfirmSwitchDom() {
+    const sw = document.getElementById('quiz-confirm-answer-switch');
+    if (!sw) return;
+    const on = isQuizConfirmAnswerEnabled();
+    sw.setAttribute('aria-checked', String(on));
+    sw.classList.toggle('is-on', on);
+  }
+
+  function bindQuizConfirmSettingsUi() {
+    const sw = document.getElementById('quiz-confirm-answer-switch');
+    if (!sw || sw.dataset.bound === '1') return;
+    sw.dataset.bound = '1';
+    sw.addEventListener('click', () => {
+      const nextOn = !isQuizConfirmAnswerEnabled();
+      localStorage.setItem(QUIZ_CONFIRM_ANSWER_KEY, nextOn ? '1' : '0');
+      syncQuizConfirmSwitchDom();
+    });
+    syncQuizConfirmSwitchDom();
+  }
+
+  function bindQuizSubmitRow() {
+    const btn = document.getElementById('quiz-submit-btn');
+    if (!btn || btn.dataset.bound === '1') return;
+    btn.dataset.bound = '1';
+    btn.addEventListener('click', () => confirmQuizAnswer());
+  }
+
   // ── データ永続化 ──
   function resetData() {
     if (!confirm('学習データをすべてリセットしますか？')) return;
@@ -319,6 +356,22 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
     document.getElementById('quiz-explanation').classList.add('hidden');
     document.getElementById('quiz-next-box').classList.add('hidden');
 
+    state.quizPendingChoice = null;
+    const confirmFlow = usesQuizConfirmAnswerFlow();
+    const submitRow = document.getElementById('quiz-submit-row');
+    const submitBtnEl = document.getElementById('quiz-submit-btn');
+    if (submitRow && submitBtnEl) {
+      if (confirmFlow) {
+        submitRow.classList.remove('hidden');
+        submitBtnEl.disabled = true;
+        submitBtnEl.setAttribute('aria-disabled', 'true');
+      } else {
+        submitRow.classList.add('hidden');
+        submitBtnEl.disabled = false;
+        submitBtnEl.removeAttribute('aria-disabled');
+      }
+    }
+
     const labels = ['A', 'B', 'C', 'D'];
     const container = document.getElementById('quiz-choices');
     container.innerHTML = '';
@@ -326,7 +379,7 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
       const btn = document.createElement('button');
       btn.className = 'choice-btn';
       btn.innerHTML = `<span class="choice-label">${labels[i]}</span><span>${c}</span>`;
-      btn.onclick = () => selectAnswer(i);
+      btn.onclick = confirmFlow ? () => selectChoicePending(i) : () => commitAnswer(i);
       container.appendChild(btn);
     });
     updateBookmarkBtn();
@@ -338,18 +391,47 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
     }
   }
 
-  function selectAnswer(chosen) {
+  function confirmQuizAnswer() {
+    if (!usesQuizConfirmAnswerFlow()) return;
+    if (state.quizPendingChoice === null || state.quizPendingChoice === undefined) return;
+    commitAnswer(state.quizPendingChoice);
+  }
+
+  function selectChoicePending(i) {
+    if (!usesQuizConfirmAnswerFlow()) return;
+    document.querySelectorAll('#quiz-choices .choice-btn').forEach((b, j) => {
+      b.classList.toggle('choice-selected', j === i);
+    });
+    state.quizPendingChoice = i;
+    const submitBtnEl = document.getElementById('quiz-submit-btn');
+    if (submitBtnEl) {
+      submitBtnEl.disabled = false;
+      submitBtnEl.removeAttribute('aria-disabled');
+    }
+  }
+
+  function commitAnswer(chosen) {
+    const quizConfirmActive = usesQuizConfirmAnswerFlow();
     const q = state.questions[state.idx];
     const correct = q.answer;
     const isCorrect = chosen === correct;
     const btns = document.querySelectorAll('.choice-btn');
 
     btns.forEach((btn, i) => {
+      btn.classList.remove('choice-selected');
       btn.classList.add('disabled');
       btn.onclick = null;
       if (i === correct) { btn.classList.add('correct'); btn.classList.add('flash'); }
       if (i === chosen && !isCorrect) { btn.classList.add('wrong'); btn.classList.add('shake'); }
     });
+
+    const submitRow = document.getElementById('quiz-submit-row');
+    const submitBtnEl = document.getElementById('quiz-submit-btn');
+    if (quizConfirmActive && submitRow && submitBtnEl) {
+      submitRow.classList.add('hidden');
+      submitBtnEl.disabled = true;
+      submitBtnEl.setAttribute('aria-disabled', 'true');
+    }
 
     if (isCorrect) state.score++;
     state.answers.push({ qid: q.id, chosen, correct: isCorrect });
@@ -766,13 +848,23 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
     const screenId = activeScreen.id;
 
     if (screenId === 'quiz') {
+      const quizSubmitRowEl = document.getElementById('quiz-submit-row');
+      const quizSubmitBtnEl = document.getElementById('quiz-submit-btn');
+      const canConfirmPending = quizSubmitRowEl && !quizSubmitRowEl.classList.contains('hidden')
+        && quizSubmitBtnEl && !quizSubmitBtnEl.disabled;
+
+      if ((e.key === 'Enter' || e.key === ' ') && canConfirmPending) {
+        e.preventDefault();
+        confirmQuizAnswer();
+        return;
+      }
       // 1-4 で選択肢を選択
       if (['1','2','3','4'].includes(e.key)) {
         const btns = document.querySelectorAll('.choice-btn:not(.disabled)');
         const idx = parseInt(e.key) - 1;
         if (btns[idx]) btns[idx].click();
       }
-      // Enter/Space で次の問題
+      // Enter/Space で次の問題（確定済みのみ）
       if ((e.key === 'Enter' || e.key === ' ') && !document.getElementById('quiz-next-box').classList.contains('hidden')) {
         e.preventDefault();
         nextQuestion();
@@ -809,6 +901,8 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').
   updateHomeStats();
   updateExamInfo();
   initTheme();
+  bindQuizConfirmSettingsUi();
+  bindQuizSubmitRow();
   renderGlossary();
   generateStudyPlan();
 

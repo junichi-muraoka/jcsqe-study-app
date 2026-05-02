@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#0a0e1a">
   <link rel="manifest" href="manifest.json">
   <title>JCSQE初級 合格対策アプリ</title>
-  <link rel="stylesheet" href="style.css?v=21">
+  <link rel="stylesheet" href="style.css?v=22">
 </head>
 <body>
   <div id="sync-toast" class="sync-toast hidden" role="status" aria-live="polite"></div>
@@ -72,6 +72,9 @@
       <div class="progress-bar"><div class="progress-fill" id="quiz-bar" style="width:0%"></div></div>
       <p class="quiz-question" id="quiz-question"></p>
       <div class="choices" id="quiz-choices"></div>
+      <div id="quiz-submit-row" class="quiz-submit-row hidden">
+        <button type="button" class="btn btn-primary btn-block" id="quiz-submit-btn">回答する</button>
+      </div>
       <div id="quiz-explanation" class="explanation hidden">
         <h4>💡 解説</h4>
         <div id="quiz-explanation-text"></div>
@@ -286,6 +289,22 @@
           <button class="btn btn-secondary btn-block" id="theme-toggle-btn" onclick="toggleTheme()" style="justify-content:center;">
             <span id="theme-toggle" aria-hidden="true">🌙</span>&nbsp;<span id="theme-toggle-label">ライトモードに切替</span>
           </button>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom:16px;">📘 学習・出題の挙動</h3>
+          <div class="settings-quiz-behavior-row">
+            <button type="button"
+              class="settings-switch-thumb"
+              id="quiz-confirm-answer-switch"
+              role="switch"
+              aria-checked="false"
+              aria-labelledby="quiz-confirm-answer-switch-label"></button>
+            <div class="settings-quiz-behavior-copy">
+              <div id="quiz-confirm-answer-switch-label"><strong>肢を選んだあと、「回答する」で確定してから解説を表示</strong></div>
+              <p style="margin:8px 0 0;font-size:0.88rem;color:var(--text-secondary);line-height:1.5;">OFF のときは今までどおり、選択と同時に正解・解説を表示します。</p>
+            </div>
+          </div>
         </div>
 
         <div class="card">
